@@ -13,7 +13,7 @@ for image in images:
         size = (512, math.ceil(img_height / scale))  # e.g. (512, 300 / 0.98) → (512, 307)
     else:
         # 絵が縦向きの場合（w300, h500 の画像を例とします）
-        scale = img_height / 512
+        scale = img_height / 800
         size = (math.ceil(img_width / scale), 512)  # e.g. (300 / 0.98, 512) → (307, 512)
         
     # resize
