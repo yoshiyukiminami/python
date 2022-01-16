@@ -9,12 +9,12 @@ for image in images:
 
     if img_height < img_width:
         # 絵が横向きの場合、縮小率を計算（w500, h300 の画像を例とします）
-        scale = img_width / 512  # e.g. 500 / 512 = 0.98
-        size = (512, math.ceil(img_height / scale))  # e.g. (512, 300 / 0.98) → (512, 307)
+        scale = img_width / 533  # e.g. 500 / 512 = 0.98
+        size = (533, math.ceil(img_height / scale))  # e.g. (512, 300 / 0.98) → (512, 307)
     else:
         # 絵が縦向きの場合（w300, h500 の画像を例とします）
-        scale = img_height / 800
-        size = (math.ceil(img_width / scale), 512)  # e.g. (300 / 0.98, 512) → (307, 512)
+        scale = img_height / 533
+        size = (math.ceil(img_width / scale), 533)  # e.g. (300 / 0.98, 512) → (307, 512)
         
     # resize
     img = img.resize(size)
