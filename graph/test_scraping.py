@@ -74,20 +74,30 @@ if __name__ == "__main__":
                     data = row.findAll('td')
 
                     # １行の中には様々なデータがあるので全部取り出す。
-                    All_list.append({
-                        'ymd': str(year) + "-" + str(month) + "-" + str(data[0].string),
-                        'kiatsu_riku': str2float(data[1].string),
-                        'kiatsu_umi': str2float(data[2].string),
-                        'kousuiryo': str2float(data[3].string),
-                        'kion_ave': str2float(data[6].string),
-                        'shitsudo_ave': str2float(data[9].string),
-                        'fuusoku': str2float(data[11].string),
-                        'nissyo': str2float(data[16].string)
-                    }, ignore_index=True)
-
-            print(All_list)
+                    All_list['ymd'].append(str(year) + "-" + str(month) + "-" + str(data[0].string))
+                    All_list['kiatsu_riku'].append(str2float(data[1].string))
+                    All_list['kiatsu_umi'].append(str2float(data[2].string))
+                    All_list['kousuiryo'].append(str2float(data[3].string))
+                    All_list['kion_ave'].append(str2float(data[6].string))
+                    All_list['shitsudo_ave'].append(str2float(data[9].string))
+                    All_list['fuusoku'].append(str2float(data[11].string))
+                    All_list['nissyo'].append(str2float(data[16].string))
+                    # All_list.append({
+                    #     'ymd': str(year) + "-" + str(month) + "-" + str(data[0].string),
+                    #     'kiatsu_riku': str2float(data[1].string),
+                    #     'kiatsu_umi': str2float(data[2].string),
+                    #     'kousuiryo': str2float(data[3].string),
+                    #     'kion_ave': str2float(data[6].string),
+                    #     'shitsudo_ave': str2float(data[9].string),
+                    #     'fuusoku': str2float(data[11].string),
+                    #     'nissyo': str2float(data[16].string)
+                    # }, ignore_index=True)
+            df = pd.DataFrame(All_list)
+            print(df)
+            # print(All_list)
             # mysql
             con_str = 'mysql+mysqldb://python:python123@127.0.0.1/db?charset=utf8&use_unicode=1'
             con = create_engine(con_str, echo=False).connect()
             con.execute('DELETE FROM temperature')
-            All_list.to_sql('temperature', con, if_exists='append', index=None)
+            df.to_sql('temperature', con, if_exists='append', index=None)
+            # All_list.to_sql('temperature', con, if_exists='append', index=None)
