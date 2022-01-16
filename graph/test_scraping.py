@@ -41,13 +41,13 @@ def str2float(_str) -> float:
 
 if __name__ == "__main__":
     # 都市を網羅します
-    All_list = pd.DataFrame()
+    All_list = {'ymd': [], 'kiatsu_riku': [], 'kiatsu_umi': [], 'kousuiryo': [], 'kion_ave': [],
+                'shitsudo_ave': [], 'fuusoku': [], 'nissyo': []}
 
     for idx, place in enumerate(place_name):
         # 最終的にデータを集めるリスト (下に書いてある初期値は一行目。つまり、ヘッダー。)
         # All_list = [['年月日', '陸の平均気圧(hPa)', '海の平均気圧(hPa)', '降水量(mm)', '平均気温(℃)', '平均湿度(%)', '平均風速(m/s)', '日照時間(h)']]
-        All_list = {'ymd': [], 'kiatsu_riku': [], 'kiatsu_umi': [], 'kousuiryo': [], 'kion_ave': [],
-                    'shitsudo_ave': [], 'fuusoku': [], 'nissyo': []}
+
         print(place)
         index = place_name.index(place)
         # for文で2021年の1年分。
