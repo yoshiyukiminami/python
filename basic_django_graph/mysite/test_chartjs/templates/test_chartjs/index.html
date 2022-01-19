@@ -14,14 +14,18 @@
 
     <!-- Django to Javascript -->
     <script>
-        var month_code = [];
-        var sales = [];
+-       var month_code = [];
+-       var sales = [];
++       const ymd = [];
++       const kion_ave = [];
     </script>
     {% if latest_list %}
         {% for i in latest_list %}
             <script>
-                month_code.push("{{ i.month_code }}")
-                sales.push("{{ i.sales }}");
+-               month_code.push("{{ i.month_code }}")
+-               sales.push("{{ i.sales }}");
++               ymd.push("{{ i.ymd }}")
++               kion_ave.push("{{ i.kion_ave }}");
             </script>
         {% endfor %}
     {% else %}
@@ -31,19 +35,23 @@
     <!-- chart.js -->
     <canvas id="myChart"></canvas>
     <script>
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var chart = new Chart(ctx, {
+-       var ctx = document.getElementById('myChart').getContext('2d');
+-       var chart = new Chart(ctx, {
++       const ctx = document.getElementById('myChart').getContext('2d');
++       const chart = new Chart(ctx, {
             // The type of chart we want to create
             type: 'line',
 
             // The data for our dataset
             data: {
-                labels: month_code,
+-               labels: month_code,
++               labels: ymd,
                 datasets: [{
                     label: 'My First dataset',
                     backgroundColor: 'rgb(255, 99, 132)',
                     borderColor: 'rgb(255, 99, 132)',
-                    data: sales
+-                   data: sales
++                   data: kion_ave
                 }]
             },
 
