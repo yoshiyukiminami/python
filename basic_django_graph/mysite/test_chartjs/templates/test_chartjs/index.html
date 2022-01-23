@@ -20,7 +20,7 @@
     {% if latest_list %}
         {% for i in latest_list %}
             <script>
-                ymd.push("{{ i.ymd }}")
+                ymd.push("{{ i.ymd|date:'Y/m/j' }}")
                 kion_ave.push("{{ i.kion_ave }}");
             </script>
         {% endfor %}
