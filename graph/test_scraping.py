@@ -100,7 +100,6 @@ if __name__ == "__main__":
             con = create_engine(con_str, echo=False).connect()
             # con.execute('DELETE FROM temperature')
             # df.to_sql('temperature', con, if_exists='append', index=None)
-            # All_list.to_sql('temperature', con, if_exists='append', index=None)
             con.execute('DELETE FROM test_chartjs_temperature')
             df.to_sql('test_chartjs_temperature', con, if_exists='append', index=None)
             # All_list.to_sql('temperature', con, if_exists='append', index=None)
