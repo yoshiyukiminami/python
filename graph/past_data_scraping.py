@@ -41,7 +41,7 @@ def str2float(_str) -> float:
 
 if __name__ == "__main__":
     # 都市を網羅します
-    All_list = {'ymd': [], 'kiatsu_riku': [], 'kiatsu_umi': [], 'kousuiryo': [], 'kion_ave': [],
+    All_list = {'ymd': [], 'pref_no': [], 'chiku_no': [], 'kiatsu_riku': [], 'kiatsu_umi': [], 'kousuiryo': [], 'kion_ave': [],
                 'shitsudo_ave': [], 'fuusoku': [], 'nissyo': []}
 
     for idx, place in enumerate(place_name):
@@ -50,10 +50,10 @@ if __name__ == "__main__":
 
         print(place)
         index = place_name.index(place)
-        # for文で2021年の1年分。
-        for year in range(2002, 2022):
+        # for文で2002年の1年分を取得。2002～2021年の20年分を取得するためにこの処理を設定年度を変更し20回繰り返す必要あり
+        for year in range(2002, 2003):
             print(year)
-            # その年の1月のみ網羅する。1~12月の場合（1、13）に変更
+            # その年の1月のみ網羅する。1~12月の場合（1、13）になるので注意
             for month in range(1, 13):
                 # 2つの都市コードと年と月を当てはめる。
                 r = requests.get(base_url % (place_codeA[index], place_codeB[index], year, month))
@@ -75,6 +75,8 @@ if __name__ == "__main__":
 
                     # １行の中には様々なデータがあるので全部取り出す。
                     All_list['ymd'].append(str(year) + "-" + str(month) + "-" + str(data[0].string))
+                    All_list['pref_no'].append(place_codeA)
+                    All_list['chiku_no'].append(place_codeB)
                     All_list['kiatsu_riku'].append(str2float(data[1].string))
                     All_list['kiatsu_umi'].append(str2float(data[2].string))
                     All_list['kousuiryo'].append(str2float(data[3].string))
@@ -82,22 +84,10 @@ if __name__ == "__main__":
                     All_list['shitsudo_ave'].append(str2float(data[9].string))
                     All_list['fuusoku'].append(str2float(data[11].string))
                     All_list['nissyo'].append(str2float(data[16].string))
-                    # All_list.append({
-                    #     'ymd': str(year) + "-" + str(month) + "-" + str(data[0].string),
-                    #     'kiatsu_riku': str2float(data[1].string),
-                    #     'kiatsu_umi': str2float(data[2].string),
-                    #     'kousuiryo': str2float(data[3].string),
-                    #     'kion_ave': str2float(data[6].string),
-                    #     'shitsudo_ave': str2float(data[9].string),
-                    #     'fuusoku': str2float(data[11].string),
-                    #     'nissyo': str2float(data[16].string)
-                    # }, ignore_index=True)
             df = pd.DataFrame(All_list)
             print(df)
-            # print(All_list)
             # mysql
             con_str = 'mysql+mysqldb://python:python123@127.0.0.1/db?charset=utf8&use_unicode=1'
             con = create_engine(con_str, echo=False).connect()
-            con.execute('DELETE FROM test_chartjs_temperature')
-            df.to_sql('test_chartjs_temperature', con, if_exists='append', index=None)
-            # All_list.to_sql('temperature', con, if_exists='append', index=None)
+            con.execute('DELETE FROM sample_1_temperature')
+            df.to_sql('sample_1_temperature', con, if_exists='append', index=None)
