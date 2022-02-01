@@ -54,7 +54,7 @@ if __name__ == "__main__":
         for year in range(2002, 2003):
             print(year)
             # その年の1月のみ網羅する。1~12月の場合（1、13）になるので注意
-            for month in range(1, 13):
+            for month in range(1, 2):
                 # 2つの都市コードと年と月を当てはめる。
                 r = requests.get(base_url % (place_codeA[index], place_codeB[index], year, month))
                 r.encoding = r.apparent_encoding
