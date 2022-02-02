@@ -20,7 +20,7 @@ class Temperature(models.Model):
     nissyo = models.FloatField(default=0, null=True)
     pub_date = models.DateTimeField(auto_now_add=True, null=True)
 
-
+# このdataframeをpast_data_scraping用に新規に作成
 class Pasttemperature(models.Model):
     ymd = models.DateTimeField()
     pref_no = models.IntegerField(default=0)

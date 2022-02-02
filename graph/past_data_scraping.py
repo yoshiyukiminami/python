@@ -91,3 +91,5 @@ if __name__ == "__main__":
             con = create_engine(con_str, echo=False).connect()
             con.execute('DELETE FROM sample_1_temperature')
             df.to_sql('sample_1_temperature', con, if_exists='append', index=None)
+            # これで実行すると「empty dataframe」になり指定データ（菊川牧之原地区、2002年1月）が取り込めていない
+            # sample_1_temperatureはDbesverに作成したデータ保管庫
