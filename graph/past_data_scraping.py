@@ -23,9 +23,8 @@ place_codeB = [1335]
 place_name = ["菊川牧之原"]
 
 # URLで年と月ごとの設定ができるので%sで指定した英数字を埋め込めるようにします。
-base_url = "https://www.data.jma.go.jp/obd/stats/etrn/view/daily_s1.php?" \
-           "prec_no=%s&block_no=%s&year=%s&month=%s&day=1&view=p1 "
-
+base_url = "https://www.data.jma.go.jp/obd/stats/etrn/view/daily_a1.php?" \
+           "prec_no=%s&block_no=%s&year=%s&month=%s&day=1&view=p1"
 
 def str2float(_str) -> float:
     """
@@ -41,9 +40,7 @@ def str2float(_str) -> float:
 
 if __name__ == "__main__":
     # 都市を網羅します
-    All_list = {'ymd': [], 'pref_no': [], 'chiku_no': [], 'kiatsu_riku': [], 'kiatsu_umi': [], 'kousuiryo': [], 'kion_ave': [],
-                'shitsudo_ave': [], 'fuusoku': [], 'nissyo': []}
-
+    All_list = {'ymd': [], 'pref_no': [], 'chiku_no': [], 'kousuiryo': [], 'kion_ave': [], 'fuusoku': [], 'nissyo': []}
     for idx, place in enumerate(place_name):
         # 最終的にデータを集めるリスト (下に書いてある初期値は一行目。つまり、ヘッダー。)
         # All_list = [['年月日', '陸の平均気圧(hPa)', '海の平均気圧(hPa)', '降水量(mm)', '平均気温(℃)', '平均湿度(%)', '平均風速(m/s)', '日照時間(h)']]
@@ -66,24 +63,24 @@ if __name__ == "__main__":
                 rows = soup.findAll('tr', class_='mtx')
 
                 # 表の最初の1~4行目はカラム情報なのでスライスする。(indexだから初めは0だよ)
-                rows = rows[4:]
-
+                rows = rows[3:]
                 # 1日〜最終日までの１行を網羅し、取得します。
                 for row in rows:
                     # 今度はtrのなかのtdをすべて抜き出します
                     data = row.findAll('td')
+                    print([x.string for x in data])
 
                     # １行の中には様々なデータがあるので全部取り出す。
                     All_list['ymd'].append(str(year) + "-" + str(month) + "-" + str(data[0].string))
                     All_list['pref_no'].append(place_codeA)
                     All_list['chiku_no'].append(place_codeB)
-                    All_list['kiatsu_riku'].append(str2float(data[1].string))
-                    All_list['kiatsu_umi'].append(str2float(data[2].string))
-                    All_list['kousuiryo'].append(str2float(data[3].string))
-                    All_list['kion_ave'].append(str2float(data[6].string))
-                    All_list['shitsudo_ave'].append(str2float(data[9].string))
-                    All_list['fuusoku'].append(str2float(data[11].string))
-                    All_list['nissyo'].append(str2float(data[16].string))
+                    # All_list['kiatsu_riku'].append(str2float(data[1].string))
+                    # All_list['kiatsu_umi'].append(str2float(data[2].string))
+                    All_list['kousuiryo'].append(str2float(data[1].string))
+                    All_list['kion_ave'].append(str2float(data[4].string))
+                    # All_list['shitsudo_ave'].append(str2float(data[9].string))
+                    All_list['fuusoku'].append(str2float(data[7].string))
+                    All_list['nissyo'].append(str2float(data[13].string))
             df = pd.DataFrame(All_list)
             print(df)
             # mysql
