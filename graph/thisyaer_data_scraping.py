@@ -59,10 +59,8 @@ if __name__ == "__main__":
         index = place_name.index(place)
         year = datetime.date.today().year
         month = datetime.date.today().month
-        month_1 = month-1
+        month_1 = month - 1
         print(month_1)
-        # for文で今年度の1月のデータを取得
-        # 2つの都市コードと年と月を当てはめる。
         r = requests.get(base_url % (place_codeA[index], place_codeB[index], year, month_1))
         r.encoding = r.apparent_encoding
 
@@ -91,7 +89,52 @@ if __name__ == "__main__":
             # All_list['shitsudo_ave'].append(str2float(data[9].string))
             All_list['fuusoku'].append(str2float(data[7].string))
             All_list['nissyo'].append(str2float(data[13].string))
-        time.sleep(4)      # 待機処理4秒
+        time.sleep(4)  # 待機処理4秒
+        df = pd.DataFrame(All_list)
+        # print(df)
+        # mysql
+        # con_str = 'mysql+mysqldb://python:python123@127.0.0.1/db?charset=utf8&use_unicode=1'
+        # con = create_engine(con_str, echo=False).connect()
+        # df.to_sql('sample_1_temperature', con, if_exists='append', index=None)
+
+    for idx, place in enumerate(place_name):
+        # 最終的にデータを集めるリスト (下に書いてある初期値は一行目。つまり、ヘッダー。)
+        print(place)
+        index = place_name.index(place)
+        # 今日の年月を所得して
+        year = datetime.date.today().year
+        month = datetime.date.today().month
+        r = requests.get(base_url % (place_codeA[index], place_codeB[index], year, month))
+        r.encoding = r.apparent_encoding
+        # まずはサイトごとスクレイピング
+        soup = BeautifulSoup(r.text, 'html.parser')
+        # findAllで条件に一致するものをすべて抜き出します。
+        # 今回の条件はtrタグでclassがmtxになってるものです。
+        rows = soup.findAll('tr', class_='mtx')
+
+        # 表の最初の1~4行目はカラム情報なのでスライスする。(indexだから初めは0だよ)
+        rows = rows[3:]
+        # 1日〜最終日までの１行を網羅し、取得します。
+        for row in rows:
+            # 今度はtrのなかのtdをすべて抜き出します
+            data = row.findAll('td')
+            print([x.string for x in data])
+            yesterday = datetime.datetime.now() - datetime.timedelta(1)
+            print(type(yesterday.day), type(data[0].string))
+            if str(data[0].string) < str(yesterday.day):
+                # １行の中には様々なデータがあるので全部取り出す。
+                All_list['ymd'].append(str(year) + "-" + str(month) + "-" + str(data[0].string))
+                All_list['pref_no'].append(place_codeA)
+                All_list['chiku_no'].append(place_codeB)
+                # All_list['kiatsu_riku'].append(str2float(data[1].string))
+                # All_list['kiatsu_umi'].append(str2float(data[2].string))
+                All_list['kousuiryo'].append(str2float(data[1].string))
+                All_list['kion_ave'].append(str2float(data[4].string))
+                # All_list['shitsudo_ave'].append(str2float(data[9].string))
+                All_list['fuusoku'].append(str2float(data[7].string))
+                All_list['nissyo'].append(str2float(data[13].string))
+            # 10日～28日のデータを取得しないまたは削除するコードが必要
+        time.sleep(4)  # 待機処理4秒
         df = pd.DataFrame(All_list)
         print(df)
         # mysql
