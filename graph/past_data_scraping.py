@@ -1,3 +1,5 @@
+import time
+
 import requests
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
@@ -26,6 +28,7 @@ place_name = ["菊川牧之原"]
 base_url = "https://www.data.jma.go.jp/obd/stats/etrn/view/daily_a1.php?" \
            "prec_no=%s&block_no=%s&year=%s&month=%s&day=1&view=p1"
 
+
 def str2float(_str) -> float:
     """
     取ったデータをfloat型に変えるやつ。(データが取れなかったとき気象庁は"/"を埋め込んでいるから0に変える)
@@ -34,24 +37,31 @@ def str2float(_str) -> float:
     """
     try:
         return float(_str)
-    except:
+    except ValueError:
         return 0.0
 
 
 if __name__ == "__main__":
     # 都市を網羅します
-    All_list = {'ymd': [], 'pref_no': [], 'chiku_no': [], 'kousuiryo': [], 'kion_ave': [], 'fuusoku': [], 'nissyo': []}
+    All_list = {
+        'ymd': [],
+        'pref_no': [],
+        'chiku_no': [],
+        'kousuiryo': [],
+        'kion_ave': [],
+        'fuusoku': [],
+        'nissyo': []
+        }
     for idx, place in enumerate(place_name):
         # 最終的にデータを集めるリスト (下に書いてある初期値は一行目。つまり、ヘッダー。)
-        # All_list = [['年月日', '陸の平均気圧(hPa)', '海の平均気圧(hPa)', '降水量(mm)', '平均気温(℃)', '平均湿度(%)', '平均風速(m/s)', '日照時間(h)']]
 
         print(place)
         index = place_name.index(place)
-        # for文で2002年の1年分を取得。2002～2021年の20年分を取得するためにこの処理を設定年度を変更し20回繰り返す必要あり
-        for year in range(2002, 2003):
+        # for文で2002～2021年の20年分を取得するためにこの処理を設定年度を変更し20回繰り返す必要あり
+        for year in range(2002, 2022):
             print(year)
-            # その年の1月のみ網羅する。1~12月の場合（1、13）になるので注意
-            for month in range(1, 2):
+            # その年の1~12月のデータをscraping
+            for month in range(1, 13):
                 # 2つの都市コードと年と月を当てはめる。
                 r = requests.get(base_url % (place_codeA[index], place_codeB[index], year, month))
                 r.encoding = r.apparent_encoding
@@ -81,12 +91,11 @@ if __name__ == "__main__":
                     # All_list['shitsudo_ave'].append(str2float(data[9].string))
                     All_list['fuusoku'].append(str2float(data[7].string))
                     All_list['nissyo'].append(str2float(data[13].string))
+                time.sleep(4)      # 待機処理4秒
             df = pd.DataFrame(All_list)
             print(df)
             # mysql
             con_str = 'mysql+mysqldb://python:python123@127.0.0.1/db?charset=utf8&use_unicode=1'
             con = create_engine(con_str, echo=False).connect()
-            con.execute('DELETE FROM sample_1_temperature')
-            df.to_sql('sample_1_temperature', con, if_exists='append', index=None)
-            # これで実行すると「empty dataframe」になり指定データ（菊川牧之原地区、2002年1月）が取り込めていない
-            # sample_1_temperatureはDbesverに作成したデータ保管庫
+            con.execute('TRUNCATE FROM sample_1_temperature')
+            df.to_sql('sample_1_temperature', con, if_exists='append')
