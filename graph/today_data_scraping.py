@@ -74,10 +74,8 @@ if __name__ == "__main__":
         for row in rows:
             # 今度はtrのなかのtdをすべて抜き出します
             data = row.findAll('td')
-            print([x.string for x in data])
             yesterday = datetime.datetime.now() - datetime.timedelta(1)
-            print(type(yesterday.day), type(data[0].string))
-            if str(data[0].string) == str(yesterday.day):
+            if int(data[0].string) == int(yesterday.day):
                 # １行の中には様々なデータがあるので全部取り出す。
                 All_list['ymd'].append(str(year) + "-" + str(month) + "-" + str(data[0].string))
                 All_list['pref_no'].append(place_codeA)

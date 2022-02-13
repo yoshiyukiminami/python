@@ -76,8 +76,7 @@ if __name__ == "__main__":
         for row in rows:
             # 今度はtrのなかのtdをすべて抜き出します
             data = row.findAll('td')
-            print([x.string for x in data])
-
+            # print([x.string for x in data])
             # １行の中には様々なデータがあるので全部取り出す。
             All_list['ymd'].append(str(year) + "-" + str(month_1) + "-" + str(data[0].string))
             All_list['pref_no'].append(place_codeA)
@@ -104,6 +103,7 @@ if __name__ == "__main__":
         # 今日の年月を所得して
         year = datetime.date.today().year
         month = datetime.date.today().month
+        # print(month)
         r = requests.get(base_url % (place_codeA[index], place_codeB[index], year, month))
         r.encoding = r.apparent_encoding
         # まずはサイトごとスクレイピング
@@ -118,10 +118,10 @@ if __name__ == "__main__":
         for row in rows:
             # 今度はtrのなかのtdをすべて抜き出します
             data = row.findAll('td')
-            print([x.string for x in data])
+            # print([x.string for x in data])
             yesterday = datetime.datetime.now() - datetime.timedelta(1)
-            print(type(yesterday.day), type(data[0].string))
-            if str(data[0].string) < str(yesterday.day):
+            # print(data[0].string, yesterday.day, int(data[0].string) < int(yesterday.day))
+            if int(data[0].string) < int(yesterday.day):
                 # １行の中には様々なデータがあるので全部取り出す。
                 All_list['ymd'].append(str(year) + "-" + str(month) + "-" + str(data[0].string))
                 All_list['pref_no'].append(place_codeA)
