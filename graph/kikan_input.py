@@ -8,7 +8,7 @@ this_month = datetime.date.today().month
 
 def check_valid_date1(from_date):
     """
-    設定したい期間の開始及び収量年月日と比較した過去データの期間を入力
+    設定したい期間の開始年月日を入力
     :rtype: object
     """
     from_to_in_the_year = None
@@ -69,6 +69,10 @@ def check_valid_date1(from_date):
 
 
 def check_valid_date2(to_date):
+    """
+    設定したい期間の終了年月日を入力
+    :rtype: object
+    """
     kikan_stop_year = None
     # ダミー数値=開始年月日
     kikan_start_year = 2021
@@ -136,6 +140,10 @@ def check_valid_date2(to_date):
 
 
 def check_valid_date3(previous_years):
+    """
+    過去データの期間を入力
+    :rtype: object
+    """
     # ダミー数字=開始年
     kikan_start_year = 2021
     while True:
