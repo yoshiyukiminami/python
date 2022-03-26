@@ -149,6 +149,8 @@ for i in range(len(nojyomei_list)):
     # 【グラフ-2】全圃場での比較グラフ（度数、相対累積度数の複合）の生成、JPEG保存
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
+    handler1 = handler2 = None
+    label1 = label2 = None
     for l, (y1, y2) in enumerate(zip(df_series1, df_series2)):
         pos = x - total_width * (1 - (2 * l + 1) / len(df_series1)) / 2
         ax1.bar(pos, y1, width=total_width / len(df_series1), label=labels[l])
