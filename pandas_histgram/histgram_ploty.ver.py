@@ -31,6 +31,9 @@ nojyomei_list = list(set(nojyomei_list))
 nojyomei_list_count = len(nojyomei_list)
 
 # Step-2：圃場名でのデータ抽出と所定DATAFRAMEへの格納
+nojyomei = None
+yyyymmdd = None
+df_all = None
 for i in range(len(nojyomei_list)):
     nojyomei = df['農場名'][i]
     df1 = df[df['農場名'] == nojyomei]
@@ -95,7 +98,6 @@ for i in range(len(nojyomei_list)):
     df_all.to_csv(save_name, encoding='SHIFT-JIS', index=False)
 
 # 圃場比較グラフ（度数）の生成と保存（JPEG、HTML）
-nojyomei = df_all['nojyomei'][0]
 
 fig = go.Figure()
 for k in range(len(df_all['hojyomei'])):
@@ -131,10 +133,10 @@ fig.show()
 
 # 圃場比較グラフ（相対度数）の生成と保存（JPEG、HTML）
 fig = go.Figure()
-for l in range(len(df_all['hojyomei'])):
+for i in range(len(df_all['hojyomei'])):
     fig.add_trace(go.Scatter(x=df_all['class_value'][0],
-                             y=df_all['rel_freq'][l],
-                             name=df_all['hojyomei'][l],
+                             y=df_all['rel_freq'][i],
+                             name=df_all['hojyomei'][i],
                              mode='markers+lines',
                              marker=dict(size=5),
                              hovertemplate='相対度数:%{y}, 深度:%{x}cm')
