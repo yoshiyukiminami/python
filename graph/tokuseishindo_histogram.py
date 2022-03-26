@@ -39,11 +39,6 @@ ax2 = ax1.twinx()
 ax2.plot(np.arange(len(dist)), dist["相対累積度数"], "--o", color="k")
 ax2.set_ylabel("累積相対度数")
 
-import numpy as np
-import pandas as pd
-
-np.random.seed(0)
-
 
 def get_sample():
     sex = np.random.choice(["男性", "女性"])
