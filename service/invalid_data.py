@@ -43,6 +43,7 @@ def back_stitch(line: list, threshold: int, offset: int = 0) -> list:
                 for j in range(idx["punch_in"], idx["punch_out"] + 1):
                     line[j] = sum([line[idx["mean1"]], line[idx["mean2"]]]) / 2
                 line = back_stitch(line, threshold, idx["mean2"])
+                break
 
     return line
 
