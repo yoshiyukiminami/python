@@ -74,6 +74,7 @@ def find_invalid_data(file_path: str, adjustment: bool):
             line = line[first_col_in_a_line:end_col_in_a_line + 1]  # slice の end は "未満" なので注意する
             if len(line) == 0:
                 records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} のみで構成されています。確認してください"])
+                continue
             for col, cell in enumerate(line):
                 if cell == under_threshold:
                     records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} が含まれています"])
