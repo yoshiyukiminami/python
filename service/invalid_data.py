@@ -88,7 +88,7 @@ if __name__ == "__main__":
     print('エラー値調整なし版：')
     errors = find_invalid_data('data_sample_error-disp-on.csv', adjustment=False)
     for error in errors:
-        print(error)
+        print(error.pop())
 
     print('エラー値調整あり版：')
     df = pd.DataFrame(find_invalid_data('data_sample_error-disp-on.csv', adjustment=True))
