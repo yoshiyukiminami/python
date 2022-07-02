@@ -9,7 +9,7 @@ pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', None)
 
 
-def koudobunpu_dataset(df_point):
+def koudobunpu_dataset():
     # 【Step-1】硬度分布データのデータフレーム決定・・point1=圃場内側定位置1、point2=圃場内測定位置2
     All_list = {
         'nojyomei': [], 'item': [], 'hojyomei': [], 'ymd': [], 'jiki': [], 'point1': [], 'point2': [],
@@ -23,96 +23,92 @@ def koudobunpu_dataset(df_point):
         '58cm': [], '59cm': [], '60cm': []
     }
 
-    # 【Step-2】品目・時期をAll_listに格納し、エラー（2つ以上ある場合）を検知する
-    item_list = df_point['品目'].tolist()
+    # 【Step-2】1～60㎝のデータ列を取り出す
+    df_dp = df2.drop(df2.columns[range(72, 110)], axis=1)
+    df_dp = df_dp.drop(df_dp.columns[range(0, 12)], axis=1)
+    # print(df_dp)
+
+    # 【Step-3】品目・時期・測定日でエラー（2つ以上ある場合）を検知しAll_listに格納する
+    item_list = df2['品目'].tolist()
     item_list_count = len(set(item_list))
     isvalid = True
     if not item_list_count == 1:
         print("エラー：品目が2つ以上あります。")
         isvalid = False
-        # break
     else:
-        All_list['item'].append(list(set(item_list))[0])
-    jiki_list = df_point['時期'].tolist()
-    jiki_list_count = len(set(jiki_list))
-    if not jiki_list_count == 1:
-        print("エラー：時期が2つ以上あります。")
-        isvalid = False
-        # break
-    else:
-        All_list['jiki'].append(list(set(jiki_list))[0])
-    # 測定日をdatetimeに変換してAll_listに格納し、エラー（2つ以上ある場合）を検知する
-    sokuteibi = df_point['測定日'].tolist()
-    sokuteibi_count = len(set(sokuteibi))
-    if not sokuteibi_count == 1:
-        print("エラー：測定日が2つ以上あります。")
-        isvalid = False
-        # break
-    else:
-        sokuteibi2 = sokuteibi[0] + ' ' + '00:00:00'
-        sokuteibi2 = datetime.datetime.strptime(sokuteibi2, '%Y.%m.%d %H:%M:%S')
-        All_list['ymd'].append(sokuteibi2)
+        All_list['item'].append(set(item_list))
+        jiki_list = df2['時期'].tolist()
+        jiki_list_count = len(set(jiki_list))
+        if not jiki_list_count == 1:
+            print("エラー：時期が2つ以上あります。")
+            isvalid = False
+        else:
+            All_list['jiki'].append(set(jiki_list))
+            sokuteibi = df2['測定日'].tolist()
+            sokuteibi_count = len(set(sokuteibi))
+            if not sokuteibi_count == 1:
+                print("エラー：測定日が2つ以上あります。")
+                isvalid = False
+            else:
+                # 測定日をdatetimeに変換する
+                sokuteibi2 = sokuteibi[0] + ' ' + '00:00:00'
+                sokuteibi2 = datetime.datetime.strptime(sokuteibi2, '%Y.%m.%d %H:%M:%S')
+                All_list['ymd'].append(sokuteibi2)
 
-        # 【Step-3】農場名・圃場名・圃場内側定位置・圃場内側定位置2をAll_listに格納
-    All_list['nojyomei'].append(set(df_point['農場名'][0]))
-    All_list['hojyomei'].append(set(df_point['圃場名'][0]))
-    All_list['point1'].append(set(df_point['圃場内位置'][0]))
-    All_list['point2'].append(set(df_point['圃場内位置2'][0]))
+    # 【Step-3】農場名・圃場名・圃場内位置・圃場内位置2をAll_listに格納する
+    All_list['nojyomei'].append(set(df2['農場名']))
+    All_list['hojyomei'].append(set(df2['圃場名']))
+    All_list['point1'].append(set(df2['圃場内位置']))
+    All_list['point2'].append(set(df2['圃場内位置2']))
 
-    # ここから未処理
-    # 【Step-4】土壌硬度データの測定地点（1㎝～60㎝）ごとの平均値×1/1000した数値を格納
-    df_point_mean = df_point.mean(axis=0, skipna=True)
-    print(df_point_mean)
+    # 【Step-4】df_dpに格納したデータ（文字列含む）を一括でmeanする
+    df_ave = df_dp.mean()
+    print(df_ave)
+    for i in range(0, 60):
+        j = str(i + 1) + 'cm'
+        # print(i, j)
+        All_list[j].append(df_ave[i])
+
+    print(All_list)
 
 
-def koudobunpu_graphset(df_point):
-    # ここから未処理
-    # tokuseishindo_datasetで格納された土壌硬度データから分布グラフを生成
-    for m, (d1, d2) in enumerate(zip(df_all['freq'], df_all['rel_freq'])):
-        # 圃場別特性深度分布グラフ（度数）を生成・保存（JPEG、HTML）
-        fig = go.Figure()
-        hojyomei = df_all['hojyomei'][m]
-        nojyomei = df_all['nojyomei'][m]
-        sokuteibi = df_all['ymd'][m].strftime('%Y.%m.%d')
-        fig.add_trace(go.Bar(y=df_all['class_value'][0],
-                             x=d1,
-                             name=hojyomei,
-                             width=3,
-                             hovertemplate='度数:%{x}, 深度:%{y}cm', showlegend=True,
-                             orientation='h')
-                      )
-        fig.update_layout(title=dict(text='特性深度分布（度数）_' + nojyomei + '_' + sokuteibi,
-                                     font=dict(size=20, color='black'),
-                                     xref='paper',
-                                     x=0.01,
-                                     y=0.9,
-                                     xanchor='left'
-                                     ),
-                          yaxis=dict(title='深度（㎝）', range=(60, 0)),
-                          xaxis=dict(title='度数', range=(0, 50)),
-                          legend=dict(orientation='h',
-                                      xanchor='left',
-                                      x=0.6,
-                                      yanchor='bottom',
-                                      y=0.9,
-                                      bgcolor='white',
-                                      bordercolor='grey'
-                                      ),
-                          width=600,
-                          height=400,
-                          plot_bgcolor='white'
-                          )
-        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
-        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-        filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
-        fig_name = 'histgram-1_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg'
-        fig_name1 = filedir + fig_name
-        print(fig_name1)
-        # fig.write_image(fig_name1)
-        # fig.write_image('特性深度分布（度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
-        # fig.write_html(fig_name1)
-        fig.show()
-        # ここまで未処理
+# #ここから未処理
+# def koudobunpu_graphset():
+#     #硬度分布グラフ（折れ線）の生成と保存（JPEG、HTML）
+#     fig = go.Figure()
+#     for l in range(len(df_all['hojyomei'])):
+#         fig.add_trace(go.Scatter(y=df_all['class_value'][0],
+#                                  x=df_all['rel_freq'][l],
+#                                  name=df_all['hojyomei'][l],
+#                                  mode='markers+lines',
+#                                  marker=dict(size=5),
+#                                  hovertemplate='相対度数:%{x}, 深度:%{y}cm',
+#                                 orientation='h')
+#                      )
+#     fig.update_layout(title=dict(text='圃場比較（度数）_特性深度分布_' + nojyomei,
+#                                  font=dict(size=20, color='black'),
+#                                  xref='paper',
+#                                  x=0.01,
+#                                  y=0.9,
+#                                  xanchor='left'
+#                                 ),
+#                       yaxis=dict(title='深度（㎝）', range=(60, 0)),
+#                       xaxis=dict(title='相対度数', range=(0, 1), tickformat='%'),
+#                       legend=dict(orientation='h',
+#                                   xanchor='left',
+#                                   x=0.6,
+#                                   yanchor='bottom',
+#                                   y=0.9),
+#                       width=600,
+#                       height=400,
+#                       plot_bgcolor='white'
+#                      )
+#     fig.layout.xaxis.tickformat= ',.0%'
+#     fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+#     fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+#     fig.write_image('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+#     fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+#     fig.show()
 
 
 if __name__ == '__main__':
@@ -121,7 +117,7 @@ if __name__ == '__main__':
     files = glob.glob(filedir + '/**/*.csv')
     print(files)
 
-    # 読み込んだファイルを「農場名」「圃場名」「圃場内測定位置」「圃場内測定位置2」で分類し、df_pointに格納
+    # 読み込んだファイルを「農場名」「圃場名」「圃場内測定位置」「圃場内測定位置2」で分類し、df2に格納
     for file in files:
         print(file)
         df = pd.read_csv(file, encoding='Shift-JIS', header=0)
@@ -131,27 +127,28 @@ if __name__ == '__main__':
         nojyomei_list = df['農場名'].tolist()
         nojyomei_list = list(set(nojyomei_list))
         nojyomei_list_count = len(nojyomei_list)
-        print(nojyomei_list, nojyomei_list_count)
+        # print(nojyomei_list, nojyomei_list_count)
 
         # ここから未処理
         # Step-2：圃場名でのデータ抽出と所定DATAFRAMEへの格納
         for i in range(len(nojyomei_list)):
             nojyomei = nojyomei_list[i]
-            df1 = df[df['農場名'] == nojyomei]
-            hojyomei_list = df1['圃場名'].tolist()
+            df = df[df['農場名'] == nojyomei]
+            hojyomei_list = df['圃場名'].tolist()
             hojyomei_list = list(set(hojyomei_list))
             hojyomei_list_count = len(hojyomei_list)
-            print(i, nojyomei, hojyomei_list, hojyomei_list_count)
+            # print(i, nojyomei, hojyomei_list, hojyomei_list_count)
 
             for j in range(len(hojyomei_list)):
                 hojyomei = hojyomei_list[j]
-                df2 = df1[df1['圃場名'] == hojyomei]
-                print(j, hojyomei)
-                point1_list = df2['圃場内位置'].tolist()
-                point2_list = df2['圃場内位置2'].tolist()
+                df = df[df['圃場名'] == hojyomei]
+                # print(j, hojyomei)
+                point1_list = df['圃場内位置'].tolist()
+                point2_list = df['圃場内位置2'].tolist()
                 point1_list = list(set(point1_list))
                 point2_list = list(set(point2_list))
-                print(point1_list, point2_list)
+                # print(point1_list, point2_list)
+                # koudobunpu_dataset()
 
                 # 測定位置情報のエラー検知
                 isvalid = True
@@ -160,63 +157,11 @@ if __name__ == '__main__':
                     isvalid = False
                     # break
                 else:
-                    # 圃場内測定位置・圃場内測定位置2の組み合わせ毎にdf_pointのデータフレームに格納
+                    # 圃場内測定位置・圃場内測定位置2の組み合わせ毎にdf2のデータフレームに格納
                     for k in point1_list:
-                        df_point = df2[df2['圃場内位置'] == k]
-                        # print(df_point, k)
+                        df1 = df[df['圃場内位置'] == k]
+                        print(k)
                         for m in point2_list:
-                            df_point = df_point[df_point['圃場内位置2'] == m]
-                            # print(df_point, m)
-                            koudobunpu_dataset(df_point)
-
-                        #                 #ヒストグラムの計算値をAll_listに格納
-#                 bins = np.linspace(0, 60, 13)
-#                 freq = dataset1.value_counts(bins=bins, sort=False)
-#                 All_list['freq'].append(freq)
-#                 class_value = (bins[:-1] + bins[1:]) / 2  # 階級値
-#                 All_list['class_value'].append(class_value)
-#                 rel_freq = freq / dataset1.count()  # 相対度数
-#                 All_list['rel_freq'].append(rel_freq)
-#                 cum_freq = freq.cumsum()  # 累積度数
-#                 All_list['cum_freq'].append(cum_freq)
-#                 rel_cum_freq = rel_freq.cumsum()  # 相対累積度数
-#                 All_list['rel_cum_freq'].append(rel_cum_freq)
-#                 class_index = freq.index  # 階層
-#                 All_list['class_index'].append(class_index)
-
-#                 # 統計量の計算値をAll_Listに格納
-#                 # describeメソッドで個数～最大値を一括で計算
-#                 stats = dataset1.describe()
-#                 # print(stats)
-#                 stats_count = pd.Series(data=stats)['count']
-#                 All_list['count'].append(stats_count) # 個数
-#                 stats_mean = pd.Series(data=stats)['mean']
-#                 All_list['mean'].append(stats_mean) # 平均値
-#                 stats_std = pd.Series(data=stats)['std']
-#                 All_list['std'].append(stats_std) # 標準偏差（標本分数）
-#                 stats_min = pd.Series(data=stats)['min']
-#                 All_list['min'].append(stats_min) # 最小値
-#                 stats_25 = pd.Series(data=stats)['25%']
-#                 All_list['25%'].append(stats_25) # 四分位数（25%）
-#                 stats_50 = pd.Series(data=stats)['50%']
-#                 All_list['50%'].append(stats_50) # 四分位数（50%）
-#                 stats_75 = pd.Series(data=stats)['75%']
-#                 All_list['75%'].append(stats_75) # 四分位数（75%）
-#                 stats_max = pd.Series(data=stats)['max']
-#                 All_list['max'].append(stats_max) # 最大値
-#                 All_list['skew'].append(dataset1.skew()) # 歪度
-#                 All_list['kurt'].append(dataset1.kurt()) # 尖度
-#                 All_list['var_ddof=1'].append(dataset1.var(ddof=1)) # 分散（不偏分散）
-#                 All_list['std_ddof=1'].append(dataset1.std(ddof=1)) # 標準偏差（不偏分散）
-
-#             #Step-3：特性深度分布の計算結果と紐付け情報を格納したDATAFRAME（df_all）をcsv保存
-#             # 保存名は最初の農場名+変換日時∔CSV・・暫定的に
-#             df_all = pd.DataFrame(All_list)
-#             today = datetime.datetime.today()
-#             yyyymmdd = today.strftime('%Y%m%d-%H%M%S')
-#             save_name1 = All_list['nojyomei'][i] + '_' + yyyymmdd + '.csv'
-#             filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
-#             save_name2 = filedir + save_name1
-#             # print(save_name2)
-#             # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
-#             # ここまで未処理
+                            df2 = df1[df1['圃場内位置2'] == m]
+                            print(m)
+                            koudobunpu_dataset()
