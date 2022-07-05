@@ -103,7 +103,6 @@ def koudobunpu_dataset():
                 del x[0: 7]
                 fig = go.Figure()
                 for j in range(len(df_ave)):
-                    m = j + 1
                     y = list(df_ave.iloc[j])
                     point1 = y[5]
                     point2 = str(y[6])
@@ -116,14 +115,14 @@ def koudobunpu_dataset():
                                              name=name,
                                              mode='lines',
                                              line=dict(color=color, dash=dash),
-                                             hovertemplate='硬さ:%{x:2f}kpa, 深度:%{y}cm',
+                                             hovertemplate='硬さ:%{x:.1f}kpa, 深度:%{y}',
                                              orientation='h')
                                   )
                     fig.update_layout(title=dict(text='土壌硬度分布_' + nojyomei + '_' + hojyomei,
                                                  font=dict(size=20, color='black'),
                                                  xref='paper',
                                                  x=0.01,
-                                                 y=0.92,
+                                                 y=0.9,
                                                  xanchor='left'
                                                  ),
                                       yaxis=dict(title='深度（㎝）', range=(60, 1)),
@@ -132,18 +131,223 @@ def koudobunpu_dataset():
                                                   xanchor='left',
                                                   x=0.3,
                                                   yanchor='bottom',
-                                                  y=0.97),
+                                                  y=0.9),
                                       width=600,
                                       height=800,
                                       plot_bgcolor='white'
                                       )
                     fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
                     fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-                # fig.write_image(save_name + '.jpeg')
+                # fig.write_image(save_name + '.jpeg', engine='kaleido')
                 # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
                 # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
                 fig.show()
-                # time.sleep(1)
+
+
+def matrix_graphset():
+    # 農場名・圃場名で分類されたdf2からパラメータ散布図（3種類）を生成する
+    # 事前準備1：測定位置ごとの色・線のプロパティを決める
+    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
+    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
+
+    # 【Step-1】df2から不必要な列を削除する
+    df_dp = df2.drop(df2.columns[range(8, 102)], axis=1)
+    df_dp = df_dp.drop(df_dp.columns[range(0, 1)], axis=1)
+    df_dp.reset_index(inplace=True, drop=True)
+    nojyomei = df_dp.iat[0, 0]
+    hojyomei = df_dp.iat[0, 2]
+
+    # 【Step-2】 散布図A（特性震度×飽和硬度）の生成と保存
+    fig = go.Figure()
+    for i in range(len(df_dp)):
+        point1 = df_dp['圃場内位置'][i]
+        point2 = str(df_dp['圃場内位置2'][i])
+        name = point1 + '-' + str(point2)
+        color = marker_color[point1]
+        symbol = marker_symbol[point2]
+        x = [df_dp['xC'][i]]
+        y = [df_dp['s2'][i]]
+        fig.add_trace(go.Scatter(x=x,
+                                 y=y,
+                                 name=name,
+                                 mode='markers',
+                                 marker={'size': 12, 'symbol': symbol,
+                                         'color': color,
+                                         'opacity': 0.6,
+                                         'line': {'width': 0.5,
+                                                  'color': color}},
+                                 hovertemplate='特性深度:%{x:.1f}cm, 飽和硬度:%{y:.2f}Mpa',
+                                 orientation='h')
+                      )
+        fig.update_layout(title=dict(text='特性深度×飽和硬度_' + nojyomei + '_' + hojyomei,
+                                     font=dict(size=20, color='black'),
+                                     xref='paper',
+                                     x=0.01,
+                                     y=0.87,
+                                     xanchor='left'
+                                     ),
+                          yaxis=dict(title='硬さMpa）', range=(0, 3)),
+                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          showlegend=False,
+                          # legend=dict(orientation='h',
+                          #             xanchor='left',
+                          #             x=0.3,
+                          #             yanchor='bottom',
+                          #             y=0.95),
+                          width=600,
+                          height=600,
+                          plot_bgcolor='white'
+                          )
+        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+    # fig.write_image(save_name + '.jpeg')
+    # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+    # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.show()
+
+    # 【Step-3】 散布図B（特性震度×緩衝因子）の生成と保存
+    fig = go.Figure()
+    for j in range(len(df_dp)):
+        point1 = df_dp['圃場内位置'][j]
+        point2 = str(df_dp['圃場内位置2'][j])
+        name = point1 + '-' + str(point2)
+        color = marker_color[point1]
+        symbol = marker_symbol[point2]
+        x = [df_dp['xC'][j]]
+        y = [df_dp['ηC'][j]]
+        fig.add_trace(go.Scatter(x=x,
+                                 y=y,
+                                 name=name,
+                                 mode='markers',
+                                 marker={'size': 12, 'symbol': symbol,
+                                         'color': color,
+                                         'opacity': 0.6,
+                                         'line': {'width': 0.5,
+                                                  'color': color}},
+                                 hovertemplate='特性深度:%{x:.1f}cm, 緩衝因子:%{y:.1f}',
+                                 orientation='h')
+                      )
+        fig.update_layout(title=dict(text='特性深度×緩衝因子_' + nojyomei + '_' + hojyomei,
+                                     font=dict(size=20, color='black'),
+                                     xref='paper',
+                                     x=0.01,
+                                     y=0.87,
+                                     xanchor='left'
+                                     ),
+                          yaxis=dict(title='硬さの緩急', range=(0, 15000)),
+                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          showlegend=False,
+                          # legend=dict(orientation='h',
+                          #             xanchor='left',
+                          #             x=0.3,
+                          #             yanchor='bottom',
+                          #             y=0.95),
+                          width=600,
+                          height=600,
+                          plot_bgcolor='white'
+                          )
+        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+    # fig.write_image(save_name + '.jpeg')
+    # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+    # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.show()
+
+    # 【Step-4】 散布図C（特性震度×硬度勾配）の生成と保存
+    fig = go.Figure()
+    for j in range(len(df_dp)):
+        point1 = df_dp['圃場内位置'][j]
+        point2 = str(df_dp['圃場内位置2'][j])
+        name = point1 + '-' + str(point2)
+        color = marker_color[point1]
+        symbol = marker_symbol[point2]
+        x = [df_dp['xC'][j]]
+        y = [df_dp.iloc[j, 14]]
+        fig.add_trace(go.Scatter(x=x,
+                                 y=y,
+                                 name=name,
+                                 mode='markers',
+                                 marker={'size': 12, 'symbol': symbol,
+                                         'color': color,
+                                         'opacity': 0.6,
+                                         'line': {'width': 0.5,
+                                                  'color': color}},
+                                 hovertemplate='特性深度:%{x:.1f}cm, 硬度勾配:%{y:.1f}',
+                                 orientation='h')
+                      )
+        fig.update_layout(title=dict(text='特性深度×硬度勾配_' + nojyomei + '_' + hojyomei,
+                                     font=dict(size=20, color='black'),
+                                     xref='paper',
+                                     x=0.01,
+                                     y=0.87,
+                                     xanchor='left'
+                                     ),
+                          yaxis=dict(title='硬さの緩急', range=(0, 1)),
+                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          showlegend=False,
+                          # legend=dict(orientation='h',
+                          #             xanchor='left',
+                          #             x=0.3,
+                          #             yanchor='bottom',
+                          #             y=0.95),
+                          width=600,
+                          height=600,
+                          plot_bgcolor='white'
+                          )
+        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+    # fig.write_image(save_name + '.jpeg')
+    # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+    # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.show()
+
+    # 【Step-5】 散布図D（最大深度×飽和硬度）の生成と保存
+    fig = go.Figure()
+    for j in range(len(df_dp)):
+        point1 = df_dp['圃場内位置'][j]
+        point2 = str(df_dp['圃場内位置2'][j])
+        name = point1 + '-' + str(point2)
+        color = marker_color[point1]
+        symbol = marker_symbol[point2]
+        x = [df_dp['x2'][j]]
+        y = [df_dp['s2'][j]]
+        fig.add_trace(go.Scatter(x=x,
+                                 y=y,
+                                 name=name,
+                                 mode='markers',
+                                 marker={'size': 12, 'symbol': symbol,
+                                         'color': color,
+                                         'opacity': 0.6,
+                                         'line': {'width': 0.5,
+                                                  'color': color}},
+                                 hovertemplate='最大深度:%{x:.1f}cm, 飽和硬度:%{y:.1f}Mpa',
+                                 orientation='h')
+                      )
+        fig.update_layout(title=dict(text='最大深度×飽和硬度_' + nojyomei + '_' + hojyomei,
+                                     font=dict(size=20, color='black'),
+                                     xref='paper',
+                                     x=0.01,
+                                     y=0.87,
+                                     xanchor='left'
+                                     ),
+                          yaxis=dict(title='硬度（Mpa）', range=(0, 3)),
+                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          showlegend=False,
+                          # legend=dict(orientation='h',
+                          #             xanchor='left',
+                          #             x=0.3,
+                          #             yanchor='bottom',
+                          #             y=0.95),
+                          width=600,
+                          height=600,
+                          plot_bgcolor='white'
+                          )
+        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+    # fig.write_image(save_name + '.jpeg')
+    # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+    # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.show()
 
 
 if __name__ == '__main__':
@@ -182,6 +386,7 @@ if __name__ == '__main__':
                     isvalid = False
                 else:
                     koudobunpu_dataset()
+                    matrix_graphset()
                     # #圃場内測定位置・圃場内測定位置2の組み合わせ毎にdf4のデータフレームに格納
                     # for k in point1_list:
                     #     df3 = df2[df2['圃場内位置'] == k]
