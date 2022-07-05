@@ -1,16 +1,14 @@
 import pandas as pd
-import numpy as np
 import datetime
 import plotly.graph_objects as go
 import glob
-import csv
 
 # 【全体設定】表示の制限・・jupyterlabのみ有効
 pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', None)
 
 
-def koudobunpu_dataset():
+def koudobunpu_dataset(df2):
     # 【Step-1】硬度分布データのデータフレーム決定・・point1=圃場内側定位置1、point2=圃場内測定位置2
     All_list = {
         'nojyomei': [], 'hojyomei': [], 'item': [], 'ymd': [], 'jiki': [], 'point1': [], 'point2': [],
@@ -144,20 +142,12 @@ def koudobunpu_dataset():
                 fig.show()
 
 
-def matrix_graphset():
-    # 農場名・圃場名で分類されたdf2からパラメータ散布図（3種類）を生成する
+def matrix_graphset_a(df_dp, nojyomei, hojyomei):
     # 事前準備1：測定位置ごとの色・線のプロパティを決める
     marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
     marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
 
-    # 【Step-1】df2から不必要な列を削除する
-    df_dp = df2.drop(df2.columns[range(8, 102)], axis=1)
-    df_dp = df_dp.drop(df_dp.columns[range(0, 1)], axis=1)
-    df_dp.reset_index(inplace=True, drop=True)
-    nojyomei = df_dp.iat[0, 0]
-    hojyomei = df_dp.iat[0, 2]
-
-    # 【Step-2】 散布図A（特性震度×飽和硬度）の生成と保存
+    # 【Step-1】 散布図A（特性震度×飽和硬度）の生成と保存
     fig = go.Figure()
     for i in range(len(df_dp)):
         point1 = df_dp['圃場内位置'][i]
@@ -205,7 +195,13 @@ def matrix_graphset():
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
 
-    # 【Step-3】 散布図B（特性震度×緩衝因子）の生成と保存
+
+def matrix_graphset_b(df_dp, nojyomei, hojyomei):
+    # 事前準備1：測定位置ごとの色・線のプロパティを決める
+    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
+    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
+
+    # 【Step-1】 散布図B（特性震度×緩衝因子）の生成と保存
     fig = go.Figure()
     for j in range(len(df_dp)):
         point1 = df_dp['圃場内位置'][j]
@@ -253,7 +249,13 @@ def matrix_graphset():
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
 
-    # 【Step-4】 散布図C（特性震度×硬度勾配）の生成と保存
+
+def matrix_graphset_c(df_dp, nojyomei, hojyomei):
+    # 事前準備1：測定位置ごとの色・線のプロパティを決める
+    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
+    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
+
+    # 【Step-1】 散布図C（特性震度×硬度勾配）の生成と保存
     fig = go.Figure()
     for j in range(len(df_dp)):
         point1 = df_dp['圃場内位置'][j]
@@ -301,7 +303,13 @@ def matrix_graphset():
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
 
-    # 【Step-5】 散布図D（最大深度×飽和硬度）の生成と保存
+
+def matrix_graphset_d(df_dp, nojyomei, hojyomei):
+    # 事前準備1：測定位置ごとの色・線のプロパティを決める
+    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
+    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
+
+    # 【Step-1】 散布図D（最大深度×飽和硬度）の生成と保存
     fig = go.Figure()
     for j in range(len(df_dp)):
         point1 = df_dp['圃場内位置'][j]
@@ -385,11 +393,14 @@ if __name__ == '__main__':
                     print("測定位置情報が一致しません")
                     isvalid = False
                 else:
-                    koudobunpu_dataset()
-                    matrix_graphset()
-                    # #圃場内測定位置・圃場内測定位置2の組み合わせ毎にdf4のデータフレームに格納
-                    # for k in point1_list:
-                    #     df3 = df2[df2['圃場内位置'] == k]
-                    #     # print(k)
-                    #     for m in point2_list:
-                    #         df4 = df3[df3['圃場内位置2'] == m]
+                    koudobunpu_dataset(df2)  # 土壌硬度分布（折れ線）
+                    # 【Step-1】df2から不必要な列を削除する・・散布図生成の共通処理
+                    df_dp = df2.drop(df2.columns[range(8, 102)], axis=1)
+                    df_dp = df_dp.drop(df_dp.columns[range(0, 1)], axis=1)
+                    df_dp.reset_index(inplace=True, drop=True)
+                    nojyomei = df_dp.iat[0, 0]
+                    hojyomei = df_dp.iat[0, 2]
+                    matrix_graphset_a(df_dp, nojyomei, hojyomei)  # 特性深度×飽和硬度（散布図）
+                    matrix_graphset_b(df_dp, nojyomei, hojyomei)  # 特性深度×緩衝因子（散布図）
+                    matrix_graphset_c(df_dp, nojyomei, hojyomei)  # 特性深度×硬度勾配（散布図）
+                    matrix_graphset_d(df_dp, nojyomei, hojyomei)  # 最大深度×飽和硬度（散布図）
