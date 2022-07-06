@@ -118,21 +118,22 @@ def koudobunpu_dataset(df2):
                                              orientation='h')
                                   )
                     fig.update_layout(title=dict(text='土壌硬度分布_' + nojyomei + '_' + hojyomei,
-                                                 font=dict(size=20, color='black'),
+                                                 font=dict(size=16, color='black'),
                                                  xref='paper',
                                                  x=0.01,
-                                                 y=0.9,
+                                                 y=0.84,
                                                  xanchor='left'
                                                  ),
-                                      yaxis=dict(title='深度（㎝）', range=(60, 1)),
-                                      xaxis=dict(title='硬さ（kpa）', range=(200, 3000)),
-                                      legend=dict(orientation='h',
+                                      yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
+                                      xaxis=dict(title='柔←　硬度（Mpa）　→硬', range=(200, 3000)),
+                                      legend=dict(font=dict(size=9, color='black'),
+                                                  orientation='v',
                                                   xanchor='left',
-                                                  x=0.3,
-                                                  yanchor='bottom',
-                                                  y=0.9),
-                                      width=600,
-                                      height=800,
+                                                  x=0.82,
+                                                  yanchor='top',
+                                                  y=0.99),
+                                      width=500,
+                                      height=500,
                                       plot_bgcolor='white'
                                       )
                     fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
@@ -152,37 +153,37 @@ def matrix_graphset_a(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
         name = point1 + '-' + str(point2)
         color = marker_color[point1]
         symbol = marker_symbol[point2]
-        x = [df_dp['xC'][i]]
-        y = [df_dp['s2'][i]]
+        y = [df_dp['xC'][i]]
+        x = [df_dp['s2'][i]]
         fig.add_trace(go.Scatter(x=x,
                                  y=y,
                                  name=name,
                                  mode='markers',
-                                 marker={'size': 12, 'symbol': symbol,
+                                 marker={'size': 9, 'symbol': symbol,
                                          'color': color,
                                          'opacity': 0.6,
                                          'line': {'width': 0.5,
                                                   'color': color}},
-                                 hovertemplate='特性深度:%{x:.1f}cm, 飽和硬度:%{y:.2f}Mpa',
+                                 hovertemplate='特性深度:%{y:.1f}cm, 飽和硬度:%{x:.2f}Mpa',
                                  orientation='h')
                       )
         fig.update_layout(title=dict(text='特性深度×飽和硬度_' + nojyomei + '_' + hojyomei,
-                                     font=dict(size=20, color='black'),
+                                     font=dict(size=16, color='black'),
                                      xref='paper',
                                      x=0.01,
-                                     y=0.87,
+                                     y=0.84,
                                      xanchor='left'
                                      ),
-                          yaxis=dict(title='硬さMpa）', range=(0, 3)),
-                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          xaxis=dict(title='柔←　硬度（Mpa）　→硬', range=(0, 3)),
+                          yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
                           showlegend=False,
                           # legend=dict(orientation='h',
                           #             xanchor='left',
                           #             x=0.3,
                           #             yanchor='bottom',
                           #             y=0.95),
-                          width=600,
-                          height=600,
+                          width=500,
+                          height=500,
                           plot_bgcolor='white'
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
@@ -202,37 +203,37 @@ def matrix_graphset_b(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
         name = point1 + '-' + str(point2)
         color = marker_color[point1]
         symbol = marker_symbol[point2]
-        x = [df_dp['xC'][j]]
-        y = [df_dp['ηC'][j]]
+        y = [df_dp['xC'][j]]
+        x = [df_dp['ηC'][j]]
         fig.add_trace(go.Scatter(x=x,
                                  y=y,
                                  name=name,
                                  mode='markers',
-                                 marker={'size': 12, 'symbol': symbol,
+                                 marker={'size': 9, 'symbol': symbol,
                                          'color': color,
                                          'opacity': 0.6,
                                          'line': {'width': 0.5,
                                                   'color': color}},
-                                 hovertemplate='特性深度:%{x:.1f}cm, 緩衝因子:%{y:.1f}',
+                                 hovertemplate='特性深度:%{y:.1f}cm, 緩衝因子:%{x:.1f}',
                                  orientation='h')
                       )
         fig.update_layout(title=dict(text='特性深度×緩衝因子_' + nojyomei + '_' + hojyomei,
-                                     font=dict(size=20, color='black'),
+                                     font=dict(size=16, color='black'),
                                      xref='paper',
                                      x=0.01,
-                                     y=0.87,
+                                     y=0.84,
                                      xanchor='left'
                                      ),
-                          yaxis=dict(title='硬さの緩急', range=(0, 15000)),
-                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          xaxis=dict(title='緩←　硬さの緩急　→急', range=(0, 15000)),
+                          yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
                           showlegend=False,
                           # legend=dict(orientation='h',
                           #             xanchor='left',
                           #             x=0.3,
                           #             yanchor='bottom',
                           #             y=0.95),
-                          width=600,
-                          height=600,
+                          width=500,
+                          height=500,
                           plot_bgcolor='white'
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
@@ -252,37 +253,37 @@ def matrix_graphset_c(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
         name = point1 + '-' + str(point2)
         color = marker_color[point1]
         symbol = marker_symbol[point2]
-        x = [df_dp['xC'][j]]
-        y = [df_dp.iloc[j, 14]]
+        y = [df_dp['xC'][j]]
+        x = [df_dp.iloc[j, 14]]
         fig.add_trace(go.Scatter(x=x,
                                  y=y,
                                  name=name,
                                  mode='markers',
-                                 marker={'size': 12, 'symbol': symbol,
+                                 marker={'size': 9, 'symbol': symbol,
                                          'color': color,
                                          'opacity': 0.6,
                                          'line': {'width': 0.5,
                                                   'color': color}},
-                                 hovertemplate='特性深度:%{x:.1f}cm, 硬度勾配:%{y:.1f}',
+                                 hovertemplate='特性深度:%{y:.1f}cm, 硬度勾配:%{x:.1f}',
                                  orientation='h')
                       )
         fig.update_layout(title=dict(text='特性深度×硬度勾配_' + nojyomei + '_' + hojyomei,
-                                     font=dict(size=20, color='black'),
+                                     font=dict(size=16, color='black'),
                                      xref='paper',
                                      x=0.01,
-                                     y=0.87,
+                                     y=0.84,
                                      xanchor='left'
                                      ),
-                          yaxis=dict(title='硬さの緩急', range=(0, 1)),
-                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          xaxis=dict(title='緩←　硬さの緩急　→急', range=(0, 1)),
+                          yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
                           showlegend=False,
                           # legend=dict(orientation='h',
                           #             xanchor='left',
                           #             x=0.3,
                           #             yanchor='bottom',
                           #             y=0.95),
-                          width=600,
-                          height=600,
+                          width=500,
+                          height=500,
                           plot_bgcolor='white'
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
@@ -302,37 +303,37 @@ def matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
         name = point1 + '-' + str(point2)
         color = marker_color[point1]
         symbol = marker_symbol[point2]
-        x = [df_dp['x2'][j]]
-        y = [df_dp['s2'][j]]
+        y = [df_dp['x2'][j]]
+        x = [df_dp['s2'][j]]
         fig.add_trace(go.Scatter(x=x,
                                  y=y,
                                  name=name,
                                  mode='markers',
-                                 marker={'size': 12, 'symbol': symbol,
+                                 marker={'size': 9, 'symbol': symbol,
                                          'color': color,
                                          'opacity': 0.6,
                                          'line': {'width': 0.5,
                                                   'color': color}},
-                                 hovertemplate='最大深度:%{x:.1f}cm, 飽和硬度:%{y:.1f}Mpa',
+                                 hovertemplate='最大深度:%{y:.1f}cm, 飽和硬度:%{x:.1f}Mpa',
                                  orientation='h')
                       )
         fig.update_layout(title=dict(text='最大深度×飽和硬度_' + nojyomei + '_' + hojyomei,
-                                     font=dict(size=20, color='black'),
+                                     font=dict(size=16, color='black'),
                                      xref='paper',
                                      x=0.01,
-                                     y=0.87,
+                                     y=0.84,
                                      xanchor='left'
                                      ),
-                          yaxis=dict(title='硬度（Mpa）', range=(0, 3)),
-                          xaxis=dict(title='深度（cm）', range=(1, 60)),
+                          xaxis=dict(title='柔←　硬度（Mpa）　→硬', range=(0, 3)),
+                          yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
                           showlegend=False,
                           # legend=dict(orientation='h',
                           #             xanchor='left',
                           #             x=0.3,
                           #             yanchor='bottom',
                           #             y=0.95),
-                          width=600,
-                          height=600,
+                          width=500,
+                          height=500,
                           plot_bgcolor='white'
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
