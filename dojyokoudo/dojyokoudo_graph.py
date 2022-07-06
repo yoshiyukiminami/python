@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import datetime
 import plotly.graph_objects as go
 import glob
@@ -142,11 +143,7 @@ def koudobunpu_dataset(df2):
                 fig.show()
 
 
-def matrix_graphset_a(df_dp, nojyomei, hojyomei):
-    # 事前準備1：測定位置ごとの色・線のプロパティを決める
-    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
-    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
-
+def matrix_graphset_a(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
     # 【Step-1】 散布図A（特性震度×飽和硬度）の生成と保存
     fig = go.Figure()
     for i in range(len(df_dp)):
@@ -196,11 +193,7 @@ def matrix_graphset_a(df_dp, nojyomei, hojyomei):
     fig.show()
 
 
-def matrix_graphset_b(df_dp, nojyomei, hojyomei):
-    # 事前準備1：測定位置ごとの色・線のプロパティを決める
-    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
-    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
-
+def matrix_graphset_b(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
     # 【Step-1】 散布図B（特性震度×緩衝因子）の生成と保存
     fig = go.Figure()
     for j in range(len(df_dp)):
@@ -250,11 +243,7 @@ def matrix_graphset_b(df_dp, nojyomei, hojyomei):
     fig.show()
 
 
-def matrix_graphset_c(df_dp, nojyomei, hojyomei):
-    # 事前準備1：測定位置ごとの色・線のプロパティを決める
-    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
-    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
-
+def matrix_graphset_c(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
     # 【Step-1】 散布図C（特性震度×硬度勾配）の生成と保存
     fig = go.Figure()
     for j in range(len(df_dp)):
@@ -304,11 +293,7 @@ def matrix_graphset_c(df_dp, nojyomei, hojyomei):
     fig.show()
 
 
-def matrix_graphset_d(df_dp, nojyomei, hojyomei):
-    # 事前準備1：測定位置ごとの色・線のプロパティを決める
-    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
-    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
-
+def matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
     # 【Step-1】 散布図D（最大深度×飽和硬度）の生成と保存
     fig = go.Figure()
     for j in range(len(df_dp)):
@@ -400,7 +385,10 @@ if __name__ == '__main__':
                     df_dp.reset_index(inplace=True, drop=True)
                     nojyomei = df_dp.iat[0, 0]
                     hojyomei = df_dp.iat[0, 2]
-                    matrix_graphset_a(df_dp, nojyomei, hojyomei)  # 特性深度×飽和硬度（散布図）
-                    matrix_graphset_b(df_dp, nojyomei, hojyomei)  # 特性深度×緩衝因子（散布図）
-                    matrix_graphset_c(df_dp, nojyomei, hojyomei)  # 特性深度×硬度勾配（散布図）
-                    matrix_graphset_d(df_dp, nojyomei, hojyomei)  # 最大深度×飽和硬度（散布図）
+                    # 事前準備1：測定位置ごとの色・線のプロパティを決める・・散布図生成の共通処理
+                    marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
+                    marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
+                    matrix_graphset_a(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×飽和硬度
+                    matrix_graphset_b(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×緩衝因子
+                    matrix_graphset_c(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×硬度勾配
+                    matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 最大深度×飽和硬度
