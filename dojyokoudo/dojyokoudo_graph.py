@@ -88,7 +88,7 @@ def koudobunpu_dataset(df2):
                 # print(All_list)
                 savetime = datetime.datetime.now()
                 yyyymmdd = savetime.strftime('%Y-%m-%d_%H-%M-%S')
-                save_name = str(nojyomei) + '_' + str(hojyomei) + '_' + yyyymmdd
+                save_name = nojyomei + '_' + hojyomei + '_' + yyyymmdd
                 # 特性深度分布の計算結果と紐付け情報を格納したDATAFRAME（df_all）をcsv保存・・暫定的に
                 # df_ave.to_csv(save_name + '.csv', encoding='SHIFT-JIS', index=False)
 
@@ -136,8 +136,8 @@ def koudobunpu_dataset(df2):
                                       height=500,
                                       plot_bgcolor='white'
                                       )
-                    fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
-                    fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+                    fig.update_xaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+                    fig.update_yaxes(showline=False, linewidth=0.5, linecolor='black', color='black')
                 # fig.write_image(save_name + '.jpeg', engine='kaleido')
                 # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
                 # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
@@ -188,7 +188,6 @@ def matrix_graphset_a(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
         fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    # fig.write_image(save_name + '.jpeg')
     # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
@@ -238,7 +237,6 @@ def matrix_graphset_b(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
         fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    # fig.write_image(save_name + '.jpeg')
     # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
@@ -288,7 +286,6 @@ def matrix_graphset_c(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
         fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    # fig.write_image(save_name + '.jpeg')
     # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
@@ -338,9 +335,201 @@ def matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
         fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    # fig.write_image(save_name + '.jpeg')
     # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.show()
+
+
+def tokuseishindo_dataset(df_dp, nojyomei, hojyomei):
+    # 【Step-1】取り込むリストのDBフォーマットの決定・・All_list2
+    All_list2 = {
+        'nojyomei': [], 'hojyomei': [], 'item': [], 'ymd': [], 'jiki': [], 'class_index': [], 'class_value': [],
+        'freq': [], 'rel_freq': [], 'cum_freq': [], 'rel_cum_freq': [], 'count': [], 'mean': [], 'std': [],
+        'min': [], '25%': [], '50%': [], '75%': [], 'max': [], 'skew': [], 'kurt': [], 'var_ddof=1': [],
+        'std_ddof=1': []
+    }
+
+    # 【Step-2】df_dpからAll_listに基本情報（農場名・圃場名・品目・測定日・時期）を格納
+    # 農場名と圃場名をAll_list2に格納
+    All_list2['nojyomei'].append(nojyomei)
+    All_list2['hojyomei'].append(hojyomei)
+
+    # 品目・測定日・時期はエラー（欠損値を含む複数）検知を実施し、All_list2に格納する
+    item_list = df_dp['品目'].tolist()
+    item_list_count = len(set(item_list))
+    isvalid = True
+    if not item_list_count == 1:
+        print("エラー：品目が2つ以上あります。")
+        isvalid = False
+    else:
+        All_list2['item'].append(list(set(item_list))[0])
+        jiki_list = df_dp['時期'].tolist()
+        jiki_list_count = len(set(jiki_list))
+        isvalid = True
+        if not jiki_list_count == 1:
+            print("エラー：時期が2つ以上あります。")
+            isvalid = False
+        else:
+            All_list2['jiki'].append(list(set(jiki_list))[0])
+            sokuteibi = df_dp['測定日'].tolist()
+            sokuteibi_count = len(set(sokuteibi))
+            isvalid = True
+            if not sokuteibi_count == 1:
+                print("エラー：測定日が2つ以上あります。")
+                isvalid = False
+            else:
+                sokuteibi2 = sokuteibi[0] + ' ' + '00:00:00'
+                sokuteibi2 = datetime.datetime.strptime(sokuteibi2, '%Y.%m.%d %H:%M:%S')
+                All_list2['ymd'].append(sokuteibi2)
+
+                # 【Step-3] ヒストグラムの計算値をAll_listに格納
+                dataset1 = df2['xC']
+                bins = np.linspace(0, 60, 13)
+                freq = dataset1.value_counts(bins=bins, sort=False)
+                All_list2['freq'].append(freq)
+                class_value = (bins[:-1] + bins[1:]) / 2  # 階級値
+                All_list2['class_value'].append(class_value)
+                rel_freq = freq / dataset1.count()  # 相対度数
+                All_list2['rel_freq'].append(rel_freq)
+                cum_freq = freq.cumsum()  # 累積度数
+                All_list2['cum_freq'].append(cum_freq)
+                rel_cum_freq = rel_freq.cumsum()  # 相対累積度数
+                All_list2['rel_cum_freq'].append(rel_cum_freq)
+                class_index = freq.index  # 階層
+                All_list2['class_index'].append(class_index)
+
+                # 統計量の計算値をAll_Listに格納
+                # describeメソッドで個数～最大値を一括で計算
+                stats = dataset1.describe()
+                # print(stats)
+                stats_count = pd.Series(data=stats)['count']
+                All_list2['count'].append(stats_count)  # 個数
+                stats_mean = pd.Series(data=stats)['mean']
+                All_list2['mean'].append(stats_mean)  # 平均値
+                stats_std = pd.Series(data=stats)['std']
+                All_list2['std'].append(stats_std)  # 標準偏差（標本分数）
+                stats_min = pd.Series(data=stats)['min']
+                All_list2['min'].append(stats_min)  # 最小値
+                stats_25 = pd.Series(data=stats)['25%']
+                All_list2['25%'].append(stats_25)  # 四分位数（25%）
+                stats_50 = pd.Series(data=stats)['50%']
+                All_list2['50%'].append(stats_50)  # 四分位数（50%）
+                stats_75 = pd.Series(data=stats)['75%']
+                All_list2['75%'].append(stats_75)  # 四分位数（75%）
+                stats_max = pd.Series(data=stats)['max']
+                All_list2['max'].append(stats_max)  # 最大値
+                All_list2['skew'].append(dataset1.skew())  # 歪度
+                All_list2['kurt'].append(dataset1.kurt())  # 尖度
+                All_list2['var_ddof=1'].append(dataset1.var(ddof=1))  # 分散（不偏分散）
+                All_list2['std_ddof=1'].append(dataset1.std(ddof=1))  # 標準偏差（不偏分散）
+
+    # 【Step-4】特性深度分布の計算結果と紐付け情報を格納したDATAFRAME（df_all）をcsv保存
+    # 保存名は最初の農場名+変換日時∔CSV・・暫定的に
+    df_all = pd.DataFrame(All_list2)
+    y = df_all['class_value'][0]
+    sokuteibi3 = df_all['ymd'][0].strftime('%Y.%m.%d')
+    tokuseishindo_graphset_a(df_all, nojyomei, hojyomei, sokuteibi3, y)
+    tokuseishindo_graphset_b(df_all, nojyomei, hojyomei, sokuteibi3, y)
+    savetime = datetime.datetime.now()
+    yyyymmdd = savetime.strftime('%Y-%m-%d_%H-%M-%S')
+    save_name = nojyomei + '_' + hojyomei + '_' + yyyymmdd
+    filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
+    save_name2 = filedir + save_name
+    print(save_name2)
+    # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
+
+
+def tokuseishindo_graphset_a(df_all, nojyomei, hojyomei, sokuteibi3, y):
+    # 圃場別特性深度分布グラフ（度数）を生成・保存（JPEG、HTML）
+    fig = go.Figure()
+    x = df_all['freq'][0]
+    fig.add_trace(go.Bar(y=y,
+                         x=x,
+                         name=hojyomei,
+                         width=3,
+                         hovertemplate='度数:%{x}, 深度:%{y}cm',
+                         showlegend=True,
+                         orientation='h')
+                  )
+    fig.update_layout(title=dict(text='特性深度分布（度数）_' + nojyomei + '_' + sokuteibi3,
+                                 font=dict(size=16, color='black'),
+                                 xref='paper',
+                                 x=0.01,
+                                 y=0.84,
+                                 xanchor='left'
+                                 ),
+                      yaxis=dict(title='深←　深度（㎝）　→浅', range=(60, 1)),
+                      xaxis=dict(title='少←　度数（個）　→多', range=(0, 50)),
+                      legend=dict(font=dict(size=12, color='black'),
+                                  orientation='v',
+                                  xanchor='left',
+                                  x=0.6,
+                                  yanchor='top',
+                                  y=0.99,
+                                  bgcolor='white',
+                                  bordercolor='grey'
+                                  ),
+                      width=500,
+                      height=500,
+                      plot_bgcolor='white'
+                      )
+    fig.update_xaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+    fig.update_yaxes(showline=False, linewidth=0.5, linecolor='black', color='black')
+    filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
+    fig_name = 'histgram-1_' + nojyomei + '_' + hojyomei + '_' + sokuteibi3 + '.jpeg'
+    fig_name1 = filedir + fig_name
+    print(fig_name1)
+    # fig.write_image(fig_name1)
+    # fig.write_image('特性深度分布（度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
+    # fig.write_html(fig_name1)
+    fig.show()
+
+
+def tokuseishindo_graphset_b(df_all, nojyomei, hojyomei, sokuteibi3, y):
+    # 圃場別特性深度分布グラフ（相対度数）を生成・保存（JPEG、HTML）
+    fig = go.Figure()
+    x = df_all['rel_freq'][0]
+    fig.add_trace(go.Scatter(y=y,
+                             x=x,
+                             name=hojyomei,
+                             mode='markers+lines',
+                             marker=dict(size=5),
+                             showlegend=True,
+                             hovertemplate='相対度数:%{x}, 深度:%{y}cm',
+                             orientation='h')
+                  )
+    fig.update_layout(title=dict(text='特性深度分布（相対度数）_' + nojyomei + '_' + sokuteibi3,
+                                 font=dict(size=16, color='black'),
+                                 xref='paper',
+                                 x=0.01,
+                                 y=0.84,
+                                 xanchor='left'
+                                 ),
+                      yaxis=dict(title='深←　深度（㎝）　→浅', range=(60, 1)),
+                      xaxis=dict(title='低←　相対度数（％）　→高', range=(0, 1), tickformat='%'),
+                      legend=dict(font=dict(size=12, color='black'),
+                                  orientation='v',
+                                  xanchor='left',
+                                  x=0.6,
+                                  yanchor='top',
+                                  y=0.99,
+                                  bgcolor='white',
+                                  bordercolor='grey'
+                                  ),
+                      width=500,
+                      height=500,
+                      plot_bgcolor='white'
+                      )
+    fig.layout.xaxis.tickformat = ',.0%'
+    fig.update_xaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+    fig.update_yaxes(showline=False, linewidth=0.5, linecolor='black', color='black')
+    filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
+    fig_name = 'histgram-2_' + nojyomei + '_' + hojyomei + '_' + sokuteibi3 + '.jpeg'
+    fig_name2 = filedir + fig_name
+    print(fig_name2)
+    # fig.write_image(fig_name2)
+    # fig.write_image('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
+    # fig.write_html(fig_name2)
     fig.show()
 
 
@@ -386,6 +575,7 @@ if __name__ == '__main__':
                     df_dp.reset_index(inplace=True, drop=True)
                     nojyomei = df_dp.iat[0, 0]
                     hojyomei = df_dp.iat[0, 2]
+                    tokuseishindo_dataset(df_dp, nojyomei, hojyomei)  # 特性深度のヒストグラム・データ生成
                     # 事前準備1：測定位置ごとの色・線のプロパティを決める・・散布図生成の共通処理
                     marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
                     marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
