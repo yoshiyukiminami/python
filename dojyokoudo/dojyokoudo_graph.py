@@ -87,7 +87,7 @@ def koudobunpu_dataset(df2):
                 #     All_list[com_header].append(df_ave[com_header][j])
                 # print(All_list)
                 savetime = datetime.datetime.now()
-                yyyymmdd = savetime.strftime('%Y-%m-%d_%H-%M-%S')
+                yyyymmdd = savetime.strftime('%Y%m%d_%H%M%S')
                 save_name = nojyomei + '_' + hojyomei + '_' + yyyymmdd
                 # 特性深度分布の計算結果と紐付け情報を格納したDATAFRAME（df_all）をcsv保存・・暫定的に
                 # df_ave.to_csv(save_name + '.csv', encoding='SHIFT-JIS', index=False)
@@ -125,7 +125,7 @@ def koudobunpu_dataset(df2):
                                                  xanchor='left'
                                                  ),
                                       yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
-                                      xaxis=dict(title='柔←　硬度（Mpa）　→硬', range=(200, 3000)),
+                                      xaxis=dict(title='柔←　硬度（kpa）　→硬', range=(0, 3000)),
                                       legend=dict(font=dict(size=9, color='black'),
                                                   orientation='v',
                                                   xanchor='left',
@@ -335,7 +335,7 @@ def matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol):
                           )
         fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
         fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+    # fig.write_image('土壌硬度分布_' + nojyomei + '_' + '.jpeg', engine='kaleido')
     # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
     fig.show()
 
@@ -427,7 +427,7 @@ def tokuseishindo_dataset(df_dp, nojyomei, hojyomei):
     # 保存名は最初の農場名+変換日時∔CSV・・暫定的に
     df_all = pd.DataFrame(All_list2)
     y = df_all['class_value'][0]
-    sokuteibi3 = df_all['ymd'][0].strftime('%Y.%m.%d')
+    sokuteibi3 = df_all['ymd'][0].strftime('%Y%m%d')
     tokuseishindo_graphset_a(df_all, nojyomei, hojyomei, sokuteibi3, y)
     tokuseishindo_graphset_b(df_all, nojyomei, hojyomei, sokuteibi3, y)
     savetime = datetime.datetime.now()
@@ -435,8 +435,8 @@ def tokuseishindo_dataset(df_dp, nojyomei, hojyomei):
     save_name = nojyomei + '_' + hojyomei + '_' + yyyymmdd
     filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
     save_name2 = filedir + save_name
-    print(save_name2)
-    # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
+    print(save_name2, 'aaa')
+    df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
 
 
 def tokuseishindo_graphset_a(df_all, nojyomei, hojyomei, sokuteibi3, y):
@@ -478,7 +478,7 @@ def tokuseishindo_graphset_a(df_all, nojyomei, hojyomei, sokuteibi3, y):
     filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
     fig_name = 'histgram-1_' + nojyomei + '_' + hojyomei + '_' + sokuteibi3 + '.jpeg'
     fig_name1 = filedir + fig_name
-    print(fig_name1)
+    print(fig_name1, 'bbb')
     # fig.write_image(fig_name1)
     # fig.write_image('特性深度分布（度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
     # fig.write_html(fig_name1)
@@ -526,8 +526,8 @@ def tokuseishindo_graphset_b(df_all, nojyomei, hojyomei, sokuteibi3, y):
     filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
     fig_name = 'histgram-2_' + nojyomei + '_' + hojyomei + '_' + sokuteibi3 + '.jpeg'
     fig_name2 = filedir + fig_name
-    print(fig_name2)
-    # fig.write_image(fig_name2)
+    print(fig_name2, 'ccc')
+    # fig.write_image(fig_name2, engine='kaleido')
     # fig.write_image('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
     # fig.write_html(fig_name2)
     fig.show()
@@ -575,11 +575,11 @@ if __name__ == '__main__':
                     df_dp.reset_index(inplace=True, drop=True)
                     nojyomei = df_dp.iat[0, 0]
                     hojyomei = df_dp.iat[0, 2]
-                    tokuseishindo_dataset(df_dp, nojyomei, hojyomei)  # 特性深度のヒストグラム・データ生成
+                    # tokuseishindo_dataset(df_dp, nojyomei, hojyomei)  # 特性深度のヒストグラム・データ生成
                     # 事前準備1：測定位置ごとの色・線のプロパティを決める・・散布図生成の共通処理
                     marker_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
                     marker_symbol = {'1': 'square', '2': 'diamond', '3': 'triangle-up'}
-                    matrix_graphset_a(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×飽和硬度
-                    matrix_graphset_b(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×緩衝因子
-                    matrix_graphset_c(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×硬度勾配
-                    matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 最大深度×飽和硬度
+                    # matrix_graphset_a(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×飽和硬度
+                    # matrix_graphset_b(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×緩衝因子
+                    # matrix_graphset_c(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 特性深度×硬度勾配
+                    # matrix_graphset_d(df_dp, nojyomei, hojyomei, marker_color, marker_symbol)  # 最大深度×飽和硬度
