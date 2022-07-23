@@ -4,9 +4,8 @@ import datetime
 import matplotlib
 import matplotlib.pyplot as plt
 
-# 【下準備】日本語対応、画像サイズの統一
+# 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
-plt.rcParams["figure.figsize"] = [8, 4]
 
 # 【下準備】表示の制限・・jupyterlabのみ有効
 pd.set_option('display.max_rows', 10)
@@ -45,7 +44,7 @@ for i in range(len(nojyomei_list)):
     for j in range(len(hojyomei_list)):
         hojyomei = hojyomei_list[j]
         df2 = df1[df1['圃場名'] == hojyomei]
-        dataset1 = df2['xC']
+        dataset1 = df2['パラメータD']
 
         # 品目・時期をAll_listに格納し、エラー（2つ以上ある場合）を検知する
         item_list = df2['品目'].tolist()
@@ -68,10 +67,10 @@ for i in range(len(nojyomei_list)):
         All_list['hojyomei'].append(list(set(hojyomei_list))[j])
 
         # 測定日をdatetimeに変換してAll_listに格納し、エラー（2つ以上ある場合）を検知する
-        sokuteibi = df2['測定日'].tolist()
+        sokuteibi = df2['計測日'].tolist()
         sokuteibi_count = len(set(sokuteibi))
         if not sokuteibi_count == 1:
-            print("エラー：測定日が2つ以上あります。")
+            print("エラー：計測日が2つ以上あります。")
             break
         else:
             sokuteibi2 = sokuteibi[j] + ' ' + '00:00:00'
@@ -150,20 +149,20 @@ for i in range(len(nojyomei_list)):
     # 【グラフ-2】全圃場での比較グラフ（度数、相対累積度数の複合）の生成、JPEG保存
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
-    for m, (y1, y2) in enumerate(zip(df_series1, df_series2)):
-        pos = x - total_width * (1 - (2 * m + 1) / len(df_series1)) / 2
-        ax1.bar(pos, y1, width=total_width / len(df_series1), label=labels[m])
-        ax2.plot(x, y2, "--o", label=labels[m], linewidth=1, markersize=2)
+    for l, (y1, y2) in enumerate(zip(df_series1, df_series2)):
+        pos = x - total_width * (1 - (2 * l + 1) / len(df_series1)) / 2
+        ax1.bar(pos, y1, width=total_width / len(df_series1), label=labels[l])
+        ax2.plot(x, y2, "--o", label=labels[l], linewidth=1, markersize=2)
         handler1, label1 = ax1.get_legend_handles_labels()
         handler2, label2 = ax2.get_legend_handles_labels()
-        ax1.set_title('圃場比較_特性深度分布_' + nojyomei, size=16)
-        ax1.set_xlabel('深度（㎝）', size=12)
-        ax1.set_ylabel('度数', size=12)
-        ax1.set_ylim(0, 50)
-        ax1.grid(axis='y', linestyle='dotted', color='r')
-        ax1.set_xticks(x)
-        ax1.legend(handler1 + handler2, label1 + label2, borderaxespad=0, loc='center right')
-        ax2.set_ylabel('相対累積度数', size=12)
-        ax2.set_ylim(0, 1)
-        ax2.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        fig.savefig('特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+    ax1.set_title('圃場比較_特性深度分布_' + nojyomei, size=16)
+    ax1.set_xlabel('深度（㎝）', size=12)
+    ax1.set_ylabel('度数', size=12)
+    ax1.set_ylim(0, 50)
+    ax1.grid(axis='y', linestyle='dotted', color='r')
+    ax1.set_xticks(x)
+    ax1.legend(handler1 + handler2, label1 + label2, borderaxespad=0, loc='center right')
+    ax2.set_ylabel('相対累積度数', size=12)
+    ax2.set_ylim(0, 1)
+    ax2.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+    fig.savefig('特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')

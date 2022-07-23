@@ -40,7 +40,7 @@ for i in range(len(nojyomei_list)):
     for j in range(len(hojyomei_list)):
         hojyomei = hojyomei_list[j]
         df2 = df1[df1['圃場名'] == hojyomei]
-        dataset1 = df2['xC']
+        dataset1 = df2['パラメータD']
 
         # 品目・時期をAll_listに格納し、エラー（2つ以上ある場合）を検知する
         item_list = df2['品目'].tolist()
@@ -63,10 +63,10 @@ for i in range(len(nojyomei_list)):
         All_list['hojyomei'].append(list(set(hojyomei_list))[j])
 
         # 測定日をdatetimeに変換してAll_listに格納し、エラー（2つ以上ある場合）を検知する
-        sokuteibi = df2['測定日'].tolist()
+        sokuteibi = df2['計測日'].tolist()
         sokuteibi_count = len(set(sokuteibi))
         if not sokuteibi_count == 1:
-            print("エラー：測定日が2つ以上あります。")
+            print("エラー：計測日が2つ以上あります。")
             break
         else:
             sokuteibi2 = sokuteibi[j] + ' ' + '00:00:00'
@@ -95,17 +95,87 @@ for i in range(len(nojyomei_list)):
     df_all.to_csv(save_name, encoding='SHIFT-JIS', index=False)
 
 # 圃場比較グラフ（度数）の生成と保存（JPEG、HTML）
-    nojyomei = df_all['nojyomei'][0]
+nojyomei = df_all['nojyomei'][0]
 
+fig = go.Figure()
+for k in range(len(df_all['hojyomei'])):
+    fig.add_trace(go.Bar(x=df_all['class_value'][0],
+                         y=df_all['freq'][k],
+                         name=df_all['hojyomei'][k],
+                         width=1.2,
+                         hovertemplate='度数:%{y}, 深度:%{x}cm')
+                  )
+fig.update_layout(title=dict(text='圃場比較（度数）_特性深度分布_' + nojyomei,
+                             font=dict(size=20, color='black'),
+                             xref='paper',
+                             x=0.5,
+                             y=0.9,
+                             xanchor='center'
+                             ),
+                  xaxis=dict(title='深度（㎝）', range=(0, 60)),
+                  yaxis=dict(title='度数', range=(0, 50)),
+                  legend=dict(orientation='h',
+                              xanchor='left',
+                              x=0.02,
+                              yanchor='bottom',
+                              y=0.9),
+                  width=600,
+                  height=400,
+                  plot_bgcolor='whitesmoke'
+                  )
+fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+fig.write_image('圃場比較（度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+fig.write_html('圃場比較（度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+fig.show()
+
+# 圃場比較グラフ（相対度数）の生成と保存（JPEG、HTML）
+fig = go.Figure()
+for l in range(len(df_all['hojyomei'])):
+    fig.add_trace(go.Scatter(x=df_all['class_value'][0],
+                             y=df_all['rel_freq'][l],
+                             name=df_all['hojyomei'][l],
+                             mode='markers+lines',
+                             marker=dict(size=5),
+                             hovertemplate='相対度数:%{y}, 深度:%{x}cm')
+                  )
+fig.update_layout(title=dict(text='圃場比較（度数）_特性深度分布_' + nojyomei,
+                             font=dict(size=20, color='black'),
+                             xref='paper',
+                             x=0.5,
+                             y=0.9,
+                             xanchor='center'
+                             ),
+                  xaxis=dict(title='深度（㎝）', range=(0, 60)),
+                  yaxis=dict(title='相対度数', range=(0, 1), tickformat='%'),
+                  legend=dict(orientation='h',
+                              xanchor='left',
+                              x=0.02,
+                              yanchor='bottom',
+                              y=0.9),
+                  width=600,
+                  height=400,
+                  plot_bgcolor='whitesmoke'
+                  )
+fig.layout.yaxis.tickformat = ',.0%'
+fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
+fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
+fig.write_image('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
+fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+fig.show()
+
+# 各圃場ごとに特性深度分布グラフ（度数・相対度数）を生成し、保存（JPEG、HTML）
+for m, (d1, d2) in enumerate(zip(df_all['freq'], df_all['rel_freq'])):
+    # 圃場別特性深度分布グラフ（度数）を生成・保存（JPEG、HTML）
     fig = go.Figure()
-    for k in range(len(df_all['hojyomei'])):
-        fig.add_trace(go.Bar(x=df_all['class_value'][0],
-                             y=df_all['freq'][k],
-                             name=df_all['hojyomei'][k],
-                             width=1.2,
-                             hovertemplate='度数:%{y}, 深度:%{x}cm')
-                      )
-    fig.update_layout(title=dict(text='圃場比較（度数）_特性深度分布_' + nojyomei,
+    hojyomei = df_all['hojyomei'][m]
+    fig.add_trace(go.Bar(x=df_all['class_value'][0],
+                         y=d1,
+                         name=hojyomei,
+                         width=3,
+                         hovertemplate='度数:%{y}, 深度:%{x}cm', showlegend=True)
+                  )
+    fig.update_layout(title=dict(text='特性深度分布（度数）_' + nojyomei + '_' + yyyymmdd,
                                  font=dict(size=20, color='black'),
                                  xref='paper',
                                  x=0.5,
@@ -118,28 +188,30 @@ for i in range(len(nojyomei_list)):
                                   xanchor='left',
                                   x=0.02,
                                   yanchor='bottom',
-                                  y=0.9),
+                                  y=0.9,
+                                  bgcolor='white',
+                                  bordercolor='grey'
+                                  ),
                       width=600,
                       height=400,
                       plot_bgcolor='whitesmoke'
                       )
     fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
     fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    fig.write_image('圃場比較（度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
-    fig.write_html('圃場比較（度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.write_image('特性深度分布（度数）_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.jpeg')
+    fig.write_html('特性深度分布（度数）' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.html')
     fig.show()
-
-    # 圃場比較グラフ（相対度数）の生成と保存（JPEG、HTML）
+    # 圃場別特性深度分布グラフ（相対度数）を生成・保存（JPEG、HTML）
     fig = go.Figure()
-    for n in range(len(df_all['hojyomei'])):
-        fig.add_trace(go.Scatter(x=df_all['class_value'][0],
-                                 y=df_all['rel_freq'][n],
-                                 name=df_all['hojyomei'][n],
-                                 mode='markers+lines',
-                                 marker=dict(size=5),
-                                 hovertemplate='相対度数:%{y}, 深度:%{x}cm')
-                      )
-    fig.update_layout(title=dict(text='圃場比較（度数）_特性深度分布_' + nojyomei,
+    fig.add_trace(go.Scatter(x=df_all['class_value'][0],
+                             y=d2,
+                             name=hojyomei,
+                             mode='markers+lines',
+                             marker=dict(size=5),
+                             showlegend=True,
+                             hovertemplate='相対度数:%{y}, 深度:%{x}cm')
+                  )
+    fig.update_layout(title=dict(text='特性深度分布（相対度数）_' + nojyomei + '_' + yyyymmdd,
                                  font=dict(size=20, color='black'),
                                  xref='paper',
                                  x=0.5,
@@ -152,7 +224,10 @@ for i in range(len(nojyomei_list)):
                                   xanchor='left',
                                   x=0.02,
                                   yanchor='bottom',
-                                  y=0.9),
+                                  y=0.9,
+                                  bgcolor='white',
+                                  bordercolor='grey'
+                                  ),
                       width=600,
                       height=400,
                       plot_bgcolor='whitesmoke'
@@ -160,81 +235,6 @@ for i in range(len(nojyomei_list)):
     fig.layout.yaxis.tickformat = ',.0%'
     fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
     fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    fig.write_image('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
-    fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
+    fig.write_image('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.jpeg')
+    fig.write_html('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.html')
     fig.show()
-
-    # 各圃場ごとに特性深度分布グラフ（度数・相対度数）を生成し、保存（JPEG、HTML）
-    for m, (d1, d2) in enumerate(zip(df_all['freq'], df_all['rel_freq'])):
-        # 圃場別特性深度分布グラフ（度数）を生成・保存（JPEG、HTML）
-        fig = go.Figure()
-        hojyomei = df_all['hojyomei'][m]
-        fig.add_trace(go.Bar(x=df_all['class_value'][0],
-                             y=d1,
-                             name=hojyomei,
-                             width=3,
-                             hovertemplate='度数:%{y}, 深度:%{x}cm', showlegend=True)
-                      )
-        fig.update_layout(title=dict(text='特性深度分布（度数）_' + nojyomei + '_' + yyyymmdd,
-                                     font=dict(size=20, color='black'),
-                                     xref='paper',
-                                     x=0.5,
-                                     y=0.9,
-                                     xanchor='center'
-                                     ),
-                          xaxis=dict(title='深度（㎝）', range=(0, 60)),
-                          yaxis=dict(title='度数', range=(0, 50)),
-                          legend=dict(orientation='h',
-                                      xanchor='left',
-                                      x=0.02,
-                                      yanchor='bottom',
-                                      y=0.9,
-                                      bgcolor='white',
-                                      bordercolor='grey'
-                                      ),
-                          width=600,
-                          height=400,
-                          plot_bgcolor='whitesmoke'
-                          )
-        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
-        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-        fig.write_image('特性深度分布（度数）_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.jpeg')
-        fig.write_html('特性深度分布（度数）' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.html')
-        fig.show()
-        # 圃場別特性深度分布グラフ（相対度数）を生成・保存（JPEG、HTML）
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df_all['class_value'][0],
-                                 y=d2,
-                                 name=hojyomei,
-                                 mode='markers+lines',
-                                 marker=dict(size=5),
-                                 showlegend=True,
-                                 hovertemplate='相対度数:%{y}, 深度:%{x}cm')
-                      )
-        fig.update_layout(title=dict(text='特性深度分布（相対度数）_' + nojyomei + '_' + yyyymmdd,
-                                     font=dict(size=20, color='black'),
-                                     xref='paper',
-                                     x=0.5,
-                                     y=0.9,
-                                     xanchor='center'
-                                     ),
-                          xaxis=dict(title='深度（㎝）', range=(0, 60)),
-                          yaxis=dict(title='相対度数', range=(0, 1), tickformat='%'),
-                          legend=dict(orientation='h',
-                                      xanchor='left',
-                                      x=0.02,
-                                      yanchor='bottom',
-                                      y=0.9,
-                                      bgcolor='white',
-                                      bordercolor='grey'
-                                      ),
-                          width=600,
-                          height=400,
-                          plot_bgcolor='whitesmoke'
-                          )
-        fig.layout.yaxis.tickformat = ',.0%'
-        fig.update_xaxes(showline=True, linewidth=1.5, linecolor='black', color='black')
-        fig.update_yaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-        fig.write_image('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.jpeg')
-        fig.write_html('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd + '.html')
-        fig.show()
