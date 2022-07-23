@@ -7,14 +7,14 @@ import glob
 import os
 import pprint
 
-def dataappend_dik5531(df, df_file1, df_file2, diktype):
+def dataappend_dik5531(df, df_file1, df_file2, diktype, datanumber):
     # print(df, df_file1, df_file2)
     depth = df_file1.iat[3, 1]
     spring = df_file1.iat[5, 1]
     cone = df_file1.iat[6, 1]
     # print(depth, spring, cone)
     koudodata = df_file2.iloc[:, 1]
-    print(koudodata, type(koudodata))
+    # print(koudodata, type(koudodata))
 
     isvalid = True
     if not depth == 60 and spring == 490 and cone == 2:
@@ -26,14 +26,14 @@ def dataappend_dik5531(df, df_file1, df_file2, diktype):
         #     df.concat()
 
 
-def dataappend_dik5532(df, df_file3, df_file4, diktype):
-    print(df, df_file3, df_file4)
+def dataappend_dik5532(df, df_file3, df_file4, diktype, datanumber2):
+    # print(df, df_file3, df_file4)
     depth = df_file3.iat[3, 1]
     cone = df_file3.iat[5, 1]
     angle = df_file3.iat[9, 1]
     print(depth, angle, cone)
     koudodata = df_file4.iloc[:, 1]
-    print(koudodata, type(koudodata))
+    # print(koudodata, type(koudodata))
 
     isvalid = True
     if not depth == 60 and angle == 30 and cone == 2:
@@ -58,9 +58,9 @@ if __name__ == '__main__':
     # 標準ヘッダーが付いているファイルを読み込む・・このファイルに取得した地点土壌硬度データを代入していく
     filedir2 = 'C:/Users/minam/Desktop/torikomi_csv_header/'
     basefile = glob.glob(filedir2 + '/**/*.csv', recursive=True)[0]
-    print(basefile)
+    # print(basefile)
     df = pd.read_csv(basefile, encoding='Shift-JIS', header=0)
-    print(df)
+    # print(df)
 
     for file in files:
         # Step-2 地点土壌硬度データから硬度計タイプを判定する
@@ -69,13 +69,19 @@ if __name__ == '__main__':
         print(diktype)
         if diktype == 'DIK-5531':
             print("硬度計のタイプは旧型（5531）です")
+            datanumber = file[Nstr-31:Nstr-27]
+            print(datanumber)
             df_file1 = pd.read_csv(file, encoding='Shift-JIS', header=0, nrows=7)
             df_file2 = pd.read_csv(file, encoding='Shift-JIS', header=0, skiprows=9)
-            dataappend_dik5531(df, df_file1, df_file2, diktype)
+            dataappend_dik5531(df, df_file1, df_file2, diktype, datanumber)
         else:
             print("硬度計のタイプは新型（5532）です")
+            dataforder = file[Nstr-9:Nstr-8]
+            print(dataforder)
+            datanumber2 = dataforder + '-' + file[Nstr-7:Nstr-3]
+            print(datanumber2)
             df_file3 = pd.read_csv(file, encoding='Shift-JIS', header=0, nrows=10)
             df_file4 = pd.read_csv(file, encoding='Shift-JIS', header=0, skiprows=11)
             diktype = 'DIK-5532'
-            dataappend_dik5532(df, df_file3, df_file4, diktype)
+            dataappend_dik5532(df, df_file3, df_file4, diktype, datanumber2)
 
