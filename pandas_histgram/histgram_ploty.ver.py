@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import datetime
 import plotly.graph_objects as go
-import glob
 
 # 【下準備】表示の制限・・jupyterlabのみ有効
 pd.set_option('display.max_rows', 10)
