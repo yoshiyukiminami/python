@@ -9,6 +9,19 @@ pd.set_option('display.max_rows', 10)
 pd.set_option('display.max_columns', None)
 
 
+def has_singular(list_to_be_check: pd.Series) -> bool:
+    """
+    series を集約して、値が2種類以上ある場合はアラートメッセージを出します
+    :param list_to_be_check: チェックをかけたい series
+    :return: bool
+    """
+    ret_value = True
+    if len(list_to_be_check.value_counts()) > 1:
+        print(f"エラー: 1つの圃場に {list_to_be_check.name} が2つ以上あります。")
+        ret_value = False
+    return ret_value
+
+
 def koudobunpu_dataset(df2):
     # 【Step-1】硬度分布データのデータフレーム決定・・point1=圃場内側定位置1、point2=圃場内測定位置2
     All_list = {
