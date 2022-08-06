@@ -147,7 +147,7 @@ for file in files:
         filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
         save_name2 = filedir + save_name1
         # print(save_name2)
-        # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
+        df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
 
 # 各圃場ごとに特性深度分布グラフ（度数・相対度数）を生成し、保存（JPEG、HTML）
 for m, (d1, d2) in enumerate(zip(df_all['freq'], df_all['rel_freq'])):
