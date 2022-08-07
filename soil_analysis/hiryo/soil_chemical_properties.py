@@ -8,22 +8,21 @@ import glob
 import os
 import pprint
 import plotly.graph_objects as go
+import matplotlib
+import matplotlib.pyplot as plt
 
-def graphset_N(df2):
-    # print(df2)
+# 【下準備】日本語対応
+plt.rcParams['font.family'] = 'Meiryo'
+# 【グラフ下準備】グラフサイズを統一
+plt.figure(figsize=[5, 5])
+
+def graphset_N(df2, graph_title, hojyomei):
     # グラフのタイトルを生成する
-    graph_title = df2[['生産者名', '圃場名', '品目', '作型', '採土日']].values
     title = '窒素関連_' + '_'.join(graph_title)
-    hojyomei = df2['圃場名']
     # df2からグラフに必要な項目のみ分離
     df_N = df2.iloc[[5, 17, 18, 26, 27]]
     # データを換算するための基準値設定
     dataset_N = {'EC(mS/cm)': 0.2, 'NH4-N(mg/100g)': 1.5, 'NO3-N(mg/100g)': 3.5, '無機態窒素': 15, 'NH4/無機態窒素': 0.6}
-    # kijyunkoumoku = ['EC(mS/cm)', 'NH4-N(mg/100g)', 'NO3-N(mg/100g)', '無機態窒素', 'NH4/無機態窒素']
-    # kijyunti = [0.2, 1.5, 3.5, 15, 0.6]
-    # dataset_N2 = pd.DataFrame(kijyunti, index=kijyunkoumoku)
-    # print(dataset_N2)
-
     # df_Nの数値を基準値で除算してパーセントに変換
     for k, j in enumerate(dataset_N):
         x = df_N[j] / dataset_N[j]
@@ -64,7 +63,7 @@ def graphset_N(df2):
                                  xanchor='left'
                                  ),
                       yaxis=dict(title='測定項目'),
-                      xaxis=dict(title='飽和度（基準値100％）', range=(0, 2), tickformat='%'),
+                      xaxis=dict(title='飽和度（基準値100％）', range=(0, 3), tickformat='%'),
                       width=500,
                       height=500,
                       plot_bgcolor='white'
@@ -81,16 +80,56 @@ def graphset_N(df2):
     fig.show()
 
 
-def graphset_P(df2):
-    print(df2)
+def graphset_P(df2, graph_title, hojyomei):
+    # グラフのタイトルを生成する
+    title = 'リン酸関連_' + '_'.join(graph_title)
+    # df2からグラフに必要な項目のみ分離
+    df_P = df2.iloc[[15, 16]]
+    # データを換算するための基準値設定
+    dataset_P = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
+    # df_Pの数値を基準値で除算してパーセントに変換
+    for k, j in enumerate(dataset_P):
+        x = df_P[j] / dataset_P[j]
+        df_P[j] = x
+    df_P2 = pd.DataFrame(df_P)
+    print(df_P2)
+    # リン酸に関連する土壌化学性項目グラフを生成・保存
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    for n, m in df_P2.iterrows():
+        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー
+        x = m.values
+        if x >= 1:
+            color = 'red'
+        else:
+            color = 'grey'
+        y = [n]
+        print(y)
+        print(color)
+        ax.barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        ax.set_title(title, size=11)
+        ax.set_xlabel('飽和度（基準値100％）', size=11)
+        ax.set_ylabel('測定項目', size=11)
+        ax.set_xlim(0, 3)
+        # ax.grid(axis='x', linestyle='dotted', color='r')
+        ax.set_yticks([])
+        plt.text(x/len(df_P2), y, "({} : {})".format(y, x), ha='center', color='white', size=11)
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        # handler1, label1 = ax1.get_legend_handles_labels()
+        # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
+    ax.axvline(1, linestyle='dotted', color='red')
+    ax.invert_yaxis()
+    fig.savefig('リン酸関連グラフ_' + title + '.jpeg')
 
 
-def graphset_Enki(df2):
-    print(df2)
+def graphset_Enki(df2, graph_title, hojyomei):
+    # グラフのタイトルを生成する
+    title = '塩基類関連_' + '_'.join(graph_title)
 
 
-def graphset_Soilpotential(df2):
-    print(df2)
+def graphset_Soilpotential(df2, graph_title, hojyomei):
+    # グラフのタイトルを生成する
+    title = '土壌ポテンシャル関連_' + '_'.join(graph_title)
 
 
 if __name__ == '__main__':
@@ -116,8 +155,11 @@ if __name__ == '__main__':
             else:
                 print("データは正常です")
                 df2 = df.loc[i]
-                graphset_N(df2)
-                # graphset_P(df2)
-                # graphset_Enki(df2)
-                # graphset_Soilpotential(df2)
+                graph_title = df2[['生産者名', '圃場名', '品目', '作型', '採土日']].values
+                hojyomei = df2['圃場名']
+                print(graph_title, hojyomei)
+                # graphset_N(df2, graph_title, hojyomei)
+                graphset_P(df2, graph_title, hojyomei)
+                # graphset_Enki(df2, graph_title, hojyomei)
+                # graphset_Soilpotential(df2, graph_title, hojyomei)
 
