@@ -80,29 +80,44 @@ def graphset_N(df2, graph_title, hojyomei):
     fig.show()
 
 
-def graphset_P(df2, graph_title, hojyomei):
+def graphset_N2(df2, graph_title, hojyomei):
     # グラフのタイトルを生成する
-    title = 'リン酸関連_' + '_'.join(graph_title)
+    title = '窒素関連_' + '_'.join(graph_title)
     # df2からグラフに必要な項目のみ分離
-    df_P = df2.iloc[[15, 16]]
+    df_N = df2.iloc[[5, 17, 18, 26, 27]]
     # データを換算するための基準値設定
-    dataset_P = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
-    # df_Pの数値を基準値で除算してパーセントに変換
-    for k, j in enumerate(dataset_P):
-        x = df_P[j] / dataset_P[j]
-        df_P[j] = x
-    df_P2 = pd.DataFrame(df_P)
-    print(df_P2)
-    # リン酸に関連する土壌化学性項目グラフを生成・保存
+    dataset_NH = {'EC(mS/cm)': 0.2, 'NH4-N(mg/100g)': 1.5, 'NO3-N(mg/100g)': 3.5, '無機態窒素': 15, 'NH4/無機態窒素': 0.6}
+    dataset_NL = {'EC(mS/cm)': 0.05, 'NH4-N(mg/100g)': 0.2, 'NO3-N(mg/100g)': 0.7, '無機態窒素': 4, 'NH4/無機態窒素': 0.1}
+    # df_Nの数値を基準値で除算してパーセントに変換
+    for k, j in enumerate(dataset_NH):
+        x = df_N[j] / dataset_NH[j]
+        df_N[j] = x
+    df_N2 = pd.DataFrame(df_N)
+    print(df_N2)
+    # 窒素に関連する土壌化学性項目グラフを生成・保存
     fig = plt.figure()
     ax = fig.add_subplot()
-    for n, m in df_P2.iterrows():
-        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー
+    for n, m in df_N2.iterrows():
+        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
         x = m.values
+        L_level = (1 * dataset_NL[n]) / dataset_NH[n]
+        print(L_level)
         if x >= 1:
             color = 'red'
+            if x >= 2:
+                x_text = 1
+                t_color = 'yellow'
+            else:
+                x_text = x
+                t_color = 'red'
         else:
-            color = 'grey'
+            x_text = x
+            if x <= L_level:
+                color = 'blue'
+                t_color = 'blue'
+            else:
+                color = 'grey'
+                t_color = 'black'
         y = [n]
         print(y)
         print(color)
@@ -113,7 +128,64 @@ def graphset_P(df2, graph_title, hojyomei):
         ax.set_xlim(0, 3)
         # ax.grid(axis='x', linestyle='dotted', color='r')
         ax.set_yticks([])
-        plt.text(x/len(df_P2), y, "({} : {})".format(y, x), ha='center', color='white', size=11)
+        plt.text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=11)
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        # handler1, label1 = ax1.get_legend_handles_labels()
+        # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
+    ax.axvline(1, linestyle='dotted', color='red')
+    ax.invert_yaxis()
+    fig.savefig('窒素関連グラフ_' + title + '.jpeg')
+
+
+def graphset_P(df2, graph_title, hojyomei):
+    # グラフのタイトルを生成する
+    title = 'リン酸関連_' + '_'.join(graph_title)
+    # df2からグラフに必要な項目のみ分離
+    df_P = df2.iloc[[15, 16]]
+    # データを換算するための基準値設定
+    dataset_PH = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
+    dataset_PL = {'P2O5(mg/100g)': 10, 'リン吸(mg/100g)': 2000}
+    # df_Pの数値を基準値で除算してパーセントに変換
+    for k, j in enumerate(dataset_PH):
+        x = df_P[j] / dataset_PH[j]
+        df_P[j] = x
+    df_P2 = pd.DataFrame(df_P)
+    print(df_P2)
+    # リン酸に関連する土壌化学性項目グラフを生成・保存
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    for n, m in df_P2.iterrows():
+        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
+        x = m.values
+        L_level = (1 * dataset_PL[n]) / dataset_PH[n]
+        print(L_level)
+        if x >= 1:
+            color = 'red'
+            if x >= 2:
+                x_text = 1
+                t_color = 'yellow'
+            else:
+                x_text = x
+                t_color = 'red'
+        else:
+            x_text = x
+            if x <= L_level:
+                color = 'blue'
+                t_color = 'blue'
+            else:
+                color = 'grey'
+                t_color = 'black'
+        y = [n]
+        print(y)
+        print(color)
+        ax.barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        ax.set_title(title, size=11)
+        ax.set_xlabel('飽和度（基準値100％）', size=11)
+        ax.set_ylabel('測定項目', size=11)
+        ax.set_xlim(0, 3)
+        # ax.grid(axis='x', linestyle='dotted', color='r')
+        ax.set_yticks([])
+        plt.text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=11)
         ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
         # handler1, label1 = ax1.get_legend_handles_labels()
         # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
@@ -125,11 +197,118 @@ def graphset_P(df2, graph_title, hojyomei):
 def graphset_Enki(df2, graph_title, hojyomei):
     # グラフのタイトルを生成する
     title = '塩基類関連_' + '_'.join(graph_title)
+    # df2からグラフに必要な項目のみ分離
+    df_Enki = df2.iloc[[6, 8, 9, 10, 14, 21, 22]]
+    # データを換算するための基準値設定
+    dataset_EnkiH = {'ｐH': 6.5, 'CaO(mg/100g)': 400, 'MgO(mg/100g)': 70, 'K2O(mg/100g)': 40,
+                    '塩基飽和度(%)': 0.8, 'CaO/MgO': 8, 'MgO/K₂O': 6
+                     }
+    dataset_EnkiL = {'ｐH': 6, 'CaO(mg/100g)': 200, 'MgO(mg/100g)': 25, 'K2O(mg/100g)': 15,
+                     '塩基飽和度(%)': 0.5, 'CaO/MgO': 5, 'MgO/K₂O': 3
+                     }
+    # df_Enkiの数値を基準値で除算してパーセントに変換
+    for k, j in enumerate(dataset_EnkiH):
+        x = df_Enki[j] / dataset_EnkiH[j]
+        df_Enki[j] = x
+    df_Enki2 = pd.DataFrame(df_Enki)
+    print(df_Enki2)
+    # 塩基類に関連する土壌化学性項目グラフを生成・保存
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    for n, m in df_Enki2.iterrows():
+        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
+        x = m.values
+        L_level = (1 * dataset_EnkiL[n]) / dataset_EnkiH[n]
+        print(L_level)
+        if x >= 1:
+            color = 'red'
+            if x >= 2:
+                x_text = 1
+                t_color = 'yellow'
+            else:
+                x_text = x
+                t_color = 'red'
+        else:
+            x_text = x
+            if x <= L_level:
+                color = 'blue'
+                t_color = 'blue'
+            else:
+                color = 'grey'
+                t_color = 'black'
+        y = [n]
+        print(y)
+        print(color)
+        ax.barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        ax.set_title(title, size=11)
+        ax.set_xlabel('飽和度（基準値100％）', size=11)
+        ax.set_ylabel('測定項目', size=11)
+        ax.set_xlim(0, 3)
+        # ax.grid(axis='x', linestyle='dotted', color='r')
+        ax.set_yticks([])
+        plt.text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=11)
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        # handler1, label1 = ax1.get_legend_handles_labels()
+        # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
+    ax.axvline(1, linestyle='dotted', color='red')
+    ax.invert_yaxis()
+    fig.savefig('塩基類関連グラフ_' + title + '.jpeg')
 
 
 def graphset_Soilpotential(df2, graph_title, hojyomei):
     # グラフのタイトルを生成する
     title = '土壌ポテンシャル関連_' + '_'.join(graph_title)
+    df_Soil = df2.iloc[[7, 19, 20]]
+    # データを換算するための基準値設定
+    dataset_SoilH = {'CEC(meq/100g)': 40, '腐植(%)': 0.08, '仮比重': 1}
+    dataset_SoilL = {'CEC(meq/100g)': 12, '腐植(%)': 0.03, '仮比重': 0.6}
+    # df_Soilの数値を基準値で除算してパーセントに変換
+    for k, j in enumerate(dataset_SoilH):
+        x = df_Soil[j] / dataset_SoilH[j]
+        df_Soil[j] = x
+    df_Soil2 = pd.DataFrame(df_Soil)
+    print(df_Soil2)
+    # 土壌ポテンシャルに関連する土壌化学性項目グラフを生成・保存
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    for n, m in df_Soil2.iterrows():
+        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
+        x = m.values
+        L_level = (1 * dataset_SoilL[n]) / dataset_SoilH[n]
+        print(L_level)
+        if x >= 1:
+            color = 'red'
+            if x >= 2:
+                x_text = 1
+                t_color = 'yellow'
+            else:
+                x_text = x
+                t_color = 'red'
+        else:
+            x_text = x
+            if x <= L_level:
+                color = 'blue'
+                t_color = 'blue'
+            else:
+                color = 'grey'
+                t_color = 'black'
+        y = [n]
+        print(y)
+        print(color)
+        ax.barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        ax.set_title(title, size=11)
+        ax.set_xlabel('飽和度（基準値100％）', size=11)
+        ax.set_ylabel('測定項目', size=11)
+        ax.set_xlim(0, 3)
+        # ax.grid(axis='x', linestyle='dotted', color='r')
+        ax.set_yticks([])
+        plt.text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=11)
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        # handler1, label1 = ax1.get_legend_handles_labels()
+        # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
+    ax.axvline(1, linestyle='dotted', color='red')
+    ax.invert_yaxis()
+    fig.savefig('土壌ポテンシャル関連グラフ_' + title + '.jpeg')
 
 
 if __name__ == '__main__':
@@ -159,7 +338,8 @@ if __name__ == '__main__':
                 hojyomei = df2['圃場名']
                 print(graph_title, hojyomei)
                 # graphset_N(df2, graph_title, hojyomei)
+                graphset_N2(df2, graph_title, hojyomei)
                 graphset_P(df2, graph_title, hojyomei)
-                # graphset_Enki(df2, graph_title, hojyomei)
-                # graphset_Soilpotential(df2, graph_title, hojyomei)
+                graphset_Enki(df2, graph_title, hojyomei)
+                graphset_Soilpotential(df2, graph_title, hojyomei)
 
