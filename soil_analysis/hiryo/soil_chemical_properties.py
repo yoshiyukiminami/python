@@ -134,7 +134,10 @@ def graphset_N2(df2, graph_title, hojyomei):
         # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
     ax.axvline(1, linestyle='dotted', color='red')
     ax.invert_yaxis()
-    fig.savefig('窒素関連グラフ_' + title + '.jpeg')
+    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filename = filedir + '窒素関連グラフ_' + title + '.jpeg'
+    fig.savefig(filename)
+    # fig.savefig('窒素関連グラフ_' + title + '.jpeg')
 
 
 def graphset_P(df2, graph_title, hojyomei):
@@ -191,7 +194,10 @@ def graphset_P(df2, graph_title, hojyomei):
         # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
     ax.axvline(1, linestyle='dotted', color='red')
     ax.invert_yaxis()
-    fig.savefig('リン酸関連グラフ_' + title + '.jpeg')
+    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filename = filedir + 'リン酸関連グラフ_' + title + '.jpeg'
+    fig.savefig(filename)
+    # fig.savefig('リン酸関連グラフ_' + title + '.jpeg')
 
 
 def graphset_Enki(df2, graph_title, hojyomei):
@@ -252,7 +258,10 @@ def graphset_Enki(df2, graph_title, hojyomei):
         # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
     ax.axvline(1, linestyle='dotted', color='red')
     ax.invert_yaxis()
-    fig.savefig('塩基類関連グラフ_' + title + '.jpeg')
+    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filename = filedir + '塩基類関連グラフ_' + title + '.jpeg'
+    fig.savefig(filename)
+    # fig.savefig('塩基類関連グラフ_' + title + '.jpeg')
 
 
 def graphset_Soilpotential(df2, graph_title, hojyomei):
@@ -308,7 +317,10 @@ def graphset_Soilpotential(df2, graph_title, hojyomei):
         # ax1.legend(handler1, label1, borderaxespad=0, loc='center right')
     ax.axvline(1, linestyle='dotted', color='red')
     ax.invert_yaxis()
-    fig.savefig('土壌ポテンシャル関連グラフ_' + title + '.jpeg')
+    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filename = filedir + '土壌ポテンシャル関連グラフ_' + title + '.jpeg'
+    fig.savefig(filename)
+    # fig.savefig('土壌ポテンシャル関連グラフ_' + title + '.jpeg')
 
 
 if __name__ == '__main__':
