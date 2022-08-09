@@ -56,9 +56,11 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[0, 0].set_ylabel('測定項目', size=8)
         axes[0, 0].set_xlim(0, 3)
         axes[0, 0].set_yticks([])
+        # axes[0, 0].set_xticklabels(x, fontsize=8)
         axes[0, 0].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[0, 0].axvline(1, linestyle='dotted', color='red')
+        axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+        axes[0, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
         axes[0, 0].invert_yaxis()
 
     # 【リン酸関連_1, 0】準備-1 df2からグラフに必要な項目のみ分離
@@ -102,7 +104,8 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[1, 0].set_xticklabels(x, fontsize=8)
         axes[1, 0].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[1, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[1, 0].axvline(1, linestyle='dotted', color='red')
+        axes[1, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+        axes[1, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
         axes[1, 0].invert_yaxis()
 
     # 【塩基類関連_0, 1】準備-1 df2からグラフに必要な項目のみ分離
@@ -147,9 +150,11 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[0, 1].set_ylabel('測定項目', size=8)
         axes[0, 1].set_xlim(0, 3)
         axes[0, 1].set_yticks([])
+        # axes[0, 1].set_xticklabels(x, fontsize=8)
         axes[0, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[0, 1].axvline(1, linestyle='dotted', color='red')
+        axes[0, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+        axes[0, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
         axes[0, 1].invert_yaxis()
 
     # 【土壌ポテンシャル関連_1, 1】準備-1 df2からグラフに必要な項目のみ分離
@@ -193,15 +198,16 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[1, 1].set_xticklabels(x, fontsize=8)
         axes[1, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[1, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[1, 1].axvline(1, linestyle='dotted', color='red')
+        axes[1, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+        axes[1, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
         axes[1, 1].invert_yaxis()
 
     # 生成したグラフの保存
-    # filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
-    # filename = filedir + graph_title + '.jpeg'
-    # fig.savefig(filename)
-    # fig.savefig(graph_title + '.jpeg')
-    # fig.suptitle(graph_title)
+    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filename = filedir + graph_title + '.jpeg'
+    fig.suptitle(graph_title)
+    fig.savefig(filename)
+    # plt.savefig(filename)
     plt.show()
 
 
@@ -228,9 +234,9 @@ if __name__ == '__main__':
             else:
                 print("データは正常です")
                 df2 = df.loc[i]
-                graph_title = df2[['生産者名', '圃場名', '品目', '作型', '採土日']].values
+                graph_titles = df2[['生産者名', '圃場名', '品目', '作型', '採土日']].values
+                graph_title = '土壌化学性診断_' + '_'.join(graph_titles)
                 hojyomei = df2['圃場名']
-                print(graph_title, hojyomei)
                 graphset_2x2(df2, graph_title, hojyomei)
                 # graphset_n2(df2, graph_title, hojyomei)
                 # graphset_p(df2, graph_title, hojyomei)
