@@ -11,7 +11,7 @@ plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一
 plt.figure(figsize=[8, 8])
 
-def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_title):
+def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # 1つのfigに4つのaxesを行2×列2で描画
     fig, axes = plt.subplots(1, 3, tight_layout=True, squeeze=False)
 
@@ -23,22 +23,25 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_ti
     data_set_high = {'50%': 30, 'std_ddof=1': 3}
     data_set_low = {'50%': 15, 'std_ddof=1': 7}
     sakudoshin = df_all['50%'][0]
-    print(sakudoshin, '作土深')
+    sakudoshin_h = data_set_high['50%']
+    sakudoshin_l = data_set_low['50%']
     baratsuki = df_all['std_ddof=1'][0]
-    print(baratsuki, 'ばらつき')
-    if sakudoshin >= data_set_high['50%'][0]:
+    baratuki_h = data_set_high['std_ddof=1']
+    baratsuki_l = data_set_low['std_ddof=1']
+    if sakudoshin >= sakudoshin_h:
         s_color = 'yellow'
     else:
-        if sakudoshin <= data_set_low['50%'][0]:
+        if sakudoshin <= sakudoshin_l:
             s_color = 'blue'
         else:
             s_color = 'grey'
+            print(s_color, 'aaa')
         axes[0, 0].barh(y, x, color=s_color, height=0.5, align='center')
         axes[0, 0].set_title('特性深度分布（度数）', size=11)
         axes[0, 0].set_xlabel('度数（ポイント）', size=8)
         axes[0, 0].set_ylabel('深さ（㎝）', size=8)
         axes[0, 0].set_xlim(0, 50)
-        axes[0, 0].set_ylim(60, 1)
+        axes[0, 0].set_ylim(60, -0.001)
         axes[0, 0].set_yticklabels(y, fontsize=8)
         axes[0, 0].set_xticklabels(x, fontsize=8)
         axes[0, 0].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
@@ -52,22 +55,23 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_ti
     print(x, '相対度数X')
     # 【特性深度分布（相対度数）_0, 1】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
-    if baratsuki <= data_set_high['std_ddof=1'][0]:
+    if baratsuki <= baratuki_h:
         s_color = 'green'
     else:
-        if sakudoshin >= data_set_low['std_ddof=1'][0]:
+        if sakudoshin >= baratsuki_l:
             s_color = 'yellow'
         else:
             s_color = 'grey'
-        axes[0, 1].barh(y, x, color=s_color, height=0.5, align='center')
+            print(s_color, 'bbb')
+        axes[0, 1].plot(y, x, s_color)
         axes[0, 1].set_title('特性深度分布（相対度数）', size=11)
         axes[0, 1].set_xlabel('相対度数（％）', size=8)
         axes[0, 1].set_ylabel('深さ（㎝）', size=8)
         axes[0, 1].set_xlim(0, 1)
-        axes[0, 1].set_ylim(60, 1)
+        axes[0, 1].set_ylim(60, -0.001)
         axes[0, 1].set_xticklabels(x, fontsize=8)
         axes[0, 1].set_xticklabels(x, fontsize=8)
-        axes[0, 1].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
+        # axes[0, 1].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
         # axes[0, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
         # axes[0, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
@@ -87,15 +91,16 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_ti
         del y[0: 7]
         color = line_color[point1]
         dash = line_shape[point2]
-        axes[0, 1].plot(y, x, color=color, height=0.5, align='center')
-    axes[0, 1].set_title('土壌硬度分布', size=11)
-    axes[0, 1].set_xlabel('硬さ（kPa）', size=8)
-    axes[0, 1].set_ylabel('深さ（㎝）', size=8)
-    axes[0, 1].set_xlim(0, 3000)
-    axes[0, 1].set_ylim(60, 1)
-    axes[0, 1].set_xticklabels(x, fontsize=8)
-    axes[0, 1].set_yticklabels(y, fontsize=8)
-    axes[0, 1].invert_yaxis()
+        axes[0, 2].plot(y, x, dash, color, label=name)
+    axes[0, 2].set_title('土壌硬度分布', size=11)
+    axes[0, 2].set_xlabel('硬さ（kPa）', size=8)
+    axes[0, 2].set_ylabel('深さ（㎝）', size=8)
+    axes[0, 2].set_xlim(0, 3000)
+    axes[0, 2].set_ylim(60, 1)
+    axes[0, 2].set_xticklabels(x, fontsize=8)
+    axes[0, 2].set_yticklabels(y, fontsize=8)
+    axes[0, 2].set_legend(loc="center", bbox_to_anchor=(0.5, 1.05), ncol=2)
+    axes[0, 2].invert_yaxis()
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
@@ -206,8 +211,8 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                             print("エラー：測定日が2つ以上あります。")
                             isvalid = False
                         else:
-                            sokuteibi2 = sokuteibi[0] + ' ' + '00:00:00'
-                            sokuteibi2 = datetime.datetime.strptime(sokuteibi2, '%Y.%m.%d %H:%M:%S')
+                            sokuteibi2 = sokuteibi[0]
+                            print(sokuteibi2, '===')
                             All_list2['ymd'].append(sokuteibi2)
                             # 【Step-2-3] ヒストグラムの計算値をAll_listに格納
                             dataset1 = df_dp1['xC']
@@ -251,172 +256,27 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 df_all = pd.DataFrame(All_list2)
                 # 特性深度グラフのY軸データ（共通）をyに代入
                 y = df_all['class_value'][0]
-                sokuteibi3 = df_all['ymd'][0].strftime('%Y%m%d')
-                savetime = datetime.datetime.now()
-                yyyymmdd = savetime.strftime('%Y-%m-%d_%H-%M-%S')
                 filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
-                save_name1 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd
-                print(save_name1, 'aaa')
-                save_name2 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + yyyymmdd
-                print(save_name2, 'bbb')
+                save_name1 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
+                save_name2 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 # 特性深度分布の計算結果（df_all）と土壌硬度分布の計算結果（df_ave）をcsv保存
                 df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
                 df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
                 # 事前準備1：測定位置ごとの色・線のプロパティを決める
-                line_color = {'A': '#1616A7', 'B': '#1CA71C', 'C': '#FB0D0D'}
-                line_shape = {'1': 'solid', '2': 'dot', '3': 'dash'}
+                line_color = {'A': 'b', 'B': 'y', 'C': 'r'}
+                line_shape = {'1': 'solid', '2': 'doted', '3': 'dashed'}
                 # 事前準備2：グラフタイトルを設定
                 graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
-                graph_title = '土壌物理性診断_' + '_'.join(graph_titles)
-                graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_title)
-
-                # # 硬度分布グラフ（折れ線）の生成と保存（JPEG、HTML）
-                # x = df_ave.columns.to_list()
-                # del x[0: 7]
-                # fig = go.Figure()
-                # for j in range(len(df_ave)):
-                #     y = list(df_ave.iloc[j])
-                #     point1 = y[5]
-                #     point2 = str(y[6])
-                #     name = point1 + '-' + str(point2)
-                #     del y[0: 7]
-                #     color = line_color[point1]
-                #     dash = line_shape[point2]
-                #     fig.add_trace(go.Scatter(y=x,
-                #                              x=y,
-                #                              name=name,
-                #                              mode='lines',
-                #                              line=dict(color=color, dash=dash),
-                #                              hovertemplate='硬さ:%{x:.1f}kpa, 深度:%{y}',
-                #                              orientation='h')
-                #                   )
-                #     fig.update_layout(title=dict(text='土壌硬度分布_' + nojyomei + '_' + hojyomei,
-                #                                  font=dict(size=16, color='black'),
-                #                                  xref='paper',
-                #                                  x=0.01,
-                #                                  y=0.84,
-                #                                  xanchor='left'
-                #                                  ),
-                #                       yaxis=dict(title='深←　深度（cm）　→浅', range=(60, 1)),
-                #                       xaxis=dict(title='柔←　硬度（kpa）　→硬', range=(0, 3000)),
-                #                       legend=dict(font=dict(size=9, color='black'),
-                #                                   orientation='v',
-                #                                   xanchor='left',
-                #                                   x=0.82,
-                #                                   yanchor='top',
-                #                                   y=0.99),
-                #                       width=500,
-                #                       height=500,
-                #                       plot_bgcolor='white'
-                #                       )
-                #     fig.update_xaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-                #     fig.update_yaxes(showline=False, linewidth=0.5, linecolor='black', color='black')
-                # # fig.write_image(save_name + '.jpeg', engine='kaleido')
-                # # fig.write_image('土壌硬度分布_' + nojyomei + '_' + yyyymmdd + '.jpeg')
-                # # fig.write_html('圃場比較（相対度数）_特性深度分布_' + nojyomei + '_' + yyyymmdd + '.html')
-                # fig.show()
-
-
-def tokuseishindo_graphset_a(df_all, nojyomei, hojyomei, sokuteibi3, y):
-    # 圃場別特性深度分布グラフ（度数）を生成・保存（JPEG、HTML）
-    fig = go.Figure()
-    x = df_all['freq'][0]
-    fig.add_trace(go.Bar(y=y,
-                         x=x,
-                         name=hojyomei,
-                         width=3,
-                         hovertemplate='度数:%{x}, 深度:%{y}cm',
-                         showlegend=True,
-                         orientation='h')
-                  )
-    fig.update_layout(title=dict(text='特性深度分布（度数）_' + nojyomei + '_' + sokuteibi3,
-                                 font=dict(size=16, color='black'),
-                                 xref='paper',
-                                 x=0.01,
-                                 y=0.84,
-                                 xanchor='left'
-                                 ),
-                      yaxis=dict(title='深←　深度（㎝）　→浅', range=(60, 1)),
-                      xaxis=dict(title='少←　度数（個）　→多', range=(0, 50)),
-                      legend=dict(font=dict(size=12, color='black'),
-                                  orientation='v',
-                                  xanchor='left',
-                                  x=0.6,
-                                  yanchor='top',
-                                  y=0.99,
-                                  bgcolor='white',
-                                  bordercolor='grey'
-                                  ),
-                      width=500,
-                      height=500,
-                      plot_bgcolor='white'
-                      )
-    fig.update_xaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    fig.update_yaxes(showline=False, linewidth=0.5, linecolor='black', color='black')
-    filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
-    fig_name = 'histgram-1_' + nojyomei + '_' + hojyomei + '_' + sokuteibi3 + '.jpeg'
-    fig_name1 = filedir + fig_name
-    print(fig_name1, 'bbb')
-    # fig.write_image(fig_name1)
-    # fig.write_image('特性深度分布（度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
-    # fig.write_html(fig_name1)
-    fig.show()
-
-
-def tokuseishindo_graphset_b(df_all, nojyomei, hojyomei, sokuteibi3, y):
-    # 圃場別特性深度分布グラフ（相対度数）を生成・保存（JPEG、HTML）
-    fig = go.Figure()
-    x = df_all['rel_freq'][0]
-    fig.add_trace(go.Scatter(y=y,
-                             x=x,
-                             name=hojyomei,
-                             mode='markers+lines',
-                             marker=dict(size=5),
-                             showlegend=True,
-                             hovertemplate='相対度数:%{x}, 深度:%{y}cm',
-                             orientation='h')
-                  )
-    fig.update_layout(title=dict(text='特性深度分布（相対度数）_' + nojyomei + '_' + sokuteibi3,
-                                 font=dict(size=16, color='black'),
-                                 xref='paper',
-                                 x=0.01,
-                                 y=0.84,
-                                 xanchor='left'
-                                 ),
-                      yaxis=dict(title='深←　深度（㎝）　→浅', range=(60, 1)),
-                      xaxis=dict(title='低←　相対度数（％）　→高', range=(0, 1), tickformat='%'),
-                      legend=dict(font=dict(size=12, color='black'),
-                                  orientation='v',
-                                  xanchor='left',
-                                  x=0.6,
-                                  yanchor='top',
-                                  y=0.99,
-                                  bgcolor='white',
-                                  bordercolor='grey'
-                                  ),
-                      width=500,
-                      height=500,
-                      plot_bgcolor='white'
-                      )
-    fig.layout.xaxis.tickformat = ',.0%'
-    fig.update_xaxes(showline=True, linewidth=0.5, linecolor='black', color='black')
-    fig.update_yaxes(showline=False, linewidth=0.5, linecolor='black', color='black')
-    filedir = 'C:/Users/minam/Desktop/tokusei_histgram_picture/'
-    fig_name = 'histgram-2_' + nojyomei + '_' + hojyomei + '_' + sokuteibi3 + '.jpeg'
-    fig_name2 = filedir + fig_name
-    print(fig_name2, 'ccc')
-    # fig.write_image(fig_name2, engine='kaleido')
-    # fig.write_image('特性深度分布（相対度数）_' + nojyomei + '_' + hojyomei + '_' + sokuteibi + '.jpeg')
-    # fig.write_html(fig_name2)
-    fig.show()
+                graph_titles2 = graph_titles[0]
+                graph_title = '土壌物理性診断_' + '_'.join(graph_titles2)
+                print(graph_title)
+                graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title)
 
 
 if __name__ == '__main__':
     # ☆所定データの読み込み・・【展開】特定フォルダから複数ファイルを同時に読み込む処理
     filedir = 'C:/Users/minam/Desktop/tokusei_precal/'
     files = glob.glob(filedir + '/**/*.csv')
-    print(files)
-
     # 読み込んだファイルを「農場名」「圃場名」「圃場内測定位置」「圃場内測定位置2」で分類し、df2に格納
     for file in files:
         print(file)

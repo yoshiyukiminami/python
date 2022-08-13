@@ -126,7 +126,6 @@ def graphset_2x2(df2, graph_title, hojyomei):
     for n, m in df_enki2.iterrows():
         # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
         x = m.values
-        print(x)
         L_level = (1 * dataset_enkil[n]) / dataset_enkih[n]
         if x >= 1:
             color = 'red'
