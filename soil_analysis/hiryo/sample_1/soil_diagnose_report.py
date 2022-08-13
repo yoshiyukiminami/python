@@ -9,6 +9,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # 【下準備】日本語対応
+from pandas._testing import loc
+
 plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一
 plt.figure(figsize=[8, 8])
@@ -27,6 +29,10 @@ def graphset_2x2(df2, graph_title, hojyomei):
         x = df_n[j] / dataset_nh[j]
         df_n[j] = x
     df_n2 = pd.DataFrame(df_n)
+    # df_dmy = pd.Series([0, 0], index=['dmy1', 'dmy2'])
+    # print(df_dmy)
+    # df_n2 = pd.concat([df_n2, df_dmy], axis=0)
+    # print(df_n2, 'bbb')
 
     # 窒素に関連する土壌化学性項目グラフを生成[0, 0]
     for n, m in df_n2.iterrows():
@@ -56,7 +62,7 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[0, 0].set_ylabel('測定項目', size=8)
         axes[0, 0].set_xlim(0, 3)
         axes[0, 0].set_yticks([])
-        # axes[0, 0].set_xticklabels(x, fontsize=8)
+        # axes[0, 0].set_xticklabels(x, {'fontsize': 8})
         axes[0, 0].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
         axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
@@ -112,10 +118,10 @@ def graphset_2x2(df2, graph_title, hojyomei):
     df_enki = df2.iloc[[6, 8, 9, 10, 14, 21, 22]]
     # 【塩基類関連_0, 1】準備-2 データを換算するための基準値設定
     dataset_enkih = {'ｐH': 6.5, 'CaO(mg/100g)': 400, 'MgO(mg/100g)': 70, 'K2O(mg/100g)': 40,
-                    '塩基飽和度(%)': 0.8, 'CaO/MgO': 8, 'MgO/K₂O': 6
+                    '塩基飽和度(%)': 80, 'CaO/MgO': 8, 'MgO/K₂O': 6
                      }
     dataset_enkil = {'ｐH': 6, 'CaO(mg/100g)': 200, 'MgO(mg/100g)': 25, 'K2O(mg/100g)': 15,
-                     '塩基飽和度(%)': 0.5, 'CaO/MgO': 5, 'MgO/K₂O': 3
+                     '塩基飽和度(%)': 50, 'CaO/MgO': 5, 'MgO/K₂O': 3
                      }
     # 【塩基類関連_0, 1】準備-3 df_enkiの数値を基準値で除算してパーセントに変換
     for k, j in enumerate(dataset_enkih):
@@ -150,7 +156,7 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[0, 1].set_ylabel('測定項目', size=8)
         axes[0, 1].set_xlim(0, 3)
         axes[0, 1].set_yticks([])
-        # axes[0, 1].set_xticklabels(x, fontsize=8)
+        # axes[0, 1].set_xticklabels(x, {'fontsize': 8})
         axes[0, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
         axes[0, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
@@ -160,8 +166,8 @@ def graphset_2x2(df2, graph_title, hojyomei):
     # 【土壌ポテンシャル関連_1, 1】準備-1 df2からグラフに必要な項目のみ分離
     df_soil = df2.iloc[[7, 19, 20]]
     # 【土壌ポテンシャル関連_1, 1】準備-2 データを換算するための基準値設定
-    dataset_soilh = {'CEC(meq/100g)': 40, '腐植(%)': 0.08, '仮比重': 1}
-    dataset_soill = {'CEC(meq/100g)': 12, '腐植(%)': 0.03, '仮比重': 0.6}
+    dataset_soilh = {'CEC(meq/100g)': 40, '腐植(%)': 8, '仮比重': 1}
+    dataset_soill = {'CEC(meq/100g)': 12, '腐植(%)': 3, '仮比重': 0.6}
     # 【土壌ポテンシャル関連_1, 1】準備-3 df_soilの数値を基準値で除算してパーセントに変換
     for k, j in enumerate(dataset_soilh):
         x = df_soil[j] / dataset_soilh[j]
