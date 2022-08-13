@@ -1,0 +1,258 @@
+[
+  {
+    "model": "chemical_report.companies",
+    "pk": 1,
+    "fields": {
+      "name": "(有)アグリファクトリー",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.clops",
+    "pk": 1,
+    "fields": {
+      "name": "レタス",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.clops",
+    "pk": 2,
+    "fields": {
+      "name": "ほうれん草",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fields",
+    "pk": 1,
+    "fields": {
+      "name": "圃場1",
+      "prefecture": "茨城県",
+      "location": "結城郡八千代町",
+      "cultivation_method": "露地",
+      "companies": 1,
+      "clops": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fields",
+    "pk": 2,
+    "fields": {
+      "name": "圃場2",
+      "prefecture": "茨城県",
+      "location": "結城郡八千代町",
+      "cultivation_method": "ビニールハウス",
+      "companies": 1,
+      "clops": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 1,
+    "fields": {
+      "name": "A1",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 2,
+    "fields": {
+      "name": "A2",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 3,
+    "fields": {
+      "name": "A3",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 4,
+    "fields": {
+      "name": "B1",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 5,
+    "fields": {
+      "name": "B2",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 6,
+    "fields": {
+      "name": "B3",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 7,
+    "fields": {
+      "name": "C1",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 8,
+    "fields": {
+      "name": "C2",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 9,
+    "fields": {
+      "name": "C3",
+      "fields": 1,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 10,
+    "fields": {
+      "name": "A1",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 11,
+    "fields": {
+      "name": "A2",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 12,
+    "fields": {
+      "name": "A3",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 13,
+    "fields": {
+      "name": "B1",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 14,
+    "fields": {
+      "name": "B2",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 15,
+    "fields": {
+      "name": "B3",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 16,
+    "fields": {
+      "name": "C1",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 17,
+    "fields": {
+      "name": "C2",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldarea",
+    "pk": 18,
+    "fields": {
+      "name": "C3",
+      "fields": 2,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.period",
+    "pk": 1,
+    "fields": {
+      "name": "定植時",
+      "year": 2021,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.period",
+    "pk": 2,
+    "fields": {
+      "name": "定植時",
+      "year": 2022,
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "chemical_report.fieldareadetail",
+    "pk": 1,
+    "fields": {
+      "ec": 1,
+      "nh4n": 1,
+      "no3n": 1,
+      "inorganic_nitrogen": 1,
+      "nh4": 1,
+      "ph": 0.6,
+      "cao": 1,
+      "mgo": 1,
+      "k2o": 1,
+      "base_saturation": 0.1,
+      "cao_per_mgo": 0.21,
+      "mgo_per_k2o": 0.21,
+      "phosphorus_absorption": 1,
+      "p2o5": 1,
+      "cec": 1,
+      "humus": 0.1,
+      "bulk_density": 0.1,
+      "period": 2,
+      "field_area": 1,
+      "created_at": "2022-08-13"
+    }
+  }
+]

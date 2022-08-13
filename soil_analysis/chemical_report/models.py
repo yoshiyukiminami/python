@@ -26,10 +26,10 @@ class Clops(models.Model):
 class Fields(models.Model):
     """
     法人が持つ圃場ひとつを１レコードという単位で収録します
-    prefecture  都道府県    e.g. 茨城県結城郡八千代町
+    prefecture  都道府県    e.g. 茨城県
     location    住所       e.g. 結城郡八千代町
     latlon      緯度経度    e.g. 36.164677272061,139.86772928159
-    cultivation_method 栽培方法  e.g. 露地、ビニールハウスなど
+    cultivation_method 栽培方法  e.g. 露地、ビニールハウス
     """
     name = models.CharField(max_length=256)
     prefecture = models.CharField(max_length=256)
@@ -41,6 +41,45 @@ class Fields(models.Model):
     clops = models.ForeignKey('Clops', on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
+
+
+class FieldArea(models.Model):
+    """
+    圃場のエリアひとつを１レコードという単位で収録します
+    name        エリア名    e.g. A1
+    """
+    name = models.CharField(max_length=256)
+    fields = models.ForeignKey('Fields', on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["fields", "name"],
+                name="fields_name_unique"
+            ),
+        ]
+
+
+class Period(models.Model):
+    """
+    時期
+    name    時期の名前   e.g. 定植時
+    year    西暦年      e.g. 2022
+    """
+    name = models.CharField(max_length=256)
+    year = models.IntegerField()
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["year", "name"],
+                name="year_name_unique"
+            ),
+        ]
 
 
 class FieldAreaDetail(models.Model):
@@ -83,6 +122,15 @@ class FieldAreaDetail(models.Model):
     humus = models.FloatField(null=True)
     bulk_density = models.FloatField(null=True)
     remark = models.TextField(null=True)
-    fields = models.ForeignKey('Fields', on_delete=models.CASCADE)
+    period = models.ForeignKey('Period', on_delete=models.CASCADE)
+    field_area = models.ForeignKey('FieldArea', on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["period", "field_area"],
+                name="period_field_area_unique"
+            ),
+        ]
