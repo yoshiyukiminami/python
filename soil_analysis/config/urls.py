@@ -1,4 +1,4 @@
-"""hiryo URL Configuration
+"""config URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -16,10 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-# ]
 urlpatterns = [
-    path('sample_1/', include('sample_1.urls')),
+    path('chemical_report/', include('chemical_report.urls')),
     path('admin/', admin.site.urls),
 ]

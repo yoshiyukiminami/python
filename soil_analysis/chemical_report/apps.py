@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class Sample1Config(AppConfig):
+class ChemicalReportConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'sample_1'
+    name = 'chemical_report'
