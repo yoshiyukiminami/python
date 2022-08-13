@@ -14,16 +14,18 @@ plt.figure(figsize=[8, 8])
 def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_title):
     # 1つのfigに4つのaxesを行2×列2で描画
     fig, axes = plt.subplots(1, 3, tight_layout=True, squeeze=False)
+
     # 【特性深度分布（度数）_0, 0】df_allの'freq'をX軸に設定
     x = df_all['freq'][0]
+    print(x, '度数X')
     # 【特性深度分布（度数）_0, 0】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
     data_set_high = {'50%': 30, 'std_ddof=1': 3}
     data_set_low = {'50%': 15, 'std_ddof=1': 7}
     sakudoshin = df_all['50%'][0]
-    print(sakudoshin, '==')
+    print(sakudoshin, '作土深')
     baratsuki = df_all['std_ddof=1'][0]
-    print(baratsuki, '===')
+    print(baratsuki, 'ばらつき')
     if sakudoshin >= data_set_high['50%'][0]:
         s_color = 'yellow'
     else:
@@ -47,6 +49,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_ti
 
     # 【特性深度分布（相対度数）_0, 1】df_allの'rel_freq'をX軸に設定
     x = df_all['rel_freq'][0]
+    print(x, '相対度数X')
     # 【特性深度分布（相対度数）_0, 1】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
     if baratsuki <= data_set_high['std_ddof=1'][0]:
@@ -72,99 +75,27 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_ti
 
     # ここから
 
-    # 【塩基類関連_0, 1】準備-1 df2からグラフに必要な項目のみ分離
-    df_enki = df2.iloc[[6, 8, 9, 10, 14, 21, 22]]
-    # 【塩基類関連_0, 1】準備-2 データを換算するための基準値設定
-    dataset_enkih = {'ｐH': 6.5, 'CaO(mg/100g)': 400, 'MgO(mg/100g)': 70, 'K2O(mg/100g)': 40,
-                    '塩基飽和度(%)': 0.8, 'CaO/MgO': 8, 'MgO/K₂O': 6
-                     }
-    dataset_enkil = {'ｐH': 6, 'CaO(mg/100g)': 200, 'MgO(mg/100g)': 25, 'K2O(mg/100g)': 15,
-                     '塩基飽和度(%)': 0.5, 'CaO/MgO': 5, 'MgO/K₂O': 3
-                     }
-    # 【塩基類関連_0, 1】準備-3 df_enkiの数値を基準値で除算してパーセントに変換
-    for k, j in enumerate(dataset_enkih):
-        x = df_enki[j] / dataset_enkih[j]
-        df_enki[j] = x
-    df_enki2 = pd.DataFrame(df_enki)
-    # 塩基類に関連する土壌化学性項目グラフを生成
-    for n, m in df_enki2.iterrows():
-        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
-        x = m.values
-        L_level = (1 * dataset_enkil[n]) / dataset_enkih[n]
-        if x >= 1:
-            color = 'red'
-            if x >= 2:
-                x_text = 1
-                t_color = 'yellow'
-            else:
-                x_text = x
-                t_color = 'red'
-        else:
-            x_text = x
-            if x <= L_level:
-                color = 'blue'
-                t_color = 'blue'
-            else:
-                color = 'grey'
-                t_color = 'black'
-        y = [n]
-        axes[0, 1].barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
-        axes[0, 1].set_title('塩基類関連', size=11)
-        # axes[0, 1].set_xlabel('飽和度（基準値100％）', size=8)
-        axes[0, 1].set_ylabel('測定項目', size=8)
-        axes[0, 1].set_xlim(0, 3)
-        axes[0, 1].set_yticks([])
-        # axes[0, 1].set_xticklabels(x, fontsize=8)
-        axes[0, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
-        axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[0, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
-        axes[0, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
-        axes[0, 1].invert_yaxis()
-
-    # 【土壌ポテンシャル関連_1, 1】準備-1 df2からグラフに必要な項目のみ分離
-    df_soil = df2.iloc[[7, 19, 20]]
-    # 【土壌ポテンシャル関連_1, 1】準備-2 データを換算するための基準値設定
-    dataset_soilh = {'CEC(meq/100g)': 40, '腐植(%)': 0.08, '仮比重': 1}
-    dataset_soill = {'CEC(meq/100g)': 12, '腐植(%)': 0.03, '仮比重': 0.6}
-    # 【土壌ポテンシャル関連_1, 1】準備-3 df_soilの数値を基準値で除算してパーセントに変換
-    for k, j in enumerate(dataset_soilh):
-        x = df_soil[j] / dataset_soilh[j]
-        df_soil[j] = x
-    df_soil2 = pd.DataFrame(df_soil)
-    # 土壌ポテンシャルに関連する土壌化学性項目グラフを生成
-    for n, m in df_soil2.iterrows():
-        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
-        x = m.values
-        L_level = (1 * dataset_soill[n]) / dataset_soilh[n]
-        if x >= 1:
-            color = 'red'
-            if x >= 2:
-                x_text = 1
-                t_color = 'yellow'
-            else:
-                x_text = x
-                t_color = 'red'
-        else:
-            x_text = x
-            if x <= L_level:
-                color = 'blue'
-                t_color = 'blue'
-            else:
-                color = 'grey'
-                t_color = 'black'
-        y = [n]
-        axes[1, 1].barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
-        axes[1, 1].set_title('土壌ポテンシャル関連', size=11)
-        axes[1, 1].set_xlabel('飽和度（基準値100％）', size=8)
-        axes[1, 1].set_ylabel('測定項目', size=8)
-        axes[1, 1].set_xlim(0, 3)
-        axes[1, 1].set_yticks([])
-        axes[1, 1].set_xticklabels(x, fontsize=8)
-        axes[1, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
-        axes[1, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[1, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
-        axes[1, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
-        axes[1, 1].invert_yaxis()
+    # 【土壌硬度分布グラフ_0, 3】準備-1 df_aveからX軸の設定
+    x = df_ave.columns.to_list()
+    del x[0: 7]
+    print(x, '硬度X')
+    for j in range(len(df_ave)):
+        y = list(df_ave.iloc[j])
+        point1 = y[5]
+        point2 = str(y[6])
+        name = point1 + '-' + str(point2)
+        del y[0: 7]
+        color = line_color[point1]
+        dash = line_shape[point2]
+        axes[0, 1].plot(y, x, color=color, height=0.5, align='center')
+    axes[0, 1].set_title('土壌硬度分布', size=11)
+    axes[0, 1].set_xlabel('硬さ（kPa）', size=8)
+    axes[0, 1].set_ylabel('深さ（㎝）', size=8)
+    axes[0, 1].set_xlim(0, 3000)
+    axes[0, 1].set_ylim(60, 1)
+    axes[0, 1].set_xticklabels(x, fontsize=8)
+    axes[0, 1].set_yticklabels(y, fontsize=8)
+    axes[0, 1].invert_yaxis()
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
@@ -337,7 +268,6 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 # 事前準備2：グラフタイトルを設定
                 graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
                 graph_title = '土壌物理性診断_' + '_'.join(graph_titles)
-
                 graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_title)
 
                 # # 硬度分布グラフ（折れ線）の生成と保存（JPEG、HTML）
