@@ -13,8 +13,7 @@ plt.figure(figsize=[8, 8])
 
 def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_title):
     # 1つのfigに4つのaxesを行2×列2で描画
-    fig, axes = plt.subplots(1, 3, tight_layout=True, squeeze=False, sharex='col')
-
+    fig, axes = plt.subplots(1, 3, tight_layout=True, squeeze=False)
     # 【特性深度分布（度数）_0, 0】df_allの'freq'をX軸に設定
     x = df_all['freq'][0]
     # 【特性深度分布（度数）_0, 0】グラフ生成
@@ -33,64 +32,45 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, sokuteibi3, y, graph_ti
         else:
             s_color = 'grey'
         axes[0, 0].barh(y, x, color=s_color, height=0.5, align='center')
-
-
-        axes[0, 0].set_title('窒素関連', size=11)
-        # axes[0, 0].set_xlabel('飽和度（基準値100％）', size=8)
-        axes[0, 0].set_ylabel('測定項目', size=8)
-        axes[0, 0].set_xlim(0, 3)
-        axes[0, 0].set_yticks([])
-        # axes[0, 0].set_xticklabels(x, fontsize=8)
-        axes[0, 0].text(x, y, "{}".format(y), ha='left', va='center', color='black', size=8)
-        axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
-        axes[0, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
+        axes[0, 0].set_title('特性深度分布（度数）', size=11)
+        axes[0, 0].set_xlabel('度数（ポイント）', size=8)
+        axes[0, 0].set_ylabel('深さ（㎝）', size=8)
+        axes[0, 0].set_xlim(0, 50)
+        axes[0, 0].set_ylim(60, 1)
+        axes[0, 0].set_yticklabels(y, fontsize=8)
+        axes[0, 0].set_xticklabels(x, fontsize=8)
+        axes[0, 0].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
+        # axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        # axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+        # axes[0, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
         axes[0, 0].invert_yaxis()
 
-    # 【リン酸関連_1, 0】準備-1 df2からグラフに必要な項目のみ分離
-    df_p = df2.iloc[[15, 16]]
-    # 【リン酸関連_1, 0】準備-2 データを換算するための基準値設定
-    dataset_ph = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
-    dataset_pl = {'P2O5(mg/100g)': 10, 'リン吸(mg/100g)': 2000}
-    # 【リン酸関連_1, 0】準備-3 df_pの数値を基準値で除算してパーセントに変換
-    for k, j in enumerate(dataset_ph):
-        x = df_p[j] / dataset_ph[j]
-        df_p[j] = x
-    df_p2 = pd.DataFrame(df_p)
-    # リン酸に関連する土壌化学性項目グラフを生成
-    for n, m in df_p2.iterrows():
-        # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
-        x = m.values
-        L_level = (1 * dataset_pl[n]) / dataset_ph[n]
-        if x >= 1:
-            color = 'red'
-            if x >= 2:
-                x_text = 1
-                t_color = 'yellow'
-            else:
-                x_text = x
-                t_color = 'red'
+    # 【特性深度分布（相対度数）_0, 1】df_allの'rel_freq'をX軸に設定
+    x = df_all['rel_freq'][0]
+    # 【特性深度分布（相対度数）_0, 1】グラフ生成
+    # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
+    if baratsuki <= data_set_high['std_ddof=1'][0]:
+        s_color = 'green'
+    else:
+        if sakudoshin >= data_set_low['std_ddof=1'][0]:
+            s_color = 'yellow'
         else:
-            x_text = x
-            if x <= L_level:
-                color = 'blue'
-                t_color = 'blue'
-            else:
-                color = 'grey'
-                t_color = 'black'
-        y = [n]
-        axes[1, 0].barh(y, x, color=color, height=0.5, align='center')
-        axes[1, 0].set_title('リン酸関連', size=11)
-        axes[1, 0].set_xlabel('飽和度（基準値100％）', size=8)
-        axes[1, 0].set_ylabel('測定項目', size=8)
-        axes[1, 0].set_xlim(0, 3)
-        axes[1, 0].set_yticks([])
-        axes[1, 0].set_xticklabels(x, fontsize=8)
-        axes[1, 0].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
-        axes[1, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[1, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
-        axes[1, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
-        axes[1, 0].invert_yaxis()
+            s_color = 'grey'
+        axes[0, 1].barh(y, x, color=s_color, height=0.5, align='center')
+        axes[0, 1].set_title('特性深度分布（相対度数）', size=11)
+        axes[0, 1].set_xlabel('相対度数（％）', size=8)
+        axes[0, 1].set_ylabel('深さ（㎝）', size=8)
+        axes[0, 1].set_xlim(0, 1)
+        axes[0, 1].set_ylim(60, 1)
+        axes[0, 1].set_xticklabels(x, fontsize=8)
+        axes[0, 1].set_xticklabels(x, fontsize=8)
+        axes[0, 1].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
+        axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+        # axes[0, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+        # axes[0, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
+        axes[0, 1].invert_yaxis()
+
+    # ここから
 
     # 【塩基類関連_0, 1】準備-1 df2からグラフに必要な項目のみ分離
     df_enki = df2.iloc[[6, 8, 9, 10, 14, 21, 22]]
