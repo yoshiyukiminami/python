@@ -6,35 +6,41 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body>
-    {% for field_area in object_list %}
-        <div class="card" style="width: 18rem;">
-            <img src="..." class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{ field_area.field_area_id.name }}</h5>
-                <p class="card-text">
-                    <li>時期: {{ field_area.period_id.name|default:"情報なし" }}</li>
-                    <li>ec: {{ field_area.ec }}</li>
-                    <li>nh4n: {{ field_area.nh4n }}</li>
-                    <li>no3n: {{ field_area.no3n }}</li>
-                    <li>inorganic_nitrogen: {{ field_area.inorganic_nitrogen }}</li>
-                    <li>nh4: {{ field_area.nh4 }}</li>
-                    <li>ph: {{ field_area.ph }}</li>
-                    <li>cao: {{ field_area.cao }}</li>
-                    <li>mgo: {{ field_area.mgo }}</li>
-                    <li>k2o: {{ field_area.k2o }}</li>
-                    <li>base_saturation: {{ field_area.base_saturation }}</li>
-                    <li>cao_per_mgo: {{ field_area.cao_per_mgo }}</li>
-                    <li>mgo_per_k2o: {{ field_area.mgo_per_k2o }}</li>
-                    <li>phosphorus_absorption: {{ field_area.phosphorus_absorption }}</li>
-                    <li>p2o5: {{ field_area.p2o5 }}</li>
-                    <li>cec: {{ field_area.cec }}</li>
-                    <li>humus: {{ field_area.humus }}</li>
-                    <li>bulk_density: {{ field_area.bulk_density }}</li>
-                    <li>備考: {{ field_area.remark|default:"説明はありません" }}</li>
-                </p>
+    <img src="data:image/png;base64,{{ chartA1 | safe }}">
+    <div class="alert alert-primary" role="alert">
+        {{ summary }}
+    </div>
+    <div class="card-group">
+        {% for field_area_detail in object_list %}
+            <div class="card" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{ field_area_detail.field_area.name }}</h5>
+                    <p class="card-text">
+                        <li>時期: {{ field_area_detail.period_id.name|default:"情報なし" }}</li>
+                        <li>ec: {{ field_area_detail.ec }}</li>
+                        <li>nh4n: {{ field_area_detail.nh4n }}</li>
+                        <li>no3n: {{ field_area_detail.no3n }}</li>
+                        <li>inorganic_nitrogen: {{ field_area_detail.inorganic_nitrogen }}</li>
+                        <li>nh4: {{ field_area_detail.nh4 }}</li>
+                        <li>ph: {{ field_area_detail.ph }}</li>
+                        <li>cao: {{ field_area_detail.cao }}</li>
+                        <li>mgo: {{ field_area_detail.mgo }}</li>
+                        <li>k2o: {{ field_area_detail.k2o }}</li>
+                        <li>base_saturation: {{ field_area_detail.base_saturation }}</li>
+                        <li>cao_per_mgo: {{ field_area_detail.cao_per_mgo }}</li>
+                        <li>mgo_per_k2o: {{ field_area_detail.mgo_per_k2o }}</li>
+                        <li>phosphorus_absorption: {{ field_area_detail.phosphorus_absorption }}</li>
+                        <li>p2o5: {{ field_area_detail.p2o5 }}</li>
+                        <li>cec: {{ field_area_detail.cec }}</li>
+                        <li>humus: {{ field_area_detail.humus }}</li>
+                        <li>bulk_density: {{ field_area_detail.bulk_density }}</li>
+                        <li>備考: {{ field_area_detail.remark|default:"説明はありません" }}</li>
+                    </p>
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 
 </body>
 </html>

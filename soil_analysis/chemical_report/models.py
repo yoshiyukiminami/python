@@ -82,6 +82,26 @@ class Period(models.Model):
         ]
 
 
+class FieldAreaSummary(models.Model):
+    """
+    顧客が持つ圃場ひとつのサマリーレポート用
+    """
+    comment = models.TextField()
+    remark = models.TextField(null=True)
+    period = models.ForeignKey('Period', on_delete=models.CASCADE)
+    fields = models.ForeignKey('Fields', on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["period", "fields"],
+                name="period_fields_unique"
+            ),
+        ]
+
+
 class FieldAreaDetail(models.Model):
     """
     顧客が持つ圃場ひとつのエリアひとつを１レコードという単位で収録します
