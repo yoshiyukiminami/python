@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" type="text/css" href="../../static/chemical_report/fieldareadetail_list.css"/>
     <meta charset="UTF-8">
     <title>Title</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -16,8 +17,8 @@
                 <img src="..." class="card-img-top" alt="...">
                 <div class="card-body">
                     <h5 class="card-title">{{ field_area_detail.field_area.name }}</h5>
-                    <p class="card-text">
-                        <li>時期: {{ field_area_detail.period_id.name|default:"情報なし" }}</li>
+                    <ul class="card-text">
+                        <li>時期: {{ field_area_detail.period.name|default:"-" }}</li>
                         <li>ec: {{ field_area_detail.ec }}</li>
                         <li>nh4n: {{ field_area_detail.nh4n }}</li>
                         <li>no3n: {{ field_area_detail.no3n }}</li>
@@ -36,7 +37,7 @@
                         <li>humus: {{ field_area_detail.humus }}</li>
                         <li>bulk_density: {{ field_area_detail.bulk_density }}</li>
                         <li>備考: {{ field_area_detail.remark|default:"説明はありません" }}</li>
-                    </p>
+                    </ul>
                 </div>
             </div>
         {% endfor %}
