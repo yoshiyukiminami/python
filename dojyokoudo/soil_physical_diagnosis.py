@@ -28,7 +28,9 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     baratsuki_l = data_set_low['std_ddof=1']
     sakudoshin2 = '{:.1f}'.format(sakudoshin)
     baratsuki2 = '{:.1f}'.format(baratsuki)
-    print(sakudoshin2, baratsuki2)
+    sakudoshin3 = sakudoshin - baratsuki
+    sakudoshin4 = sakudoshin + baratsuki
+    print(sakudoshin3, sakudoshin4)
     if sakudoshin >= sakudoshin_h:
         s_color = 'yellow'
     else:
@@ -36,14 +38,19 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
             s_color = 'blue'
         else:
             s_color = 'grey'
-            print(s_color, 'aaa')
         axes[0, 0].barh(y, x, color=s_color, height=4, align='center')
         axes[0, 0].set_title('特性深度分布（度数）', size=11)
         axes[0, 0].set_xlabel('度数（ポイント）', size=8)
         axes[0, 0].set_ylabel('深さ（㎝）', size=8)
         axes[0, 0].set_xlim(0, 50)
         axes[0, 0].set_ylim(60, 1)
-        axes[0, 0].axhline(sakudoshin, linestyle='--', color='r', lw=2.5, alpha=0.5)
+        axes[0, 0].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
+        axes[0, 0].axhline(10, linestyle=':', color='grey', lw=0.5)
+        axes[0, 0].axhline(20, linestyle=':', color='grey', lw=0.5)
+        axes[0, 0].axhline(30, linestyle=':', color='grey', lw=0.5)
+        axes[0, 0].axhline(40, linestyle=':', color='grey', lw=0.5)
+        axes[0, 0].axhline(50, linestyle=':', color='grey', lw=0.5)
+        axes[0, 0].axvline(25, linestyle=':', color='grey', lw=0.5)
         axes[0, 0].minorticks_on()
 
     # 【特性深度分布（相対度数）_0, 1】df_allの'rel_freq'をX軸に設定
@@ -63,38 +70,55 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
         axes[0, 1].set_ylabel('深さ（㎝）', size=8)
         axes[0, 1].set_xlim(0, 1)
         axes[0, 1].set_ylim(60, 1)
+        axes[0, 1].set_yticks([])
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[0, 1].axhline(sakudoshin, linestyle='--', color='r', lw=2.5, alpha=0.5)
+        axes[0, 1].axhline(sakudoshin3, linestyle=':', color='r', lw=1.5, alpha=0.5)
+        axes[0, 1].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
+        axes[0, 1].axhline(sakudoshin4, linestyle=':', color='r', lw=1.5, alpha=0.5)
+        axes[0, 1].axhline(10, linestyle=':', color='grey', lw=0.5)
+        axes[0, 1].axhline(20, linestyle=':', color='grey', lw=0.5)
+        axes[0, 1].axhline(30, linestyle=':', color='grey', lw=0.5)
+        axes[0, 1].axhline(40, linestyle=':', color='grey', lw=0.5)
+        axes[0, 1].axhline(50, linestyle=':', color='grey', lw=0.5)
+        axes[0, 1].axvline(0.5, linestyle=':', color='grey', lw=0.5)
         axes[0, 1].minorticks_on()
-
-    # ここから
 
     # 【土壌硬度分布グラフ_0, 3】準備-1 df_aveからX軸の設定
     x = df_ave.columns.to_list()
     del x[0: 7]
-    print(x, '硬度X')
+    # print(x, '硬度X')
     for j in range(len(df_ave)):
         y = list(df_ave.iloc[j])
         point1 = y[5]
         point2 = str(y[6])
         name = point1 + '-' + str(point2)
-        print(name, '==')
+        # print(name)
         del y[0: 7]
         color = line_color[point1]
         dash = line_shape[point2]
-        axes[0, 2].plot(y, x, dash, color, label=name)
+        axes[0, 2].plot(y, x, color, dash, lw=0.8, label=name)
+        # axes[0, 2].legend(name, fontsize=6, labelcolor=color, loc='best')
+
     axes[0, 2].set_title('土壌硬度分布', size=11)
     axes[0, 2].set_xlabel('硬さ（kPa）', size=8)
     axes[0, 2].set_ylabel('深さ（㎝）', size=8)
     axes[0, 2].set_xlim(0, 3000)
     axes[0, 2].set_ylim(60, 1)
+    axes[0, 2].set_yticks([])
+    axes[0, 2].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
+    axes[0, 2].axhline(10, linestyle=':', color='grey', lw=0.5)
+    axes[0, 2].axhline(20, linestyle=':', color='grey', lw=0.5)
+    axes[0, 2].axhline(30, linestyle=':', color='grey', lw=0.5)
+    axes[0, 2].axhline(40, linestyle=':', color='grey', lw=0.5)
+    axes[0, 2].axhline(50, linestyle=':', color='grey', lw=0.5)
+    axes[0, 2].axvline(1500, linestyle=':', color='grey', lw=0.5)
     # axes[0, 2].set_legend(loc="center", bbox_to_anchor=(0.5, 1.05), ncol=2)
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_physical_graph/'
     filename = filedir + graph_title + '.jpeg'
     fig.suptitle(graph_title)
-    fig.savefig(filename)
+    # fig.savefig(filename)
     plt.savefig(filename)
     plt.show()
 
@@ -200,7 +224,6 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                             isvalid = False
                         else:
                             sokuteibi2 = sokuteibi[0]
-                            print(sokuteibi2, '===')
                             All_list2['ymd'].append(sokuteibi2)
                             # 【Step-2-3] ヒストグラムの計算値をAll_listに格納
                             dataset1 = df_dp1['xC']
@@ -251,8 +274,8 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 # df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
                 # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
                 # 事前準備1：測定位置ごとの色・線のプロパティを決める
-                line_color = {'A': 'b', 'B': 'y', 'C': 'r'}
-                line_shape = {'1': '-', '2': '--', '3': '-.'}
+                line_color = {'A': 'blue', 'B': 'orange', 'C': 'red'}
+                line_shape = {'1': '-', '2': ':', '3': '-.'}
                 # 事前準備2：グラフタイトルを設定
                 graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
                 graph_titles2 = graph_titles[0]
