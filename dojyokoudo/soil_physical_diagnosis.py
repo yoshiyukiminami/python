@@ -282,7 +282,7 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 graph_title = '土壌物理性診断_' + '_'.join(graph_titles2)
                 # print(graph_title)
                 graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title)
-                time.sleep(1.5)
+                # time.sleep(1.5)
 
 
 if __name__ == '__main__':
