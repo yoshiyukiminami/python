@@ -38,50 +38,50 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
             s_color = 'b'
         else:
             s_color = 'grey'
-        axes[0, 0].barh(y, x, color=s_color, height=4, align='center')
-        axes[0, 0].set_title('特性深度分布（度数）', size=11)
-        axes[0, 0].set_xlabel('度数（ポイント）', size=8)
-        axes[0, 0].set_ylabel('深さ（㎝）', size=8)
-        axes[0, 0].set_xlim(0, 50)
-        axes[0, 0].set_ylim(60, 1)
-        axes[0, 0].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
-        axes[0, 0].axhline(10, linestyle=':', color='grey', lw=0.5)
-        axes[0, 0].axhline(20, linestyle=':', color='grey', lw=0.5)
-        axes[0, 0].axhline(30, linestyle=':', color='grey', lw=0.5)
-        axes[0, 0].axhline(40, linestyle=':', color='grey', lw=0.5)
-        axes[0, 0].axhline(50, linestyle=':', color='grey', lw=0.5)
-        axes[0, 0].axvline(25, linestyle=':', color='grey', lw=0.5)
-        axes[0, 0].minorticks_on()
+    axes[0, 0].barh(y, x, color=s_color, height=4, align='center')
+    axes[0, 0].set_title('特性深度分布（度数）', size=11)
+    axes[0, 0].set_xlabel('度数（ポイント）', size=8)
+    axes[0, 0].set_ylabel('深さ（㎝）', size=8)
+    axes[0, 0].set_xlim(0, 50)
+    axes[0, 0].set_ylim(60, 1)
+    axes[0, 0].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
+    axes[0, 0].axhline(10, linestyle=':', color='grey', lw=0.5)
+    axes[0, 0].axhline(20, linestyle=':', color='grey', lw=0.5)
+    axes[0, 0].axhline(30, linestyle=':', color='grey', lw=0.5)
+    axes[0, 0].axhline(40, linestyle=':', color='grey', lw=0.5)
+    axes[0, 0].axhline(50, linestyle=':', color='grey', lw=0.5)
+    axes[0, 0].axvline(25, linestyle=':', color='grey', lw=0.5)
+    axes[0, 0].minorticks_on()
 
     # 【特性深度分布（相対度数）_0, 1】df_allの'rel_freq'をX軸に設定
     x = df_all['rel_freq'][0]
     # 【特性深度分布（相対度数）_0, 1】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
     if baratsuki >= baratsuki_l:
-        s_color = 'orenge'
+        s_color = 'orange'
     else:
         if baratsuki <= baratsuki_h:
-            s_color = 'green'
+            s_color = 'g'
         else:
             s_color = 'grey'
-        axes[0, 1].plot(x, y, s_color, linewidth=3)
-        axes[0, 1].set_title('特性深度分布（相対度数）', size=11)
-        axes[0, 1].set_xlabel('相対度数（％）', size=8)
-        axes[0, 1].set_ylabel('深さ（㎝）', size=8)
-        axes[0, 1].set_xlim(0, 1)
-        axes[0, 1].set_ylim(60, 1)
-        axes[0, 1].set_yticks([])
-        axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        axes[0, 1].axhline(sakudoshin3, linestyle=':', color='r', lw=1.5, alpha=0.5)
-        axes[0, 1].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
-        axes[0, 1].axhline(sakudoshin4, linestyle=':', color='r', lw=1.5, alpha=0.5)
-        axes[0, 1].axhline(10, linestyle=':', color='grey', lw=0.5)
-        axes[0, 1].axhline(20, linestyle=':', color='grey', lw=0.5)
-        axes[0, 1].axhline(30, linestyle=':', color='grey', lw=0.5)
-        axes[0, 1].axhline(40, linestyle=':', color='grey', lw=0.5)
-        axes[0, 1].axhline(50, linestyle=':', color='grey', lw=0.5)
-        axes[0, 1].axvline(0.5, linestyle=':', color='grey', lw=0.5)
-        axes[0, 1].minorticks_on()
+    axes[0, 1].plot(x, y, s_color, linewidth=3)
+    axes[0, 1].set_title('特性深度分布（相対度数）', size=11)
+    axes[0, 1].set_xlabel('相対度数（％）', size=8)
+    axes[0, 1].set_ylabel('深さ（㎝）', size=8)
+    axes[0, 1].set_xlim(0, 1)
+    axes[0, 1].set_ylim(60, 1)
+    axes[0, 1].set_yticks([])
+    axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+    axes[0, 1].axhline(sakudoshin3, linestyle=':', color='r', lw=1.5, alpha=0.5)
+    axes[0, 1].axhline(sakudoshin, linestyle='--', color='r', lw=1.5, alpha=0.5)
+    axes[0, 1].axhline(sakudoshin4, linestyle=':', color='r', lw=1.5, alpha=0.5)
+    axes[0, 1].axhline(10, linestyle=':', color='grey', lw=0.5)
+    axes[0, 1].axhline(20, linestyle=':', color='grey', lw=0.5)
+    axes[0, 1].axhline(30, linestyle=':', color='grey', lw=0.5)
+    axes[0, 1].axhline(40, linestyle=':', color='grey', lw=0.5)
+    axes[0, 1].axhline(50, linestyle=':', color='grey', lw=0.5)
+    axes[0, 1].axvline(0.5, linestyle=':', color='grey', lw=0.5)
+    axes[0, 1].minorticks_on()
 
     # 【土壌硬度分布グラフ_0, 3】準備-1 df_aveからX軸の設定
     x = df_ave.columns.to_list()
