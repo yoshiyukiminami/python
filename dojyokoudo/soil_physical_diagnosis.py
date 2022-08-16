@@ -9,15 +9,13 @@ import matplotlib.pyplot as plt
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一
-plt.figure(figsize=[8, 8])
+plt.figure(figsize=[12, 8])
 
 def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # 1つのfigに4つのaxesを行2×列2で描画
     fig, axes = plt.subplots(1, 3, tight_layout=True, squeeze=False)
-
     # 【特性深度分布（度数）_0, 0】df_allの'freq'をX軸に設定
     x = df_all['freq'][0]
-    print(x, '度数X')
     # 【特性深度分布（度数）_0, 0】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
     data_set_high = {'50%': 30, 'std_ddof=1': 3}
@@ -28,6 +26,9 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     baratsuki = df_all['std_ddof=1'][0]
     baratuki_h = data_set_high['std_ddof=1']
     baratsuki_l = data_set_low['std_ddof=1']
+    sakudoshin2 = '{:.1f}'.format(sakudoshin)
+    baratsuki2 = '{:.1f}'.format(baratsuki)
+    print(sakudoshin2, baratsuki2)
     if sakudoshin >= sakudoshin_h:
         s_color = 'yellow'
     else:
@@ -36,46 +37,35 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
         else:
             s_color = 'grey'
             print(s_color, 'aaa')
-        axes[0, 0].barh(y, x, color=s_color, height=0.5, align='center')
+        axes[0, 0].barh(y, x, color=s_color, height=4, align='center')
         axes[0, 0].set_title('特性深度分布（度数）', size=11)
         axes[0, 0].set_xlabel('度数（ポイント）', size=8)
         axes[0, 0].set_ylabel('深さ（㎝）', size=8)
         axes[0, 0].set_xlim(0, 50)
-        axes[0, 0].set_ylim(60, -0.001)
-        axes[0, 0].set_yticklabels(y, fontsize=8)
-        axes[0, 0].set_xticklabels(x, fontsize=8)
-        axes[0, 0].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
-        # axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        # axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
-        # axes[0, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
-        axes[0, 0].invert_yaxis()
+        axes[0, 0].set_ylim(60, 1)
+        axes[0, 0].axhline(sakudoshin, linestyle='--', color='r', lw=2.5, alpha=0.5)
+        axes[0, 0].minorticks_on()
 
     # 【特性深度分布（相対度数）_0, 1】df_allの'rel_freq'をX軸に設定
     x = df_all['rel_freq'][0]
-    print(x, '相対度数X')
     # 【特性深度分布（相対度数）_0, 1】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
     if baratsuki <= baratuki_h:
         s_color = 'green'
     else:
         if sakudoshin >= baratsuki_l:
-            s_color = 'yellow'
+            s_color = 'orange'
         else:
             s_color = 'grey'
-            print(s_color, 'bbb')
-        axes[0, 1].plot(y, x, s_color)
+        axes[0, 1].plot(x, y, s_color, linewidth=3)
         axes[0, 1].set_title('特性深度分布（相対度数）', size=11)
         axes[0, 1].set_xlabel('相対度数（％）', size=8)
         axes[0, 1].set_ylabel('深さ（㎝）', size=8)
         axes[0, 1].set_xlim(0, 1)
-        axes[0, 1].set_ylim(60, -0.001)
-        axes[0, 1].set_xticklabels(x, fontsize=8)
-        axes[0, 1].set_xticklabels(x, fontsize=8)
-        # axes[0, 1].text(x, y, "{}".format(x), ha='left', va='center', color='black', size=8)
+        axes[0, 1].set_ylim(60, 1)
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-        # axes[0, 1].axvline(1, linestyle='dotted', color='orange', lw=0.8)
-        # axes[0, 1].axvline(2, linestyle='dotted', color='red', lw=0.8)
-        axes[0, 1].invert_yaxis()
+        axes[0, 1].axhline(sakudoshin, linestyle='--', color='r', lw=2.5, alpha=0.5)
+        axes[0, 1].minorticks_on()
 
     # ここから
 
@@ -88,6 +78,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
         point1 = y[5]
         point2 = str(y[6])
         name = point1 + '-' + str(point2)
+        print(name, '==')
         del y[0: 7]
         color = line_color[point1]
         dash = line_shape[point2]
@@ -97,17 +88,14 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     axes[0, 2].set_ylabel('深さ（㎝）', size=8)
     axes[0, 2].set_xlim(0, 3000)
     axes[0, 2].set_ylim(60, 1)
-    axes[0, 2].set_xticklabels(x, fontsize=8)
-    axes[0, 2].set_yticklabels(y, fontsize=8)
-    axes[0, 2].set_legend(loc="center", bbox_to_anchor=(0.5, 1.05), ncol=2)
-    axes[0, 2].invert_yaxis()
+    # axes[0, 2].set_legend(loc="center", bbox_to_anchor=(0.5, 1.05), ncol=2)
 
     # 生成したグラフの保存
-    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filedir = 'C:/Users/minam/Desktop/soil_physical_graph/'
     filename = filedir + graph_title + '.jpeg'
     fig.suptitle(graph_title)
     fig.savefig(filename)
-    # plt.savefig(filename)
+    plt.savefig(filename)
     plt.show()
 
 
@@ -260,16 +248,16 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 save_name1 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 save_name2 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 # 特性深度分布の計算結果（df_all）と土壌硬度分布の計算結果（df_ave）をcsv保存
-                df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
-                df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
+                # df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
+                # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
                 # 事前準備1：測定位置ごとの色・線のプロパティを決める
                 line_color = {'A': 'b', 'B': 'y', 'C': 'r'}
-                line_shape = {'1': 'solid', '2': 'doted', '3': 'dashed'}
+                line_shape = {'1': '-', '2': '--', '3': '-.'}
                 # 事前準備2：グラフタイトルを設定
                 graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
                 graph_titles2 = graph_titles[0]
                 graph_title = '土壌物理性診断_' + '_'.join(graph_titles2)
-                print(graph_title)
+                # print(graph_title)
                 graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title)
 
 
