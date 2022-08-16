@@ -20,7 +20,7 @@ class SummaryReport(ListView):
         g = GraphMatplotlib()
         fad = FieldAreaDetail.objects.get(id=1)  # TODO: 同じフィールドidで平均取る
         x = ['EC(mS/cm)', 'NH4-N(mg/100g)', 'NO3-N(mg/100g)', '無機態窒素', 'NH4/無機態窒素', ' ', '  ']
-        y = [fad.ec, fad.nh4n, fad.no3n, fad.nh4no3, fad.nh4_per_nh4no3, 0, 0]
+        y = [fad.ec, fad.nh4n, fad.no3n, fad.total_nitrogen, fad.nh4_per_nitrogen, 0, 0]
         chart1 = g.plot_graph("窒素関連（A1をグラフ化したもの。９エリアの平均がいいかも）", x, y)
         x = ['ph', 'CaO(mg/100g)', 'MgO(mg/100g)', 'K2O(mg/100g)', '塩基飽和度(%)', 'CaO/MgO', 'MgO/K2O']
         y = [fad.ph, fad.cao, fad.mgo, fad.k2o, fad.base_saturation, fad.cao_per_mgo, fad.mgo_per_k2o]

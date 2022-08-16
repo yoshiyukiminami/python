@@ -109,8 +109,8 @@ class FieldAreaDetail(models.Model):
     ec                      電気伝導率 e.g. 1(mS/cm)
     nh4n                    アンモニア態窒素 e.g. 1(mg/100g)
     no3n                    硝酸態窒素 e.g. 1(mg/100g)
-    nh4no3                  無機態窒素（NH4＋NO3）
-    nh4_per_nh4no3          アンモニア態窒素比
+    total_nitrogen          無機態窒素（NH4＋NO3）
+    nh4_per_nitrogen        アンモニア態窒素比
     ph                      水素イオン濃度
     cao                     交換性石灰
     mgo                     交換性苦土
@@ -127,8 +127,8 @@ class FieldAreaDetail(models.Model):
     ec = models.FloatField(null=True)
     nh4n = models.FloatField(null=True)
     no3n = models.FloatField(null=True)
-    nh4no3 = models.FloatField(null=True)
-    nh4_per_nh4no3 = models.FloatField(null=True)
+    total_nitrogen = models.FloatField(null=True)
+    nh4_per_nitrogen = models.FloatField(null=True)
     ph = models.FloatField(null=True)
     cao = models.FloatField(null=True)
     mgo = models.FloatField(null=True)
