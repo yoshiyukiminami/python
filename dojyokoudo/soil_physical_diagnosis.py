@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
-import plotly.graph_objects as go
+import time
 import glob
 import matplotlib
 import matplotlib.pyplot as plt
@@ -24,18 +24,18 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     sakudoshin_h = data_set_high['50%']
     sakudoshin_l = data_set_low['50%']
     baratsuki = df_all['std_ddof=1'][0]
-    baratuki_h = data_set_high['std_ddof=1']
+    baratsuki_h = data_set_high['std_ddof=1']
     baratsuki_l = data_set_low['std_ddof=1']
-    sakudoshin2 = '{:.1f}'.format(sakudoshin)
-    baratsuki2 = '{:.1f}'.format(baratsuki)
+    # sakudoshin2 = '{:.1f}'.format(sakudoshin)
+    # baratsuki2 = '{:.1f}'.format(baratsuki)
     sakudoshin3 = sakudoshin - baratsuki
     sakudoshin4 = sakudoshin + baratsuki
-    print(sakudoshin3, sakudoshin4)
+    # print(sakudoshin3, sakudoshin4)
     if sakudoshin >= sakudoshin_h:
-        s_color = 'yellow'
+        s_color = 'y'
     else:
         if sakudoshin <= sakudoshin_l:
-            s_color = 'blue'
+            s_color = 'b'
         else:
             s_color = 'grey'
         axes[0, 0].barh(y, x, color=s_color, height=4, align='center')
@@ -57,11 +57,11 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     x = df_all['rel_freq'][0]
     # 【特性深度分布（相対度数）_0, 1】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
-    if baratsuki <= baratuki_h:
-        s_color = 'green'
+    if baratsuki >= baratsuki_l:
+        s_color = 'orenge'
     else:
-        if sakudoshin >= baratsuki_l:
-            s_color = 'orange'
+        if baratsuki <= baratsuki_h:
+            s_color = 'green'
         else:
             s_color = 'grey'
         axes[0, 1].plot(x, y, s_color, linewidth=3)
@@ -120,7 +120,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     fig.suptitle(graph_title)
     # fig.savefig(filename)
     plt.savefig(filename)
-    plt.show()
+    # plt.show()
 
 
 def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
@@ -268,13 +268,13 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 # 特性深度グラフのY軸データ（共通）をyに代入
                 y = df_all['class_value'][0]
                 filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
-                save_name1 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
-                save_name2 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
+                save_name1 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
+                save_name2 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 # 特性深度分布の計算結果（df_all）と土壌硬度分布の計算結果（df_ave）をcsv保存
-                # df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
-                # df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
+                df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
+                df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
                 # 事前準備1：測定位置ごとの色・線のプロパティを決める
-                line_color = {'A': 'blue', 'B': 'orange', 'C': 'red'}
+                line_color = {'A': 'b', 'B': 'orange', 'C': 'r'}
                 line_shape = {'1': '-', '2': ':', '3': '-.'}
                 # 事前準備2：グラフタイトルを設定
                 graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
@@ -282,6 +282,7 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 graph_title = '土壌物理性診断_' + '_'.join(graph_titles2)
                 # print(graph_title)
                 graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title)
+                time.sleep(1.5)
 
 
 if __name__ == '__main__':
