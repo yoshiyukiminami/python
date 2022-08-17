@@ -44,7 +44,7 @@ for i in range(len(nojyomei_list)):
     for j in range(len(hojyomei_list)):
         hojyomei = hojyomei_list[j]
         df2 = df1[df1['圃場名'] == hojyomei]
-        dataset1 = df2['パラメータD']
+        dataset1 = df2['xC']
 
         # 品目・時期をAll_listに格納し、エラー（2つ以上ある場合）を検知する
         item_list = df2['品目'].tolist()
@@ -67,10 +67,10 @@ for i in range(len(nojyomei_list)):
         All_list['hojyomei'].append(list(set(hojyomei_list))[j])
 
         # 測定日をdatetimeに変換してAll_listに格納し、エラー（2つ以上ある場合）を検知する
-        sokuteibi = df2['計測日'].tolist()
+        sokuteibi = df2['測定日'].tolist()
         sokuteibi_count = len(set(sokuteibi))
         if not sokuteibi_count == 1:
-            print("エラー：計測日が2つ以上あります。")
+            print("エラー：測定日が2つ以上あります。")
             break
         else:
             sokuteibi2 = sokuteibi[j] + ' ' + '00:00:00'
@@ -124,7 +124,7 @@ for i in range(len(nojyomei_list)):
 
     # 【グラフ-1】各圃場毎に特性深度分布（度数と相対累積度数）の複合グラフを生成、JPEG保存
     for k, (v1, v2) in enumerate(zip(df_series1, df_series2)):
-        # print(i,v1,v2)
+        print(i,v1,v2)
         # pos = x - total_width *( 1- (2*k+1)/len(df_series1) )/2
         fig = plt.figure()
         ax1 = fig.add_subplot()
