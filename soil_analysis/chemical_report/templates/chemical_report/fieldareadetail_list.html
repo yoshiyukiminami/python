@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../static/chemical_report/fieldareadetail_list.css"/>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <img src="data:image/png;base64,{{ chartA1_1 | safe }}">
+            </div>
+            <div class="col-6">
+                <img src="data:image/png;base64,{{ chartA1_2 | safe }}">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <img src="data:image/png;base64,{{ chartA1_3 | safe }}">
+            </div>
+            <div class="col-6">
+                <img src="data:image/png;base64,{{ chartA1_4 | safe }}">
+            </div>
+        </div>
+        <div class="alert alert-primary" role="alert">
+            {{ summary }}
+        </div>
+        <div class="card-group">
+            {% for field_area_detail in object_list %}
+                <div class="card" style="width: 18rem;">
+                    <img src="..." class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ field_area_detail.field_area.name }}</h5>
+                        <ul class="card-text">
+                            <li>時期: {{ field_area_detail.period.name|default:"-" }}</li>
+                            <li>ec: {{ field_area_detail.ec }}</li>
+                            <li>nh4n: {{ field_area_detail.nh4n }}</li>
+                            <li>no3n: {{ field_area_detail.no3n }}</li>
+                            <li>total_nitrogen: {{ field_area_detail.total_nitrogen }}</li>
+                            <li>nh4_per_nitrogen: {{ field_area_detail.nh4_per_nitrogen }}</li>
+                            <li>ph: {{ field_area_detail.ph }}</li>
+                            <li>cao: {{ field_area_detail.cao }}</li>
+                            <li>mgo: {{ field_area_detail.mgo }}</li>
+                            <li>k2o: {{ field_area_detail.k2o }}</li>
+                            <li>base_saturation: {{ field_area_detail.base_saturation }}</li>
+                            <li>cao_per_mgo: {{ field_area_detail.cao_per_mgo }}</li>
+                            <li>mgo_per_k2o: {{ field_area_detail.mgo_per_k2o }}</li>
+                            <li>phosphorus_absorption: {{ field_area_detail.phosphorus_absorption }}</li>
+                            <li>p2o5: {{ field_area_detail.p2o5 }}</li>
+                            <li>cec: {{ field_area_detail.cec }}</li>
+                            <li>humus: {{ field_area_detail.humus }}</li>
+                            <li>bulk_density: {{ field_area_detail.bulk_density }}</li>
+                            <li>備考: {{ field_area_detail.remark|default:"説明はありません" }}</li>
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
