@@ -208,7 +208,7 @@ def graphset_2x2(df2, graph_title, hojyomei):
     fig.suptitle(graph_title)
     fig.savefig(filename)
     # plt.savefig(filename)
-    plt.show()
+    # plt.show()
 
 
 if __name__ == '__main__':
