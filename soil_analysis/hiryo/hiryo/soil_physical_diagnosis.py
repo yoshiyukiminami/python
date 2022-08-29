@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一
-plt.figure(figsize=[12, 8])
+plt.figure(figsize=[12, 8], dpi=72)
 
 def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # 1つのfigに4つのaxesを行2×列2で描画
