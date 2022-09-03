@@ -203,7 +203,7 @@ def graphset_2x2(df2, graph_title, hojyomei):
         axes[1, 1].invert_yaxis()
 
     # 生成したグラフの保存
-    filedir = 'C:/Users/minam/Desktop/soil_chemical_graph/'
+    filedir = 'output/'
     filename = filedir + graph_title + '.jpeg'
     fig.suptitle(graph_title)
     fig.savefig(filename)
@@ -214,7 +214,7 @@ def graphset_2x2(df2, graph_title, hojyomei):
 if __name__ == '__main__':
     # Step-1 フォルダにある測定データ（xlsx）を読み込む
     # 読み込むデータを特定するfolder-pathをfiledirに設定する
-    filedir = 'C:/Users/minam/Desktop/soil_chemical_properties/'
+    filedir = '.'
     # フォルダー内にあるフォルダー名をfolderlist、ファイル名をfilesに所得する
     folderlist = os.listdir(filedir)
     print(folderlist)
@@ -242,4 +242,3 @@ if __name__ == '__main__':
                 # graphset_p(df2, graph_title, hojyomei)
                 # graphset_enki(df2, graph_title, hojyomei)
                 # graphset_soilpotential(df2, graph_title, hojyomei)
-

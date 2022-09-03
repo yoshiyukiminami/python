@@ -115,7 +115,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # axes[0, 2].set_legend(loc="center", bbox_to_anchor=(0.5, 1.05), ncol=2)
 
     # 生成したグラフの保存
-    filedir = 'C:/Users/minam/Desktop/soil_physical_graph/'
+    filedir = 'output/'
     filename = filedir + graph_title + '.jpeg'
     fig.suptitle(graph_title)
     # fig.savefig(filename)
@@ -267,7 +267,7 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 df_all = pd.DataFrame(All_list2)
                 # 特性深度グラフのY軸データ（共通）をyに代入
                 y = df_all['class_value'][0]
-                filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
+                filedir = 'output/'
                 save_name1 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 save_name2 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 # 特性深度分布の計算結果（df_all）と土壌硬度分布の計算結果（df_ave）をcsv保存
@@ -287,7 +287,7 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
 
 if __name__ == '__main__':
     # ☆所定データの読み込み・・【展開】特定フォルダから複数ファイルを同時に読み込む処理
-    filedir = 'C:/Users/minam/Desktop/tokusei_precal/'
+    filedir = '.'
     files = glob.glob(filedir + '/**/*.csv')
     # 読み込んだファイルを「農場名」「圃場名」「圃場内測定位置」「圃場内測定位置2」で分類し、df2に格納
     for file in files:
