@@ -6,6 +6,8 @@ import pandas as pd
 import glob
 import os
 import pprint
+from pptx import Presentation
+from diagnosis.domain.field_property import FieldProperty
 
 
 if __name__ == '__main__':
@@ -28,34 +30,25 @@ if __name__ == '__main__':
         # 「土壌物理性データ」シートから必要情報の取得
         df3 = pd.read_excel(file, sheet_name='土壌物理性データ')
         df3 = df3.loc[:, ['ID', '測定日', '測定法', '測定状態']]
-
-        # 【Step-1-2】欠損値の判定（基本情報＝df）と画像タイトルの取得
+        # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
+        alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3, left_on='ID', right_on='ID')
+        # print(alldf)
         isvalid = True
-        for i in range(len(df)):
-            if df.loc[i].isnull().any():
-                print("基本情報に欠損値のある行が含まれています")
+        for i in range(len(alldf)):
+            if alldf.loc[i].isnull().any():
+                print("欠損値のある行が含まれています")
                 isvalid = False
             else:
-                print("基本情報のデータは正常です")
-                df_title = df.loc[i]
+                print("必要情報は正常です")
+                # 【Step-1-3】画像タイトルおよび圃場名、採土日、測定日の取得
+                df_title = alldf.loc[i]
+                # print(df_title)
                 picture_titles = df_title[['ID', '出荷団体名', '生産者名', '圃場名', '品目名', '作型']].values
                 picture_title = '基本情報_' + '_'.join(picture_titles)
-                print(picture_title)
-
-        # 【Step-1-3】欠損値の判定（土壌化学性データ＝df2）と画像タイトルの取得
-        isvalid = True
-        for i in range(len(df2)):
-            if df2.loc[i].isnull().any():
-                print("土壌化学性データに欠損値のある行が含まれています")
-                isvalid = False
-            else:
-                print("土壌化学性データの必要情報は正常です")
-
-        # 【Step-1-4】欠損値の判定（土壌物理性データ＝df3）と画像タイトルの取得
-        isvalid = True
-        for i in range(len(df3)):
-            if df3.loc[i].isnull().any():
-                print("土壌物理性データに欠損値のある行が含まれています")
-                isvalid = False
-            else:
-                print("土壌物理性データの必要情報は正常です")
+                # print(picture_title)
+                hojyomei = df_title[['圃場名']].values
+                # print(hojyomei)
+                saidobi = df_title[['採土日']].values
+                # print(saidobi)
+                sokuteibi = df_title[['測定日']].values
+                # print(sokuteibi)
