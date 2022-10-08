@@ -9,10 +9,10 @@ import pprint
 import pandas as pd
 from pptx import Presentation
 from pptx.util import Cm
+from pptx.enum.text import MSO_AUTO_SIZE
 
 
 def make_index(alldf, df_title):
-    print("aaa")
     prs = Presentation()
     # 1ページ目に「タイトル」スライドのレイアウトを指定
     slide_layout_0 = prs.slide_layouts[0]
@@ -28,33 +28,56 @@ def make_index(alldf, df_title):
     subtitle = slide_1.placeholders[1]
     subtitle_text = "Agsoil株式会社\n報告日：" + str(d_today)
     subtitle.text = subtitle_text
-    # テキストの編集・・「目次」巣ライト
+    # テキストの編集・・「目次」スライト
     title2 = slide_2.placeholders[0]
     title2.text = "目次"
     # 目次表の生成
     # 表のレイアウト設定
-    rows = len(alldf)
+    rows = len(alldf) + 1
+    # rows = 26
     cols = 3
     table_shape = slide_2.shapes.add_table(rows, cols, Cm(3), Cm(5), Cm(20), Cm(8))
+    # table_shape = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3), Cm(15), Cm(5))
     table = table_shape.table
     # 列見出しのテキスト設定
     category = ['No', 'ID', '圃場名']
     for i in range(len(category)):
         cell = table.cell(0, i)  # cellオブジェクトの取得
         cell.text = category[i]  # textプロパティで値を設定する
-    # alldfから目次を作成する
+    # alldfから目次を作成する・・ここから
     alldf_indexs = alldf.loc[:, ['ID', '圃場名']]
-    print(alldf_indexs)
     for j, alldf_index in alldf_indexs.iterrows():
-        print(j, alldf_index)
         cell0 = table.cell(j + 1, 0)  # cellオブジェクトの取得
-        cell0.text = j + 1  # textプロパティで値を設定する
+        cell0.text = str(j + 1)  # textプロパティで値を設定する
         cell1 = table.cell(j + 1, 1)
-        cell1.text = str(alldf_index['ID'].values)
+        cell1.text = str(alldf_index['ID'])
         cell2 = table.cell(j + 1, 2)
-        cell2.text = str(alldf_index['圃場名'].values)
+        cell2.text = alldf_index['圃場名']
     # PowerPointを保存
     prs.save("output/create_powerpnt.pptx")
+
+def make_picture_table(alldf):
+    # 土壌物理性グラフ（jpeg）のリストを読み込む
+    filedir1 = 'C:/Users/minam/Desktop/soil_physical_graph2/'
+    files_pg = glob.glob(filedir1 + '/**/*.jpeg', recursive=True)
+    pprint.pprint(files_pg)
+    # 土壌化学性グラフ（jpeg）のリストを読み込む
+    filedir2 = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
+    files_cg = glob.glob(filedir2 + '/**/*.jpeg', recursive=True)
+    pprint.pprint(files_cg)
+    # 圃場画像（jpeg）のリストを読み込む
+    filedir3 = 'C:/Users/minam/Desktop/hojyo_picture2/'
+    files_hp = glob.glob(filedir3 + '/**/*.jpeg', recursive=True)
+    pprint.pprint(files_hp)
+
+    # ここから仕掛
+    for file_pg in files_pg:
+        print(file_pg)
+        pg_name = file_pg.split('\\')
+        pg_name = pg_name[-1]
+        pg_name_id = pg_name.split('_')
+        pg_name_id = pg_name_id[1]
+        print(pg_name_id)
 
 
 if __name__ == '__main__':
@@ -81,9 +104,10 @@ if __name__ == '__main__':
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
         alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3, left_on='ID', right_on='ID')
         print(alldf, type(alldf))
-        # IDをキー列にして昇順ソート
-        alldf.sort_values(by="ID")
-        print(alldf)
+        # alldf.to_csv('aaa')
+        # IDをキー列にして昇順ソート、インデックスもリセット
+        alldf = alldf.sort_values(by="ID")
+        alldf = alldf.reset_index()
         # sortができていない【課題】
         isvalid = True
         for i in range(len(alldf)):
@@ -101,3 +125,5 @@ if __name__ == '__main__':
                 sokuteibi = df_title[['測定日']].values
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf, df_title)
+        make_picture_table(alldf)
+
