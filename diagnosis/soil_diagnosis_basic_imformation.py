@@ -6,6 +6,8 @@ import datetime
 import glob
 import os
 import pprint
+
+import numpy as np
 import pandas as pd
 from pptx import Presentation
 from pptx.util import Cm
@@ -60,25 +62,76 @@ def make_picture_table(alldf):
     # 土壌物理性グラフ（jpeg）のリストを読み込む
     filedir1 = 'C:/Users/minam/Desktop/soil_physical_graph2/'
     files_pg = glob.glob(filedir1 + '/**/*.jpeg', recursive=True)
-    pprint.pprint(files_pg)
+    # pprint.pprint(files_pg)
     # 土壌化学性グラフ（jpeg）のリストを読み込む
     filedir2 = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
     files_cg = glob.glob(filedir2 + '/**/*.jpeg', recursive=True)
-    pprint.pprint(files_cg)
+    # pprint.pprint(files_cg)
     # 圃場画像（jpeg）のリストを読み込む
     filedir3 = 'C:/Users/minam/Desktop/hojyo_picture2/'
     files_hp = glob.glob(filedir3 + '/**/*.jpeg', recursive=True)
-    pprint.pprint(files_hp)
+    # pprint.pprint(files_hp)
 
-    # ここから仕掛
+    # ベースDataframe（alldf2）を作成・・ここにグラフ・画像を紐付ける
+    id_list = []
+    col_list1 = ['ID']
+    for id in alldf['ID']:
+        id_list.append(id)
+    alldf2 = pd.DataFrame(data=id_list, columns=col_list1)
+
+    # 土壌物理性診断グラフとIDを結合したDataframe（Pg_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
+    pg_id = []
+    pg_list = []
+    col_list2 = ['土壌物理性診断グラフ']
     for file_pg in files_pg:
-        print(file_pg)
         pg_name = file_pg.split('\\')
         pg_name = pg_name[-1]
         pg_name_id = pg_name.split('_')
         pg_name_id = pg_name_id[1]
-        print(pg_name_id)
+        pg_id.append(pg_name_id)
+        pg_list.append(file_pg)
+    pg_id = pd.DataFrame(data=pg_id, columns=col_list1)
+    pg_list = pd.DataFrame(data=pg_list, columns=col_list2)
+    pg_df = pd.concat([pg_id, pg_list], axis=1)
+    alldf2 = pd.merge(alldf2, pg_df, left_on='ID', right_on='ID')
 
+    # 土壌化学性診断グラフとIDを結合したDataframe（cg_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
+    cg_id = []
+    cg_list = []
+    col_list3 = ['土壌化学性診断グラフ']
+    for file_cg in files_cg:
+        cg_name = file_cg.split('\\')
+        cg_name = cg_name[-1]
+        cg_name_id = cg_name.split('_')
+        cg_name_id = cg_name_id[1]
+        cg_id.append(cg_name_id)
+        cg_list.append(file_cg)
+    cg_id = pd.DataFrame(data=cg_id, columns=col_list1)
+    cg_list = pd.DataFrame(data=cg_list, columns=col_list3)
+    cg_df = pd.concat([cg_id, cg_list], axis=1)
+    alldf2 = pd.merge(alldf2, cg_df, left_on='ID', right_on='ID')
+    print(alldf2)
+
+    # 圃場画像とIDを結合したDataframe（hp_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
+    # ベースのDataframe（hp_df）を作成
+    col_list4 = ['all', 'left', 'right', 'other']
+    hp_df = pd.DataFrame(data=id_list, columns=col_list1)
+    # Dataframe（hp_df）に空列を追加
+    for col_name in col_list4:
+        hp_df[col_name] = np.nan
+    print(hp_df)
+
+    # ここから仕掛
+    for file_hp in files_hp:
+        print(file_hp)
+        hp_name = file_hp.split('\\')
+        hp_name = hp_name[-1]
+        hp_name_parts = hp_name.split('_')
+        hp_name_id = hp_name_parts[1]
+        hp_posion = hp_name_parts[3]
+        print(hp_name, hp_name_id, hp_posion)
+        cg_row_number = hp_df.index.get_loc('ID' == hp_name_id)
+        print(cg_row_number)
 
 if __name__ == '__main__':
     # Step-1 フォルダにある測定データ（xlsx）を読み込む
@@ -87,7 +140,7 @@ if __name__ == '__main__':
     # フォルダー内にあるフォルダー名をfolderlist、ファイル名をfilesに所得する
     folderlist = os.listdir(filedir)
     files = glob.glob(filedir + '/**/*.xlsx', recursive=True)
-    pprint.pprint(files)
+    # pprint.pprint(files)
 
     # 【Step-1-1】フォルダにある測定データ（.xlsx）から基本情報を読み込む
     for file in files:
@@ -103,7 +156,7 @@ if __name__ == '__main__':
         df3 = df3.loc[:, ['ID', '測定日', '測定法', '測定状態']]
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
         alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3, left_on='ID', right_on='ID')
-        print(alldf, type(alldf))
+        # print(alldf, type(alldf))
         # alldf.to_csv('aaa')
         # IDをキー列にして昇順ソート、インデックスもリセット
         alldf = alldf.sort_values(by="ID")

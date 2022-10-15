@@ -225,7 +225,8 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
-    filename = filedir + graph_title + '.jpeg'
+    filename = filedir + graph_title + '_ver1.2' + '.jpeg'
+    print(filename)
     fig.suptitle(graph_title)
     fig.savefig(filename)
     # plt.savefig(filename)
