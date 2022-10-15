@@ -14,7 +14,7 @@ from pptx.util import Cm
 from pptx.enum.text import MSO_AUTO_SIZE
 
 
-def make_index(alldf, df_title):
+def make_index(alldf):
     prs = Presentation()
     # 1ページ目に「タイトル」スライドのレイアウトを指定
     slide_layout_0 = prs.slide_layouts[0]
@@ -177,6 +177,5 @@ if __name__ == '__main__':
                 saidobi = df_title[['採土日']].values
                 sokuteibi = df_title[['測定日']].values
         # ひな形のPPTXを読み込み目次を作成
-        make_index(alldf, df_title)
+        make_index(alldf)
         make_picture_table(alldf)
-
