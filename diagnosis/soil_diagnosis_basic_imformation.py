@@ -58,6 +58,7 @@ def make_index(alldf):
     # PowerPointを保存
     prs.save("output/create_powerpnt.pptx")
 
+
 def make_picture_table(alldf):
     # 土壌物理性グラフ（jpeg）のリストを読み込む
     filedir1 = 'C:/Users/minam/Desktop/soil_physical_graph2/'
@@ -70,7 +71,7 @@ def make_picture_table(alldf):
     # 圃場画像（jpeg）のリストを読み込む
     filedir3 = 'C:/Users/minam/Desktop/hojyo_picture2/'
     files_hp = glob.glob(filedir3 + '/**/*.jpeg', recursive=True)
-    # pprint.pprint(files_hp)
+    pprint.pprint(files_hp)
 
     # ベースDataframe（alldf2）を作成・・ここにグラフ・画像を紐付ける
     id_list = []
@@ -114,24 +115,33 @@ def make_picture_table(alldf):
 
     # 圃場画像とIDを結合したDataframe（hp_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     # ベースのDataframe（hp_df）を作成
-    col_list4 = ['all', 'left', 'right', 'other']
+    col_list4 = ['all', 'left', 'right', 'center', 'other']
     hp_df = pd.DataFrame(data=id_list, columns=col_list1)
     # Dataframe（hp_df）に空列を追加
     for col_name in col_list4:
         hp_df[col_name] = np.nan
     print(hp_df)
 
-    # ここから仕掛
+    # ベースのDataframe（hp_df）に該当する画像パスを代入する
+    file_hp_list = {}
     for file_hp in files_hp:
         print(file_hp)
         hp_name = file_hp.split('\\')
         hp_name = hp_name[-1]
         hp_name_parts = hp_name.split('_')
         hp_name_id = hp_name_parts[1]
-        hp_posion = hp_name_parts[3]
-        print(hp_name, hp_name_id, hp_posion)
-        cg_row_number = hp_df.index.get_loc('ID' == hp_name_id)
-        print(cg_row_number)
+        hp_position = hp_name_parts[3]
+        print(hp_name, hp_name_id, hp_position)
+        file_hp_list[str(hp_name_id) + '_' + hp_position] = file_hp
+    for i, hp_id in enumerate(hp_df['ID']):
+        print(hp_id, i)
+        for col in col_list4:
+            print(col)
+            if str(hp_id) + '_' + col in file_hp_list:
+                hp_df.loc[i, col] = file_hp_list[str(hp_id) + '_' + col]
+    alldf2 = pd.merge(alldf2, hp_df, left_on='ID', right_on='ID')
+    alldf2.to_csv('bbb.csv', encoding='Shift-JIS')
+    print(alldf2)
 
 
 if __name__ == '__main__':
