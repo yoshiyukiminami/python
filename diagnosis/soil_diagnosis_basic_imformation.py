@@ -133,6 +133,7 @@ def make_picture_table(alldf):
         cg_row_number = hp_df.index.get_loc('ID' == hp_name_id)
         print(cg_row_number)
 
+
 if __name__ == '__main__':
     # Step-1 フォルダにある測定データ（xlsx）を読み込む
     # 読み込むデータを特定するfolder-pathをfiledirに設定する
@@ -178,4 +179,5 @@ if __name__ == '__main__':
                 sokuteibi = df_title[['測定日']].values
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
+        # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
         make_picture_table(alldf)
