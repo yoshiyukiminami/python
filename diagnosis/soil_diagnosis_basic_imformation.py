@@ -22,6 +22,19 @@ def make_index(alldf):
     # 2ページ目に「目次」スライドのレイアウトを指定
     slide_layout_1 = prs.slide_layouts[5]
     slide_2 = prs.slides.add_slide(slide_layout_1)
+    # 3ページ目以降にID数の空ページとtableを追加、スライドレイアウトを指定
+    slide_layout_2 = prs.slide_layouts[6]
+    # tableレイアウト設定・・ID別情報ページ
+    rows = 25
+    cols = 4
+    # table_shape2 = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3), Cm(15), Cm(15))
+    for k in range(len(alldf['ID'])):
+        m = k + 3
+        slide_n = 'slide_' + str(m)
+        print(slide_n)
+        slide_n = prs.slides.add_slide(slide_layout_2)
+        slide_n.shapes.add_table(rows, cols, Cm(1), Cm(1), Cm(23.5), Cm(1))
+
     # テキストの編集・・「タイトル」スライド
     # 報告日の取得
     d_today = datetime.date.today()
@@ -34,12 +47,12 @@ def make_index(alldf):
     title2 = slide_2.placeholders[0]
     title2.text = "目次"
     # 目次表の生成
-    # 表のレイアウト設定
+    # 表のレイアウト設定・・目次
     rows = len(alldf) + 1
     # rows = 26
     cols = 3
     table_shape = slide_2.shapes.add_table(rows, cols, Cm(3), Cm(5), Cm(20), Cm(8))
-    # table_shape = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3), Cm(15), Cm(5))
+    # table_shape = slide_2.shapes.add_table(rows, cols, Cm(3), Cm(3), Cm(15), Cm(5))
     table = table_shape.table
     # 列見出しのテキスト設定
     category = ['No', 'ID', '圃場名']
@@ -71,7 +84,7 @@ def make_picture_table(alldf):
     # 圃場画像（jpeg）のリストを読み込む
     filedir3 = 'C:/Users/minam/Desktop/hojyo_picture2/'
     files_hp = glob.glob(filedir3 + '/**/*.jpeg', recursive=True)
-    pprint.pprint(files_hp)
+    # pprint.pprint(files_hp)
 
     # ベースDataframe（alldf2）を作成・・ここにグラフ・画像を紐付ける
     id_list = []
@@ -111,7 +124,6 @@ def make_picture_table(alldf):
     cg_list = pd.DataFrame(data=cg_list, columns=col_list3)
     cg_df = pd.concat([cg_id, cg_list], axis=1)
     alldf2 = pd.merge(alldf2, cg_df, left_on='ID', right_on='ID')
-    print(alldf2)
 
     # 圃場画像とIDを結合したDataframe（hp_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     # ベースのDataframe（hp_df）を作成
@@ -120,29 +132,26 @@ def make_picture_table(alldf):
     # Dataframe（hp_df）に空列を追加
     for col_name in col_list4:
         hp_df[col_name] = np.nan
-    print(hp_df)
 
     # ベースのDataframe（hp_df）に該当する画像パスを代入する
     file_hp_list = {}
     for file_hp in files_hp:
-        print(file_hp)
         hp_name = file_hp.split('\\')
         hp_name = hp_name[-1]
         hp_name_parts = hp_name.split('_')
         hp_name_id = hp_name_parts[1]
         hp_position = hp_name_parts[3]
-        print(hp_name, hp_name_id, hp_position)
         file_hp_list[str(hp_name_id) + '_' + hp_position] = file_hp
     for i, hp_id in enumerate(hp_df['ID']):
-        print(hp_id, i)
         for col in col_list4:
-            print(col)
             if str(hp_id) + '_' + col in file_hp_list:
                 hp_df.loc[i, col] = file_hp_list[str(hp_id) + '_' + col]
     alldf2 = pd.merge(alldf2, hp_df, left_on='ID', right_on='ID')
-    alldf2.to_csv('bbb.csv', encoding='Shift-JIS')
-    print(alldf2)
 
+    # alldfとalldf2をmergeしてalldf_setを生成
+    alldfset = pd.merge(alldf, alldf2, left_on='ID', right_on='ID')
+    alldfset.to_csv('alldfset.csv', encoding='Shift-JIS')
+    print(alldfset)
 
 if __name__ == '__main__':
     # Step-1 フォルダにある測定データ（xlsx）を読み込む
@@ -157,8 +166,8 @@ if __name__ == '__main__':
     for file in files:
         df = pd.read_excel(file, sheet_name='基本情報')
         df = df.loc[:,
-             ['ID', '出荷団体名', '生産者名', '圃場名', '面積（㎡）', '圃場位置(緯度)', '圃場位置(経度)', '品目名',
-              '作型']]
+             ['ID', '出荷団体名', '生産者名', '圃場名', '面積（平方メートル）', '圃場位置(緯度)',
+              '圃場位置(経度)', '品目名', '作型']]
         # 「土壌化学性データ」シートから必要情報の取得
         df2 = pd.read_excel(file, sheet_name='土壌化学性データ')
         df2 = df2.loc[:, ['ID', '採土日', '採土法']]
@@ -166,7 +175,8 @@ if __name__ == '__main__':
         df3 = pd.read_excel(file, sheet_name='土壌物理性データ')
         df3 = df3.loc[:, ['ID', '測定日', '測定法', '測定状態']]
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
-        alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3, left_on='ID', right_on='ID')
+        alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3,
+                         left_on='ID', right_on='ID')
         # print(alldf, type(alldf))
         # alldf.to_csv('aaa')
         # IDをキー列にして昇順ソート、インデックスもリセット
@@ -190,4 +200,4 @@ if __name__ == '__main__':
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
         # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
-        make_picture_table(alldf)
+        # make_picture_table(alldf)
