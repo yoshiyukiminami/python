@@ -9,6 +9,7 @@ import pprint
 
 import numpy as np
 import pandas as pd
+import pptx
 from pptx import Presentation
 from pptx.util import Cm
 from pptx.enum.text import MSO_AUTO_SIZE
@@ -33,7 +34,9 @@ def make_index(alldf):
         slide_n = 'slide_' + str(m)
         print(slide_n)
         slide_n = prs.slides.add_slide(slide_layout_2)
-        slide_n.shapes.add_table(rows, cols, Cm(1), Cm(1), Cm(23.5), Cm(1))
+        # slide_n.shapes.add_table(rows, cols, Cm(1), Cm(1), Cm(23.5), Cm(0.5))
+        slide_n.shapes.add_table(12, cols, Cm(1), Cm(1), Cm(23.5), Cm(15))
+
 
     # テキストの編集・・「タイトル」スライド
     # 報告日の取得
@@ -151,7 +154,36 @@ def make_picture_table(alldf):
     # alldfとalldf2をmergeしてalldf_setを生成
     alldfset = pd.merge(alldf, alldf2, left_on='ID', right_on='ID')
     alldfset.to_csv('alldfset.csv', encoding='Shift-JIS')
-    print(alldfset)
+    set_basic_information(alldfset)
+
+
+def set_basic_information(alldfset):
+    # print(alldfset)
+    prs = pptx.Presentation("output/create_powerpnt.pptx")
+
+    alldfset1 = alldfset.iloc[:, 1:15]
+    alldfset1 = alldfset1.drop(alldfset1.columns[[5, 6]], axis=1)
+    alldfset1.to_csv("abc.csv", encoding='Shift-JIS')
+
+    for i in range(len(alldfset1)):
+        page = i + 2
+        table_in_page = prs.slides[page].shapes[0].table
+        alldfset1_row = alldfset1.iloc[i, :]
+        savename = 'alldfset' + str(i) + '.csv'
+        # print(savename)
+        # alldfset1_row.to_csv(savename, encoding='Shift-JIS')
+        alldfset1_col = alldfset1_row.index
+        # print(alldfset1_col)
+        # print(alldfset2)
+        for k, col_name in enumerate(alldfset1_col):
+            print(k, "aaa", col_name)
+            col_value = alldfset1_row[col_name]
+            print("===", col_value)
+            table_in_page.cell(k, 0).text = str(col_name)
+            table_in_page.cell(k, 1).text = str(col_value)
+    # PowerPointを保存
+    prs.save("output/create_powerpnt2.pptx")
+
 
 if __name__ == '__main__':
     # Step-1 フォルダにある測定データ（xlsx）を読み込む
@@ -200,4 +232,4 @@ if __name__ == '__main__':
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
         # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
-        # make_picture_table(alldf)
+        make_picture_table(alldf)
