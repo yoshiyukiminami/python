@@ -32,7 +32,7 @@ def make_index(alldf):
     for k in range(len(alldf['ID'])):
         m = k + 3
         slide_n = 'slide_' + str(m)
-        print(slide_n)
+        # print(slide_n)
         slide_n = prs.slides.add_slide(slide_layout_2)
         # slide_n.shapes.add_table(rows, cols, Cm(1), Cm(1), Cm(23.5), Cm(0.5))
         slide_n.shapes.add_table(12, cols, Cm(1), Cm(1), Cm(23.5), Cm(15))
@@ -49,14 +49,23 @@ def make_index(alldf):
     # テキストの編集・・「目次」スライト
     title2 = slide_2.placeholders[0]
     title2.text = "目次"
+    # title2.width = Cm(1)
     # 目次表の生成
     # 表のレイアウト設定・・目次
-    rows = len(alldf) + 1
-    # rows = 26
-    cols = 3
-    table_shape = slide_2.shapes.add_table(rows, cols, Cm(3), Cm(5), Cm(20), Cm(8))
+    # rows = len(alldf) + 1
+    rows = 14
+    # cols = 3
+    cols = 6
+    table_shape = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3.5), Cm(23), Cm(10))
     # table_shape = slide_2.shapes.add_table(rows, cols, Cm(3), Cm(3), Cm(15), Cm(5))
     table = table_shape.table
+    table.columns[0].width = Cm(1.5)
+    table.columns[1].width = Cm(5)
+    table.columns[2].width = Cm(5)
+    table.columns[3].width = Cm(1.5)
+    table.columns[4].width = Cm(5)
+    table.columns[5].width = Cm(5)
+
     # 列見出しのテキスト設定
     category = ['No', 'ID', '圃場名']
     for i in range(len(category)):
