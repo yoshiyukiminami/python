@@ -29,14 +29,36 @@ def make_index(alldf):
     rows = 25
     cols = 4
     # table_shape2 = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3), Cm(15), Cm(15))
-    for k in range(len(alldf['ID'])):
-        m = k + 3
-        slide_n = 'slide_' + str(m)
-        # print(slide_n)
-        slide_n = prs.slides.add_slide(slide_layout_2)
-        # slide_n.shapes.add_table(rows, cols, Cm(1), Cm(1), Cm(23.5), Cm(0.5))
-        slide_n.shapes.add_table(12, cols, Cm(1), Cm(1), Cm(23.5), Cm(15))
+    # ID数が26以上ある場合、処理中止する
+    isvalid = True
+    if 0 < len(alldf['ID']) <= 26:
+        for k in range(len(alldf['ID']) * 2):
+            m = k + 3
+            slide_n = 'slide_' + str(m)
+            # print(slide_n)
+            slide_n = prs.slides.add_slide(slide_layout_2)
+            # slide_n.shapes.add_table(13, cols, Cm(1), Cm(2), Cm(23.5), Cm(15))
 
+            # test
+            table = slide_n.shapes.add_table(3, 3, Cm(1), Cm(2), Cm(23.5), Cm(15)).table
+            print(len(table.rows))
+            print(len(table.columns))
+            print(len(table.rows[0].cells))
+            tr = table.rows[1]
+            cell = table.cell(0, 0)
+            other_cell = table.cell(1, 1)
+            cell.merge(other_cell)
+            tr.get_parent().remove(tr)
+
+            origin_cell = table.cell(0, 0)
+            print(origin_cell.is_merge_origin)
+            print(origin_cell.is_spanned)
+            print(origin_cell.span_height)
+            print(origin_cell.span_width)
+
+    else:
+        print("ID数が0または26以上あるため、処理を中止します")
+        isvalid = False
 
     # テキストの編集・・「タイトル」スライド
     # 報告日の取得
@@ -169,27 +191,55 @@ def make_picture_table(alldf):
 def set_basic_information(alldfset):
     # print(alldfset)
     prs = pptx.Presentation("output/create_powerpnt.pptx")
-
+    # 基本情報で代入する項目のみを抽出したdataframe（alldataset1）を生成
     alldfset1 = alldfset.iloc[:, 1:15]
     alldfset1 = alldfset1.drop(alldfset1.columns[[5, 6]], axis=1)
-    alldfset1.to_csv("abc.csv", encoding='Shift-JIS')
+    alldfset1.to_csv("alldataset1.csv", encoding='Shift-JIS')
 
+    headers = 2
+    id_pages = 2  # 1圃場当たりに必要なページ数
     for i in range(len(alldfset1)):
-        page = i + 2
+        page = i * id_pages + headers
         table_in_page = prs.slides[page].shapes[0].table
         alldfset1_row = alldfset1.iloc[i, :]
-        savename = 'alldfset' + str(i) + '.csv'
-        # print(savename)
-        # alldfset1_row.to_csv(savename, encoding='Shift-JIS')
         alldfset1_col = alldfset1_row.index
-        # print(alldfset1_col)
-        # print(alldfset2)
         for k, col_name in enumerate(alldfset1_col):
-            print(k, "aaa", col_name)
             col_value = alldfset1_row[col_name]
-            print("===", col_value)
             table_in_page.cell(k, 0).text = str(col_name)
             table_in_page.cell(k, 1).text = str(col_value)
+            cell_merge1 = {'left_top': table_in_page.cell(0, 2),
+                           'right_bottom': table_in_page.cell(0, 3)}
+            print(type(cell_merge1['left_top']), "==", type(cell_merge1['right_bottom']))
+            # cell_merge1['left_top'].merge(cell_merge1['right_bottom'])
+            table_in_page.cell(0, 2).merge(table_in_page.cell(0, 3))
+            cell_merge1['left_top'].text = str(0)
+            cell_merge2 = {'left_top': table_in_page.cell(1, 2),
+                           'right_bottom': table_in_page.cell(6, 3)}
+            cell_merge2['left_top'].text = str(1)
+            cell_merge3 = {'left_top': table_in_page.cell(7, 2),
+                           'right_bottom': table_in_page.cell(12, 3)}
+            cell_merge3['left_top'].text = str(2)
+
+    # 圃場画像の貼り付け
+    # 圃場画像URLを抽出したdataframe（alldataset2）を生成
+    alldfset2 = alldfset.iloc[:, 17:]
+    # alldfset2 = alldfset.drop(alldfset.columns[[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]], axis=1)
+    alldfset2.to_csv("alldataset2.csv", encoding='Shift-JIS')
+    # 圃場画像の情報を読み込み
+    # for j in range(len(alldfset2)):
+    #     page = j * 2 + 2
+    #     table_in_page = prs.slides[page].shapes[0].table
+    #     alldfset2_row = alldfset2.iloc[j, :]
+    #     alldfset2_col = alldfset2_row.index
+    #     # print(alldfset1_col)
+    #     # print(alldfset2)
+    #     for k, col_name in enumerate(alldfset2_col):
+    #         print(k, "aaa", col_name)
+    #         col_value = alldfset2_row[col_name]
+    #         print("===", col_value)
+    #         table_in_page.cell(k, 0).text = str(col_name)
+    #         table_in_page.cell(k, 1).text = str(col_value)
+
     # PowerPointを保存
     prs.save("output/create_powerpnt2.pptx")
 
