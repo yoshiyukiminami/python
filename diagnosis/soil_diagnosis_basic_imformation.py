@@ -37,24 +37,39 @@ def make_index(alldf):
             slide_n = 'slide_' + str(m)
             # print(slide_n)
             slide_n = prs.slides.add_slide(slide_layout_2)
-            slide_n.shapes.add_table(13, cols, Cm(1), Cm(2), Cm(23.5), Cm(15))
+            shape_n = slide_n.shapes.add_table(13, cols, Cm(1), Cm(2), Cm(23.5), Cm(15))
+            table_in_page = shape_n.table
+            if k % 2 == 0:
+                merge_cell_left_top1_a = table_in_page.cell(0, 2)
+                merge_cell_right_bottom1_a = table_in_page.cell(0, 3)
+                merge_cell_left_top1_a.merge(merge_cell_right_bottom1_a)
+                merge_cell_left_top1_a.text = "圃場画像"
+                merge_cell_left_top2_a = table_in_page.cell(1, 2)
+                merge_cell_right_bottom2_a = table_in_page.cell(6, 3)
+                merge_cell_left_top2_a.merge(merge_cell_right_bottom2_a)
+                merge_cell_left_top2_a.text = str(1)
+                merge_cell_left_top3_a = table_in_page.cell(7, 2)
+                merge_cell_right_bottom3_a = table_in_page.cell(12, 3)
+                merge_cell_left_top3_a.merge(merge_cell_right_bottom3_a)
+                merge_cell_left_top3_a.text = str(2)
+            else:
+                merge_cell_left_top1_b = table_in_page.cell(0, 0)
+                merge_cell_right_bottom1_b = table_in_page.cell(0, 1)
+                merge_cell_left_top1_b.merge(merge_cell_right_bottom1_b)
+                merge_cell_left_top1_b.text = "土壌化学性グラフ"
+                merge_cell_left_top2_b = table_in_page.cell(0, 2)
+                merge_cell_right_bottom2_b = table_in_page.cell(0, 3)
+                merge_cell_left_top2_b.merge(merge_cell_right_bottom2_b)
+                merge_cell_left_top2_b.text = "土壌硬度グラフ"
+                merge_cell_left_top3_b = table_in_page.cell(1, 0)
+                merge_cell_right_bottom3_b = table_in_page.cell(8, 1)
+                merge_cell_left_top3_b.merge(merge_cell_right_bottom3_b)
+                merge_cell_left_top3_b.text = str(1)
+                merge_cell_left_top4_b = table_in_page.cell(1, 2)
+                merge_cell_right_bottom4_b = table_in_page.cell(8, 3)
+                merge_cell_left_top4_b.merge(merge_cell_right_bottom4_b)
+                merge_cell_left_top4_b.text = str(2)
 
-            # # test
-            # table = slide_n.shapes.add_table(3, 3, Cm(1), Cm(2), Cm(23.5), Cm(15)).table
-            # print(len(table.rows))
-            # print(len(table.columns))
-            # print(len(table.rows[0].cells))
-            # tr = table.rows[1]
-            # cell = table.cell(0, 0)
-            # other_cell = table.cell(1, 1)
-            # cell.merge(other_cell)
-            # tr.get_parent().remove(tr)
-
-            # origin_cell = table.cell(0, 0)
-            # print(origin_cell.is_merge_origin)
-            # print(origin_cell.is_spanned)
-            # print(origin_cell.span_height)
-            # print(origin_cell.span_width)
 
     else:
         print("ID数が0または26以上あるため、処理を中止します")
@@ -207,21 +222,18 @@ def set_basic_information(alldfset):
             col_value = alldfset1_row[col_name]
             table_in_page.cell(k, 0).text = str(col_name)
             table_in_page.cell(k, 1).text = str(col_value)
-            # cell_merge1 = {'left_top': table_in_page.cell(0, 2), 'right_bottom': table_in_page.cell(0, 3)}
-            # print(type(cell_merge1['left_top']), "==", type(cell_merge1['right_bottom']))
-            cell_merge_top = table_in_page.cell(0, 2)
-            cell_merge_bottom = table_in_page.cell(0, 3)
-            cell_merge_top.merge(cell_merge_bottom)
-            # cell_merge1['left_top'].merge(cell_merge1['right_bottom'])
-            # table_in_page.cell(0, 2).merge(table_in_page.cell(0, 3))
-            cell_merge_top.text = str(1)
-            # cell_merge1['left_top'].text = str(0)
-            # cell_merge2 = {'left_top': table_in_page.cell(1, 2),
-            #                'right_bottom': table_in_page.cell(6, 3)}
-            # cell_merge2['left_top'].text = str(1)
-            # cell_merge3 = {'left_top': table_in_page.cell(7, 2),
-            #                'right_bottom': table_in_page.cell(12, 3)}
-            # cell_merge3['left_top'].text = str(2)
+            # merge_cell_left_top1 = table_in_page.cell(0, 2)
+            # merge_cell_right_bottom1 = table_in_page.cell(0, 3)
+            # merge_cell_left_top1.merge(merge_cell_right_bottom1)
+            # merge_cell_left_top1.text = str(0)
+            # merge_cell_left_top2 = table_in_page.cell(1, 2)
+            # merge_cell_right_bottom2 = table_in_page.cell(6, 3)
+            # merge_cell_left_top2.merge(merge_cell_right_bottom2)
+            # merge_cell_left_top2.text = str(1)
+            # merge_cell_left_top3 = table_in_page.cell(7, 2)
+            # merge_cell_right_bottom3 = table_in_page.cell(12, 3)
+            # merge_cell_left_top3.merge(merge_cell_right_bottom3)
+            # merge_cell_left_top2.text = str(2)
 
     # 圃場画像の貼り付け
     # 圃場画像URLを抽出したdataframe（alldataset2）を生成
