@@ -4,6 +4,7 @@
 # Step-4 Step-2のfield_prppertiesに該当画像を追加する
 import datetime
 import glob
+import math
 import os
 import pprint
 
@@ -232,19 +233,22 @@ def set_basic_information(alldfset):
     # alldfset2 = alldfset.drop(alldfset.columns[[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]], axis=1)
     alldfset2.to_csv("alldataset2.csv", encoding='Shift-JIS')
     # 圃場画像の情報を読み込み
-    # for j in range(len(alldfset2)):
-    #     page = j * 2 + 2
-    #     table_in_page = prs.slides[page].shapes[0].table
-    #     alldfset2_row = alldfset2.iloc[j, :]
-    #     alldfset2_col = alldfset2_row.index
-    #     # print(alldfset1_col)
-    #     # print(alldfset2)
-    #     for k, col_name in enumerate(alldfset2_col):
-    #         print(k, "aaa", col_name)
-    #         col_value = alldfset2_row[col_name]
-    #         print("===", col_value)
-    #         table_in_page.cell(k, 0).text = str(col_name)
-    #         table_in_page.cell(k, 1).text = str(col_value)
+
+    for j in range(len(alldfset2)):
+        page = j * 2 + 2
+        table_in_page = prs.slides[page].shapes[0].table
+        slide_in_page = prs.slides[page]
+        print(slide_in_page)
+        alldfset2_row = alldfset2.iloc[j, :]
+        alldfset2_col = alldfset2_row.index
+        for k, col_name in enumerate(alldfset2_col):
+            pic_top = Cm(k + 2)
+            pic_left = Cm(11.5)
+            pic_height = Cm(3)
+            print(k, "aaa", col_name)
+            col_value = alldfset2_row[col_name]
+            print("===", col_value)
+            # slide_in_page.shapes.add_picture(col_value, pic_left, pic_top, pic_height)
 
     # PowerPointを保存
     prs.save("output/create_powerpnt2.pptx")
