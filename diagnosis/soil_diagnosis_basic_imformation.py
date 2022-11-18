@@ -112,7 +112,7 @@ def make_index(alldf):
     for i in range(len(category)):
         cell = table.cell(0, i)  # cellオブジェクトの取得
         cell.text = category[i]  # textプロパティで値を設定する
-    # alldfから目次を作成する・・ここから
+    # alldfから目次を作成する
     alldf_indexs = alldf.loc[:, ['ID', '圃場名']]
     for j, alldf_index in alldf_indexs.iterrows():
         cell0 = table.cell(j + 1, 0)  # cellオブジェクトの取得
@@ -212,7 +212,7 @@ def set_basic_information(alldfset):
     prs = pptx.Presentation("output/create_powerpnt.pptx")
     # 基本情報で代入する項目のみを抽出したdataframe（alldataset1）を生成
     alldfset1 = alldfset.iloc[:, 1:15]
-    alldfset1 = alldfset1.drop(alldfset1.columns[[5, 6]], axis=1)
+    # alldfset1 = alldfset1.drop(alldfset1.columns[[5, 6]], axis=1)
     alldfset1.to_csv("alldataset1.csv", encoding='Shift-JIS')
 
     headers = 2
@@ -298,6 +298,9 @@ if __name__ == '__main__':
                 hojyomei = df_title[['圃場名']].values
                 saidobi = df_title[['採土日']].values
                 sokuteibi = df_title[['測定日']].values
+        # 欠損値（NAN）のある行を削除し、indexを振り直す
+        alldf = alldf.dropna(how='any')
+        alldf = alldf.reset_index()
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
         # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
