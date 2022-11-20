@@ -52,11 +52,11 @@ def make_index(alldf):
                 merge_cell_left_top2_a = table_in_page.cell(1, 2)
                 merge_cell_right_bottom2_a = table_in_page.cell(8, 3)
                 merge_cell_left_top2_a.merge(merge_cell_right_bottom2_a)
-                merge_cell_left_top2_a.text = str(1)
+                # merge_cell_left_top2_a.text = str(1)
                 merge_cell_left_top3_a = table_in_page.cell(9, 2)
                 merge_cell_right_bottom3_a = table_in_page.cell(16, 3)
                 merge_cell_left_top3_a.merge(merge_cell_right_bottom3_a)
-                merge_cell_left_top3_a.text = str(2)
+                # merge_cell_left_top3_a.text = str(2)
             else:
                 merge_cell_left_top1_b = table_in_page.cell(0, 0)
                 merge_cell_right_bottom1_b = table_in_page.cell(0, 1)
@@ -214,12 +214,15 @@ def get_layout_type(row):
     """
     layout_type = None
     layout_pictures = []
-    if not row['all'] == np.nan:
+    if not pd.isna(row['all']):
+        print("True", "aaa")
         layout_type = "all"
-        layout_pictures = [row['all']]
-    elif not row['left'] == "nan" and not row['right'] == "nan":
+        layout_pictures = [row['土壌化学性診断グラフ'], row['土壌物理性診断グラフ'], row['all']]
+    elif not pd.isna(row['left']) and not pd.isna(row['right']):
+        print("True", "bbb")
         layout_type = "left_and_right"
-        layout_pictures = [row['left'], row['right']]
+        layout_pictures = [row['土壌化学性診断グラフ'], row['土壌物理性診断グラフ'],
+                           row['left'], row['right']]
     else:
         raise ValueError("対象の圃場画像が見つかりません")
 
@@ -249,7 +252,8 @@ def set_basic_information(alldfset):
 
     # 圃場画像の貼り付け
     # 圃場画像URLを抽出したdataframe（alldfset2）を生成
-    alldfset2 = alldfset.iloc[:, 17:]
+    # alldfset2 = alldfset.iloc[:, 17:]
+    alldfset2 = alldfset.iloc[:, 15:]
     # alldfset2 = alldfset.drop(alldfset.columns[[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]], axis=1)
     alldfset2.to_csv("alldataset2.csv", encoding='Shift-JIS')
     # 圃場画像の情報を読み込み
@@ -257,21 +261,50 @@ def set_basic_information(alldfset):
     for index, row in alldfset2.iterrows():
         layout_type, layout_pictures = get_layout_type(row)
         print(layout_type, layout_pictures)
+        page_1 = index * 2 + 2
+        page_2 = index * 2 + 3
+        slide_in_page_1 = prs.slides[page_1]
+        slide_in_page_2 = prs.slides[page_2]
+        table_in_page_1 = prs.slides[page_1].shapes[0].table
+        table_in_page_2 = prs.slides[page_2].shapes[0].table
+        if layout_type == "all":
+            pic_top_1 = Cm(3)
+            pic_left_1 = Cm(15.25)
+            pic_height_1 = Cm(9)
+            slide_in_page_1.shapes.add_picture(layout_pictures[2],
+                                               pic_left_1, pic_top_1, pic_height_1)
+            picture_cell1 = table_in_page_1.cell(1, 2)
+            picture_cell1.text = "圃場全体"
+            pic_left_ch = Cm(1)
+            pic_left_py = Cm(12.75)
+            pic_top_ch = Cm(2)
+            pic_height_ch = Cm(11.7)
+            slide_in_page_2.shapes.add_picture(layout_pictures[0],
+                                               pic_left_ch, pic_top_ch, pic_height_ch)
+            slide_in_page_2.shapes.add_picture(layout_pictures[1],
+                                               pic_left_py, pic_top_ch, pic_height_ch)
+        else:
+            pic_top_1 = Cm(3)
+            pic_top_2 = Cm(11.25)
+            pic_left_1 = Cm(15.25)
+            pic_height_1 = Cm(9)
+            slide_in_page_1.shapes.add_picture(layout_pictures[2],
+                                               pic_left_1, pic_top_1, pic_height_1)
+            slide_in_page_1.shapes.add_picture(layout_pictures[3],
+                                               pic_left_1, pic_top_2, pic_height_1)
+            picture_cell1 = table_in_page_1.cell(1, 2)
+            picture_cell2 = table_in_page_1.cell(9, 2)
+            picture_cell1.text = "圃場左側から中心"
+            picture_cell2.text = "圃場中心から右側"
+            pic_left_ch = Cm(1)
+            pic_left_py = Cm(12.75)
+            pic_top_ch = Cm(2)
+            pic_height_ch = Cm(11.7)
+            slide_in_page_2.shapes.add_picture(layout_pictures[0],
+                                               pic_left_ch, pic_top_ch, pic_height_ch)
+            slide_in_page_2.shapes.add_picture(layout_pictures[1],
+                                               pic_left_py, pic_top_ch, pic_height_ch)
 
-        # page = j * 2 + 2
-        # table_in_page = prs.slides[page].shapes[0].table
-        # slide_in_page = prs.slides[page]
-        # print(slide_in_page)
-        # alldfset2_row = alldfset2.iloc[j, :]
-        # alldfset2_col = alldfset2_row.index
-        # for k, col_name in enumerate(alldfset2_col):
-        #     pic_top = Cm(k + 2)
-        #     pic_left = Cm(11.5)
-        #     pic_height = Cm(3)
-        #     print(k, "aaa", col_name)
-        #     col_value = alldfset2_row[col_name]
-        #     print("===", col_value)
-        #     # slide_in_page.shapes.add_picture(col_value, pic_left, pic_top, pic_height)
     # PowerPointを保存
     prs.save("output/create_powerpnt2.pptx")
 
