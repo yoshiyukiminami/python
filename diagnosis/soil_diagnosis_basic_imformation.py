@@ -74,7 +74,6 @@ def make_index(alldf):
                 # merge_cell_right_bottom4_b = table_in_page.cell(16, 3)
                 # merge_cell_left_top4_b.merge(merge_cell_right_bottom4_b)
                 # merge_cell_left_top4_b.text = str(2)
-
     else:
         print("ID数が0または26以上あるため、処理を中止します")
         isvalid = False
@@ -207,6 +206,27 @@ def make_picture_table(alldf):
     set_basic_information(alldfset)
 
 
+def get_layout_type(row):
+    """
+    # Todo: レイアウトに応じて拡張する
+    レイアウトのタイプと画像の配列を返す
+    :param row:
+    """
+    layout_type = None
+    layout_pictures = []
+    if not row['all'] == np.nan:
+        layout_type = "all"
+        layout_pictures = [row['all']]
+    elif not row['left'] == "nan" and not row['right'] == "nan":
+        layout_type = "left_and_right"
+        layout_pictures = [row['left'], row['right']]
+    else:
+        raise ValueError("対象の圃場画像が見つかりません")
+
+    return layout_type, layout_pictures
+
+
+
 def set_basic_information(alldfset):
     # print(alldfset)
     prs = pptx.Presentation("output/create_powerpnt.pptx")
@@ -228,28 +248,30 @@ def set_basic_information(alldfset):
             table_in_page.cell(k, 1).text = str(col_value)
 
     # 圃場画像の貼り付け
-    # 圃場画像URLを抽出したdataframe（alldataset2）を生成
+    # 圃場画像URLを抽出したdataframe（alldfset2）を生成
     alldfset2 = alldfset.iloc[:, 17:]
     # alldfset2 = alldfset.drop(alldfset.columns[[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]], axis=1)
     alldfset2.to_csv("alldataset2.csv", encoding='Shift-JIS')
     # 圃場画像の情報を読み込み
 
-    for j in range(len(alldfset2)):
-        page = j * 2 + 2
-        table_in_page = prs.slides[page].shapes[0].table
-        slide_in_page = prs.slides[page]
-        print(slide_in_page)
-        alldfset2_row = alldfset2.iloc[j, :]
-        alldfset2_col = alldfset2_row.index
-        for k, col_name in enumerate(alldfset2_col):
-            pic_top = Cm(k + 2)
-            pic_left = Cm(11.5)
-            pic_height = Cm(3)
-            print(k, "aaa", col_name)
-            col_value = alldfset2_row[col_name]
-            print("===", col_value)
-            # slide_in_page.shapes.add_picture(col_value, pic_left, pic_top, pic_height)
+    for index, row in alldfset2.iterrows():
+        layout_type, layout_pictures = get_layout_type(row)
+        print(layout_type, layout_pictures)
 
+        # page = j * 2 + 2
+        # table_in_page = prs.slides[page].shapes[0].table
+        # slide_in_page = prs.slides[page]
+        # print(slide_in_page)
+        # alldfset2_row = alldfset2.iloc[j, :]
+        # alldfset2_col = alldfset2_row.index
+        # for k, col_name in enumerate(alldfset2_col):
+        #     pic_top = Cm(k + 2)
+        #     pic_left = Cm(11.5)
+        #     pic_height = Cm(3)
+        #     print(k, "aaa", col_name)
+        #     col_value = alldfset2_row[col_name]
+        #     print("===", col_value)
+        #     # slide_in_page.shapes.add_picture(col_value, pic_left, pic_top, pic_height)
     # PowerPointを保存
     prs.save("output/create_powerpnt2.pptx")
 
@@ -300,7 +322,7 @@ if __name__ == '__main__':
                 sokuteibi = df_title[['測定日']].values
         # 欠損値（NAN）のある行を削除し、indexを振り直す
         alldf = alldf.dropna(how='any')
-        alldf = alldf.reset_index()
+        alldf = alldf.reset_index(drop=True)
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
         # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
