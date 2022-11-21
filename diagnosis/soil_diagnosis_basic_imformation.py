@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pptx
 from pptx import Presentation
-from pptx.util import Cm
+from pptx.util import Cm, Pt
 from pptx.enum.text import MSO_AUTO_SIZE
 
 
@@ -66,14 +66,34 @@ def make_index(alldf):
                 merge_cell_right_bottom2_b = table_in_page.cell(0, 3)
                 merge_cell_left_top2_b.merge(merge_cell_right_bottom2_b)
                 merge_cell_left_top2_b.text = "土壌硬度グラフ"
-                # merge_cell_left_top3_b = table_in_page.cell(1, 0)
-                # merge_cell_right_bottom3_b = table_in_page.cell(16, 1)
-                # merge_cell_left_top3_b.merge(merge_cell_right_bottom3_b)
-                # merge_cell_left_top3_b.text = str(1)
-                # merge_cell_left_top4_b = table_in_page.cell(1, 2)
-                # merge_cell_right_bottom4_b = table_in_page.cell(16, 3)
-                # merge_cell_left_top4_b.merge(merge_cell_right_bottom4_b)
-                # merge_cell_left_top4_b.text = str(2)
+                merge_cell_left_top3_b = table_in_page.cell(10, 0)
+                merge_cell_right_bottom3_b = table_in_page.cell(12, 1)
+                merge_cell_left_top3_b.merge(merge_cell_right_bottom3_b)
+                merge_cell_left_top3_b.text = "【棒色】赤：基準値上限以上、グレ―：基準値内\n" \
+                                              "                 青：基準値下限以下\n" \
+                                              "【縦点線】\n" \
+                                              "黄：基準値上限100%、赤：基準値上限200%"
+                merge_cell_left_top3_b.text_frame.paragraphs[0].font.size = Pt(12)
+                merge_cell_left_top3_b.text_frame.paragraphs[1].font.size = Pt(12)
+                merge_cell_left_top3_b.text_frame.paragraphs[2].font.size = Pt(12)
+                merge_cell_left_top3_b.text_frame.paragraphs[3].font.size = Pt(12)
+                merge_cell_left_top4_b = table_in_page.cell(10, 2)
+                merge_cell_right_bottom4_b = table_in_page.cell(12, 3)
+                merge_cell_left_top4_b.merge(merge_cell_right_bottom4_b)
+                merge_cell_left_top4_b.text = "【共通：水平線】赤破線：作土深の中央値\n" \
+                                              "【共通：垂直線】黒点線：1.5メガパスカル\n" \
+                                              "【中：水平線】赤点線：全体68%範囲\n" \
+                                              "【左・棒色】作土深の深さ：青：15㎝以下、黄：30㎝以上" \
+                                              "\n【中・線色】ばらつき度：緑＞グレー＞橙"
+                merge_cell_left_top4_b.text_frame.paragraphs[0].font.size = Pt(12)
+                merge_cell_left_top4_b.text_frame.paragraphs[1].font.size = Pt(12)
+                merge_cell_left_top4_b.text_frame.paragraphs[2].font.size = Pt(12)
+                merge_cell_left_top4_b.text_frame.paragraphs[3].font.size = Pt(12)
+                merge_cell_left_top4_b.text_frame.paragraphs[4].font.size = Pt(12)
+                merge_cell_left_top5_b = table_in_page.cell(13, 0)
+                merge_cell_right_bottom5_b = table_in_page.cell(16, 3)
+                merge_cell_left_top5_b.merge(merge_cell_right_bottom5_b)
+                merge_cell_left_top5_b.text = "【コメント】"
     else:
         print("ID数が0または26以上あるため、処理を中止します")
         isvalid = False
