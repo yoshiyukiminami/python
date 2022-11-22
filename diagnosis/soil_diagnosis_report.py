@@ -8,6 +8,8 @@ import pprint
 import matplotlib
 import matplotlib.pyplot as plt
 
+# exとの違いはファイル読み込みおよび保存先DIR
+
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一

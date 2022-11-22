@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # exとの違いは生成したグラフの保存先
+# Ver1.2・・ID列追加と保存名にID追加
 
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
@@ -41,7 +42,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
         else:
             s_color = 'grey'
     axes[0, 0].barh(y, x, color=s_color, height=4, align='center')
-    axes[0, 0].set_title('特性深度分布（度数）', size=11)
+    axes[0, 0].set_title('特性深度分布（度数）', size=10)
     axes[0, 0].set_xlabel('度数（ポイント）', size=8)
     axes[0, 0].set_ylabel('深さ（㎝）', size=8)
     axes[0, 0].set_xlim(0, 50)
@@ -67,7 +68,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
         else:
             s_color = 'grey'
     axes[0, 1].plot(x, y, s_color, linewidth=3)
-    axes[0, 1].set_title('特性深度分布（相対度数）', size=11)
+    axes[0, 1].set_title('特性深度分布（相対度数 %）', size=10)
     axes[0, 1].set_xlabel('相対度数（％）', size=8)
     axes[0, 1].set_ylabel('深さ（㎝）', size=8)
     axes[0, 1].set_xlim(0, 1)
@@ -87,21 +88,20 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
 
     # 【土壌硬度分布グラフ_0, 3】準備-1 df_aveからX軸の設定
     x = df_ave.columns.to_list()
-    del x[0: 7]
-    # print(x, '硬度X')
+    del x[0: 8]
     for j in range(len(df_ave)):
         y = list(df_ave.iloc[j])
-        point1 = y[5]
-        point2 = str(y[6])
+        point1 = y[6]
+        point2 = str(y[7])
         name = point1 + '-' + str(point2)
         # print(name)
-        del y[0: 7]
+        del y[0: 8]
         color = line_color[point1]
         dash = line_shape[point2]
         axes[0, 2].plot(y, x, color, dash, lw=0.8, label=name)
         # axes[0, 2].legend(name, fontsize=6, labelcolor=color, loc='best')
 
-    axes[0, 2].set_title('土壌硬度分布', size=11)
+    axes[0, 2].set_title('土壌硬度分布（測定地点別）', size=10)
     axes[0, 2].set_xlabel('硬さ（kPa）', size=8)
     axes[0, 2].set_ylabel('深さ（㎝）', size=8)
     axes[0, 2].set_xlim(0, 3000)
@@ -113,7 +113,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     axes[0, 2].axhline(30, linestyle=':', color='grey', lw=0.5)
     axes[0, 2].axhline(40, linestyle=':', color='grey', lw=0.5)
     axes[0, 2].axhline(50, linestyle=':', color='grey', lw=0.5)
-    axes[0, 2].axvline(1500, linestyle=':', color='grey', lw=0.5)
+    axes[0, 2].axvline(1500, linestyle='--', color='grey', lw=1.0)
     # axes[0, 2].set_legend(loc="center", bbox_to_anchor=(0.5, 1.05), ncol=2)
 
     # 生成したグラフの保存
@@ -125,20 +125,20 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # plt.show()
 
 
-def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
+def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei, id):
     # 【Step-1】土壌硬度分布グラフ生成のためのデータ加工
     # 【Step-1-1】硬度分布データのデータフレーム決定・・point1=圃場内側定位置1、point2=圃場内測定位置2
-    All_list = {
-        'nojyomei': [], 'hojyomei': [], 'item': [], 'ymd': [], 'jiki': [], 'point1': [], 'point2': [],
-        '1cm': [], '2cm': [], '3cm': [], '4cm': [], '5cm': [], '6cm': [], '7cm': [], '8cm': [], '9cm': [],
-        '10cm': [], '11cm': [], '12cm': [], '13cm': [], '14cm': [], '15cm': [], '16cm': [], '17cm': [],
-        '18cm': [], '19cm': [], '20cm': [], '21cm': [], '22cm': [], '23cm': [], '24cm': [], '25cm': [],
-        '26cm': [], '27cm': [], '28cm': [], '29cm': [], '30cm': [], '31cm': [], '32cm': [], '33cm': [],
-        '34cm': [], '35cm': [], '36cm': [], '37cm': [], '38cm': [], '39cm': [], '40cm': [], '41cm': [],
-        '42cm': [], '43cm': [], '44cm': [], '45cm': [], '46cm': [], '47cm': [], '48cm': [], '49cm': [],
-        '50cm': [], '51cm': [], '52cm': [], '53cm': [], '54cm': [], '55cm': [], '56cm': [], '57cm': [],
-        '58cm': [], '59cm': [], '60cm': []
-    }
+    All_list = {'id': [], 'nojyomei': [], 'hojyomei': [], 'item': [], 'ymd': [], 'jiki': [],
+                'point1': [], 'point2': [], '1cm': [], '2cm': [], '3cm': [], '4cm': [], '5cm': [],
+                '6cm': [], '7cm': [], '8cm': [], '9cm': [], '10cm': [], '11cm': [], '12cm': [],
+                '13cm': [], '14cm': [], '15cm': [], '16cm': [], '17cm': [], '18cm': [], '19cm': [],
+                '20cm': [], '21cm': [], '22cm': [], '23cm': [], '24cm': [], '25cm': [], '26cm': [],
+                '27cm': [], '28cm': [], '29cm': [], '30cm': [], '31cm': [], '32cm': [], '33cm': [],
+                '34cm': [], '35cm': [], '36cm': [], '37cm': [], '38cm': [], '39cm': [], '40cm': [],
+                '41cm': [], '42cm': [], '43cm': [], '44cm': [], '45cm': [], '46cm': [], '47cm': [],
+                '48cm': [], '49cm': [], '50cm': [], '51cm': [], '52cm': [], '53cm': [], '54cm': [],
+                '55cm': [], '56cm': [], '57cm': [], '58cm': [], '59cm': [], '60cm': []
+                }
     # 【Step-1-2】品目・時期・測定日でエラー（2つ以上ある場合）を検知しAll_listに格納する
     item_list = df_dp2['品目'].tolist()
     item_list_count = len(set(item_list))
@@ -179,26 +179,27 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 df_ave_index = df_ave.index
                 point1_list = df_ave_index.get_level_values(0)
                 point2_list = df_ave_index.get_level_values(1)
-                tuika_list = [nojyomei, hojyomei, item, sokuteibi2, jiki]
-                tuika_header = ['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']
+                tuika_list = [id, nojyomei, hojyomei, item, sokuteibi2, jiki]
+                tuika_header = ['id', 'nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']
                 df_ave.insert(loc=0, column='point2', value=point2_list)
                 df_ave.insert(loc=0, column='point1', value=point1_list)
                 for i, (tuika, tuikah) in enumerate(zip(tuika_list, tuika_header)):
                     df_ave.insert(loc=i, column=tuikah, value=tuika)
                 df_ave.reset_index(inplace=True, drop=True)
+                # df_ave.to_csv('df_ave.csv', encoding='SHIFT-JIS', index=False)
 
 
                 # 【Step-2】特性深度分布グラフ生成のためのデータ加工
                 # 【Step-2-1】取り込むリストのDBフォーマットの決定・・All_list2
-                All_list2 = {
-                    'nojyomei': [], 'hojyomei': [], 'item': [], 'ymd': [], 'jiki': [], 'class_index': [],
-                    'class_value': [],
-                    'freq': [], 'rel_freq': [], 'cum_freq': [], 'rel_cum_freq': [], 'count': [], 'mean': [], 'std': [],
-                    'min': [], '25%': [], '50%': [], '75%': [], 'max': [], 'skew': [], 'kurt': [], 'var_ddof=1': [],
-                    'std_ddof=1': []
-                }
-                # 【Step-2-2】df_dpからAll_listに基本情報（農場名・圃場名・品目・測定日・時期）を格納
-                # 農場名と圃場名をAll_list2に格納
+                All_list2 = {'id': [], 'nojyomei': [], 'hojyomei': [], 'item': [], 'ymd': [],
+                             'jiki': [], 'class_index': [], 'class_value': [], 'freq': [],
+                             'rel_freq': [], 'cum_freq': [], 'rel_cum_freq': [], 'count': [],
+                             'mean': [], 'std': [], 'min': [], '25%': [], '50%': [], '75%': [],
+                             'max': [], 'skew': [], 'kurt': [], 'var_ddof=1': [], 'std_ddof=1': []
+                             }
+                # 【Step-2-2】df_dpからAll_listに基本情報（ID・農場名・圃場名・品目・測定日・時期）を格納
+                # ID、農場名と圃場名をAll_list2に格納
+                All_list2['id'].append(id)
                 All_list2['nojyomei'].append(nojyomei)
                 All_list2['hojyomei'].append(hojyomei)
                 # 品目・測定日・時期はエラー（欠損値を含む複数）検知を実施し、All_list2に格納する
@@ -270,8 +271,8 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 # 特性深度グラフのY軸データ（共通）をyに代入
                 y = df_all['class_value'][0]
                 filedir = 'C:/Users/minam/Desktop/tokusei_csv/'
-                save_name1 = filedir + '土壌硬度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
-                save_name2 = filedir + '特性深度分布_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
+                save_name1 = filedir + '土壌硬度分布_' + id + '_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
+                save_name2 = filedir + '特性深度分布_' + id + '_' + nojyomei + '_' + hojyomei + '_' + sokuteibi2
                 # 特性深度分布の計算結果（df_all）と土壌硬度分布の計算結果（df_ave）をcsv保存
                 df_ave.to_csv(save_name1 + '.csv', encoding='SHIFT-JIS', index=False)
                 df_all.to_csv(save_name2 + '.csv', encoding='SHIFT-JIS', index=False)
@@ -279,10 +280,10 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei):
                 line_color = {'A': 'b', 'B': 'orange', 'C': 'r'}
                 line_shape = {'1': '-', '2': ':', '3': '-.'}
                 # 事前準備2：グラフタイトルを設定
-                graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
+                # graph_titles = df_all[['nojyomei', 'hojyomei', 'item', 'ymd', 'jiki']].values
+                graph_titles = df_all[['id', 'hojyomei', 'item', 'ymd', 'jiki']].values
                 graph_titles2 = graph_titles[0]
                 graph_title = '土壌物理性診断_' + '_'.join(graph_titles2)
-                # print(graph_title)
                 graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title)
                 # time.sleep(1.5)
 
@@ -308,6 +309,8 @@ if __name__ == '__main__':
             hojyomei_list = list(set(hojyomei_list))
             for hojyomei in hojyomei_list:
                 df2 = df1[df1['圃場名'] == hojyomei]
+                id_list = df2['ID'].tolist()
+                id_list = list(set(id_list))
                 point1_list = df2['圃場内位置'].tolist()
                 point2_list = df2['圃場内位置2'].tolist()
                 point1_list = list(set(point1_list))
@@ -316,18 +319,24 @@ if __name__ == '__main__':
                 # 測定位置情報のエラー検知
                 isvalid = True
                 if not len(point1_list) == len(point2_list):
-                    print("測定位置情報が一致しません")
+                    print("測定位置情報が一致しません。処理を中断しました")
                     isvalid = False
                 else:
-                    # 【Step-3】dfから不必要な列を削除する
-                    df_dp2 = df2.drop(df2.columns[range(72, 110)], axis=1)
-                    df_dp2 = df_dp2.drop(df_dp2.columns[range(8, 12)], axis=1)
-                    df_dp2 = df_dp2.drop(df_dp2.columns[range(0, 1)], axis=1)
-                    df_dp2.reset_index(inplace=True, drop=True)
-                    nojyomei = df_dp2.iat[0, 0]
-                    hojyomei = df_dp2.iat[0, 2]
-                    # 【Step-4】df2から不必要な列を削除する・・散布図生成の共通処理
-                    df_dp1 = df2.drop(df2.columns[range(8, 102)], axis=1)
-                    df_dp1 = df_dp1.drop(df_dp1.columns[range(0, 1)], axis=1)
-                    df_dp1.reset_index(inplace=True, drop=True)
-                    soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei)  # グラフ化のためのデータ加工関数へ
+                    # IDが複数あるエラー検知
+                    if not len(id_list) == 1:
+                        print("1圃場にIDが複数あります。処理を中断しました")
+                        isvalid = False
+                    else:
+                        # 【Step-3】dfから不必要な列を削除する
+                        df_dp2 = df2.drop(df2.columns[range(73, 111)], axis=1)
+                        df_dp2 = df_dp2.drop(df_dp2.columns[range(9, 13)], axis=1)
+                        df_dp2 = df_dp2.drop(df_dp2.columns[range(0, 1)], axis=1)
+                        df_dp2.reset_index(inplace=True, drop=True)
+                        id = df_dp2.iat[0, 0]
+                        nojyomei = df_dp2.iat[0, 1]
+                        hojyomei = df_dp2.iat[0, 3]
+                        # 【Step-4】df2から不必要な列を削除する・・散布図生成の共通処理
+                        df_dp1 = df2.drop(df2.columns[range(9, 103)], axis=1)
+                        df_dp1 = df_dp1.drop(df_dp1.columns[range(0, 1)], axis=1)
+                        df_dp1.reset_index(inplace=True, drop=True)
+                        soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei, id)  # グラフ化のためのデータ加工関数へ

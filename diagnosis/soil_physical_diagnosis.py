@@ -6,6 +6,8 @@ import glob
 import matplotlib
 import matplotlib.pyplot as plt
 
+# exとの違いは生成したグラフの保存先
+
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一
