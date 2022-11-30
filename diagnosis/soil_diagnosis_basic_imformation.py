@@ -130,18 +130,37 @@ def make_index(alldf):
 
     # 列見出しのテキスト設定
     category = ['No', 'ID', '圃場名']
-    for i in range(len(category)):
-        cell = table.cell(0, i)  # cellオブジェクトの取得
-        cell.text = category[i]  # textプロパティで値を設定する
-    # alldfから目次を作成する
     alldf_indexs = alldf.loc[:, ['ID', '圃場名']]
+    indexs_count = len(alldf_indexs)
+    print(indexs_count)
+    for i in range(len(category)):
+        if indexs_count <= 12:
+            cell0 = table.cell(0, i)  # cellオブジェクトの取得
+            cell0.text = category[i]  # textプロパティで値を設定する
+        else:
+            cell0 = table.cell(0, i)  # cellオブジェクトの取得
+            cell0.text = category[i]  # textプロパティで値を設定する
+            cell1 = table.cell(0, i + 3)
+            cell1.text = category[i]
+    # alldfから目次を作成する、13以上ある場合列を変更する処理追加
     for j, alldf_index in alldf_indexs.iterrows():
-        cell0 = table.cell(j + 1, 0)  # cellオブジェクトの取得
-        cell0.text = str(j + 1)  # textプロパティで値を設定する
-        cell1 = table.cell(j + 1, 1)
-        cell1.text = str(alldf_index['ID'])
-        cell2 = table.cell(j + 1, 2)
-        cell2.text = alldf_index['圃場名']
+        if j <= 12:
+            cell0 = table.cell(j + 1, 0)  # cellオブジェクトの取得
+            cell0.text = str(j + 1)  # textプロパティで値を設定する
+            cell1 = table.cell(j + 1, 1)
+            cell1.text = str(alldf_index['ID'])
+            cell2 = table.cell(j + 1, 2)
+            cell2.text = alldf_index['圃場名']
+            cell2.text_frame.autosize = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
+        else:
+            cell0 = table.cell(j - 12, 3)  # cellオブジェクトの取得
+            cell0.text = str(j + 1)  # textプロパティで値を設定する
+            cell1 = table.cell(j - 12, 4)
+            cell1.text = str(alldf_index['ID'])
+            cell2 = table.cell(j - 12, 5)
+            cell2.text = alldf_index['圃場名']
+            cell2.text_frame.autosize = MSO_AUTO_SIZE.SHAPE_TO_FIT_TEXT
+
     # PowerPointを保存
     prs.save("output/create_powerpnt.pptx")
 
