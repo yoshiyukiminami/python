@@ -253,7 +253,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
     filename = filedir + graph_title + '_ver1.2' + '.jpeg'
     print(filename)
-    fig.suptitle(graph_title)
+    fig.suptitle(graph_title, fontsize=10)
     fig.savefig(filename)
     # plt.savefig(filename)
     # plt.show()

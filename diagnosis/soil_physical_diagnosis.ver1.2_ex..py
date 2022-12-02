@@ -119,7 +119,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_physical_graph/'
     filename = filedir + graph_title + '.jpeg'
-    fig.suptitle(graph_title)
+    fig.suptitle(graph_title, fontsize=10)
     # fig.savefig(filename)
     plt.savefig(filename)
     # plt.show()
