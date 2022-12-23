@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # exとの違いは生成したグラフの保存先
-# Ver1.2・・ID列追加と保存名にID追加
+# Ver1.2・・ID列追加と保存名にID追加、基準値の変更（15㎝→20㎝）
 
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
@@ -22,7 +22,8 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
     # 【特性深度分布（度数）_0, 0】グラフ生成
     # 「50%」「std_ddof=1」の数値がによってBAR・線色を変更する
     data_set_high = {'50%': 30, 'std_ddof=1': 3}
-    data_set_low = {'50%': 15, 'std_ddof=1': 7}
+    # 基準値を15㎝から20㎝に変更（20221207）
+    data_set_low = {'50%': 20, 'std_ddof=1': 7}
     sakudoshin = df_all['50%'][0]
     sakudoshin_h = data_set_high['50%']
     sakudoshin_l = data_set_low['50%']

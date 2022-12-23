@@ -2,6 +2,7 @@
 # Step-2 土壌化学性分析データを抽出し、グラフ表示用のDATAFRAMEに取り込む
 # Step-3 分析データをグラフ化する
 # ver1.3の特徴・・土壌硬度測定データで算出された作土深（特性深度の中央値）と比重を加味した測定値換算
+# 基準値の微調整
 # グラフの表示修正・・表示項目名、数値表示
 import numpy as np
 import pandas as pd
@@ -26,18 +27,23 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     karihijyu = alldf_id.iloc[21]
     kanzan = (sakudoshin / 10) * karihijyu
 
-    # 【窒素関連_0, 0】準備-1 df2からグラフに必要な項目のみ分離
-    df_n = alldf_id.iloc[[6, 18, 19, 27, 28]]
-    # 【窒素関連_0, 0】準備-2 データを換算するための基準値設定
-    dataset_nh = {'EC(mS/cm)': 0.2, 'NH4-N(mg/100g)': 1.5, 'NO3-N(mg/100g)': 3.5, '無機態窒素': 15,
-                  'NH4/無機態窒素': 0.6}
-    dataset_nl = {'EC(mS/cm)': 0.05, 'NH4-N(mg/100g)': 0.2, 'NO3-N(mg/100g)': 0.7, '無機態窒素': 4,
-                  'NH4/無機態窒素': 0.1}
-    hyouji_n = {'EC(mS/cm)': "EC", 'NH4-N(mg/100g)': "アンモニア態窒素", 'NO3-N(mg/100g)': "硝酸態窒素",
-                '無機態窒素': "無機態窒素", 'NH4/無機態窒素': "アンモニア態窒素比率(%)"}
+    # 【窒素関連_0, 0】準備-1 df2からグラフに必要な項目のみ分離・・アンモニア態窒素・無機態窒素項目削除
+    # df_n = alldf_id.iloc[[6, 18, 19, 27, 28]]
+    df_n = alldf_id.iloc[[6, 27, 28]]
+    # 【窒素関連_0, 0】準備-2 データを換算するための基準値設定・・項目削除に伴う基準値の変更
+    # dataset_nh = {'EC(mS/cm)': 0.2, 'NH4-N(mg/100g)': 1.5, 'NO3-N(mg/100g)': 3.5, '無機態窒素': 15,
+    #               'NH4/無機態窒素': 0.6}
+    # dataset_nl = {'EC(mS/cm)': 0.05, 'NH4-N(mg/100g)': 0.2, 'NO3-N(mg/100g)': 0.7, '無機態窒素': 4,
+    #               'NH4/無機態窒素': 0.1}
+    # hyouji_n = {'EC(mS/cm)': "EC", 'NH4-N(mg/100g)': "アンモニア態窒素", 'NO3-N(mg/100g)': "硝酸態窒素",
+    #             '無機態窒素': "無機態窒素", 'NH4/無機態窒素': "アンモニア態窒素比率(%)"}
+    dataset_nh = {'EC(mS/cm)': 0.3, '無機態窒素': 10, 'NH4/無機態窒素': 0.6}
+    dataset_nl = {'EC(mS/cm)': 0.05, '無機態窒素': 4, 'NH4/無機態窒素': 0.1}
+    hyouji_n = {'EC(mS/cm)': "EC", '無機態窒素': "無機態窒素", 'NH4/無機態窒素': "アンモニア態窒素比率(%)"}
     # 【窒素関連_0, 0】準備-3 df_nの数値を基準値で除算してパーセントに変換
-    # 作土深・仮比重を換算係数Kに設定
-    kanzan_n = [1, kanzan, kanzan, kanzan, kanzan]
+    # 作土深・仮比重を換算係数Kに設定・・項目数変更に伴う換算リストの修正および設定ミスの修正
+    # kanzan_n = [1, kanzan, kanzan, kanzan, kanzan]
+    kanzan_n = [1, kanzan, 1]
     for j, k in zip(dataset_nh, kanzan_n):
         # print(j, k, "aaa")
         x = (df_n[j] * k) / dataset_nh[j]
@@ -88,9 +94,11 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     # 【リン酸関連_1, 0】準備-1 df2からグラフに必要な項目のみ分離
     df_p = alldf_id.iloc[[16, 17]]
     # print(df_p)
-    # 【リン酸関連_1, 0】準備-2 データを換算するための基準値設定
+    # 【リン酸関連_1, 0】準備-2 データを換算するための基準値設定・・設定ミスの修正
+    # dataset_ph = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
+    # dataset_pl = {'P2O5(mg/100g)': 10, 'リン吸(mg/100g)': 2000}
     dataset_ph = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
-    dataset_pl = {'P2O5(mg/100g)': 10, 'リン吸(mg/100g)': 2000}
+    dataset_pl = {'P2O5(mg/100g)': 10, 'リン吸(mg/100g)': 300}
     hyouji_p = {'P2O5(mg/100g)': "リン酸", 'リン吸(mg/100g)': "リン酸吸収係数"}
     # 【リン酸関連_1, 0】準備-3 df_pの数値を基準値で除算してパーセントに変換
     # 作土深・仮比重を換算係数Kに設定
@@ -142,12 +150,15 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
     # 【塩基類関連_0, 1】準備-1 df2からグラフに必要な項目のみ分離
     df_enki = alldf_id.iloc[[7, 9, 10, 11, 15, 22, 23]]
-    # 【塩基類関連_0, 1】準備-2 データを換算するための基準値設定
+    # 【塩基類関連_0, 1】準備-2 データを換算するための基準値設定・・基準値の修正
     dataset_enkih = {'ｐH': 6.5, 'CaO(mg/100g)': 400, 'MgO(mg/100g)': 70, 'K2O(mg/100g)': 40,
                     '塩基飽和度(%)': 80, 'CaO/MgO': 8, 'MgO/K₂O': 6
                      }
+    # dataset_enkil = {'ｐH': 6, 'CaO(mg/100g)': 200, 'MgO(mg/100g)': 25, 'K2O(mg/100g)': 15,
+    #                  '塩基飽和度(%)': 50, 'CaO/MgO': 5, 'MgO/K₂O': 3
+    #                  }
     dataset_enkil = {'ｐH': 6, 'CaO(mg/100g)': 200, 'MgO(mg/100g)': 25, 'K2O(mg/100g)': 15,
-                     '塩基飽和度(%)': 50, 'CaO/MgO': 5, 'MgO/K₂O': 3
+                     '塩基飽和度(%)': 50, 'CaO/MgO': 5, 'MgO/K₂O': 2
                      }
     hyouji_enki = {'ｐH': "PH", 'CaO(mg/100g)': "カルシウム", 'MgO(mg/100g)': "マグネシウム",
                    'K2O(mg/100g)': "カリウム", '塩基飽和度(%)': "塩基飽和度(%)",
@@ -202,9 +213,11 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
     # 【土壌ポテンシャル関連_1, 1】準備-1 df2からグラフに必要な項目のみ分離
     df_soil = alldf_id.iloc[[8, 20, 21]]
-    # 【土壌ポテンシャル関連_1, 1】準備-2 データを換算するための基準値設定
-    dataset_soilh = {'CEC(meq/100g)': 40, '腐植(%)': 8, '仮比重': 1}
-    dataset_soill = {'CEC(meq/100g)': 12, '腐植(%)': 3, '仮比重': 0.6}
+    # 【土壌ポテンシャル関連_1, 1】準備-2 データを換算するための基準値設定・・設定値の修正
+    # dataset_soilh = {'CEC(meq/100g)': 40, '腐植(%)': 8, '仮比重': 1}
+    dataset_soilh = {'CEC(meq/100g)': 25, '腐植(%)': 8, '仮比重': 1}
+    # dataset_soill = {'CEC(meq/100g)': 12, '腐植(%)': 3, '仮比重': 0.6}
+    dataset_soill = {'CEC(meq/100g)': 15, '腐植(%)': 3, '仮比重': 0.6}
     hyouji_soil = {'CEC(meq/100g)': "CEC", '腐植(%)': "腐植(%)", '仮比重': "仮比重"}
     # 【土壌ポテンシャル関連_1, 1】準備-3 df_soilの数値を基準値で除算してパーセントに変換
     for k, j in enumerate(dataset_soilh):
