@@ -3,10 +3,10 @@
 # Step-3 圃場測定時画像フォルダにある画像データを読み込む
 # Step-4 Step-2のfield_prppertiesに該当画像を追加する
 # ver1.2・・基本情報の名称変更と特性深度数値とばらつき数値の追加
-# ver1.3・・フォントサイズの微調整
+# ver2.0・・コメントの自動生成を追加（IDに連動したコメント番号のcsvファイルを読み込みからコメント生成）
+
 import datetime
 import glob
-import math
 import os
 import pprint
 
@@ -15,8 +15,6 @@ import pandas as pd
 import pptx
 from pptx import Presentation
 from pptx.util import Cm, Pt
-from pptx.enum.text import MSO_AUTO_SIZE
-
 
 def make_index(alldf):
     prs = Presentation()
@@ -31,14 +29,12 @@ def make_index(alldf):
     # tableレイアウト設定・・ID別情報ページ
     rows = 25
     cols = 4
-    # table_shape2 = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3), Cm(15), Cm(15))
     # ID数が26以上ある場合、処理中止する
     isvalid = True
     if 0 < len(alldf['ID']) <= 26:
         for k in range(len(alldf['ID']) * 2):
             m = k + 3
             slide_n = 'slide_' + str(m)
-            # print(slide_n)
             slide_n = prs.slides.add_slide(slide_layout_2)
             shape_n = slide_n.shapes.add_table(17, cols, Cm(1), Cm(1), Cm(23.5), Cm(15))
             table_in_page = shape_n.table
@@ -54,11 +50,9 @@ def make_index(alldf):
                 merge_cell_left_top2_a = table_in_page.cell(1, 2)
                 merge_cell_right_bottom2_a = table_in_page.cell(8, 3)
                 merge_cell_left_top2_a.merge(merge_cell_right_bottom2_a)
-                # merge_cell_left_top2_a.text = str(1)
                 merge_cell_left_top3_a = table_in_page.cell(9, 2)
                 merge_cell_right_bottom3_a = table_in_page.cell(16, 3)
                 merge_cell_left_top3_a.merge(merge_cell_right_bottom3_a)
-                # merge_cell_left_top3_a.text = str(2)
             else:
                 merge_cell_left_top1_b = table_in_page.cell(0, 0)
                 merge_cell_right_bottom1_b = table_in_page.cell(0, 1)
@@ -97,7 +91,7 @@ def make_index(alldf):
                 merge_cell_left_top5_b = table_in_page.cell(13, 0)
                 merge_cell_right_bottom5_b = table_in_page.cell(16, 3)
                 merge_cell_left_top5_b.merge(merge_cell_right_bottom5_b)
-                merge_cell_left_top5_b.text = "【コメント】"
+                # merge_cell_left_top5_b.text = "【コメント】"
     else:
         print("ID数が0または26以上あるため、処理を中止します")
         isvalid = False
@@ -113,15 +107,11 @@ def make_index(alldf):
     # テキストの編集・・「目次」スライト
     title2 = slide_2.placeholders[0]
     title2.text = "目次"
-    # title2.width = Cm(1)
     # 目次表の生成
     # 表のレイアウト設定・・目次
-    # rows = len(alldf) + 1
     rows = 14
-    # cols = 3
     cols = 6
     table_shape = slide_2.shapes.add_table(rows, cols, Cm(1), Cm(3.5), Cm(23), Cm(10))
-    # table_shape = slide_2.shapes.add_table(rows, cols, Cm(3), Cm(3), Cm(15), Cm(5))
     table = table_shape.table
     table.columns[0].width = Cm(1.5)
     table.columns[1].width = Cm(5)
@@ -138,17 +128,11 @@ def make_index(alldf):
         if indexs_count <= 12:
             cell0 = table.cell(0, i)  # cellオブジェクトの取得
             cell0.text = category[i]  # textプロパティで値を設定する
-            # pg0 = cell0.text_frame.paragraphs[0]
-            # pg0.font.size = Pt(16)
         else:
             cell0 = table.cell(0, i)  # cellオブジェクトの取得
             cell0.text = category[i]  # textプロパティで値を設定する
-            # pg0 = cell0.text_frame.paragraphs[0]
-            # pg0.font.size = Pt(16)
             cell1 = table.cell(0, i + 3)
             cell1.text = category[i]
-            # pg1 = cell1.text_frame.paragraphs[0]
-            # pg1.font.size = Pt(16)
     # alldfから目次を作成する、13以上ある場合列を変更する処理追加
     for j, alldf_index in alldf_indexs.iterrows():
         if j <= 12:
@@ -181,15 +165,12 @@ def make_picture_table(alldf):
     # 土壌物理性グラフ（jpeg）のリストを読み込む
     filedir1 = 'C:/Users/minam/Desktop/soil_physical_graph2/'
     files_pg = glob.glob(filedir1 + '/**/*.jpeg', recursive=True)
-    # pprint.pprint(files_pg)
     # 土壌化学性グラフ（jpeg）のリストを読み込む
     filedir2 = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
     files_cg = glob.glob(filedir2 + '/**/*.jpeg', recursive=True)
-    # pprint.pprint(files_cg)
     # 圃場画像（jpeg）のリストを読み込む
     filedir3 = 'C:/Users/minam/Desktop/hojyo_picture2/'
     files_hp = glob.glob(filedir3 + '/**/*.jpeg', recursive=True)
-    # pprint.pprint(files_hp)
 
     # ベースDataframe（alldf2）を作成・・ここにグラフ・画像を紐付ける
     id_list = []
@@ -256,6 +237,7 @@ def make_picture_table(alldf):
     # alldfとalldf2をmergeしてalldf_setを生成
     alldfset = pd.merge(alldf, alldf2, left_on='ID', right_on='ID')
     alldfset.to_csv('alldfset.csv', encoding='Shift-JIS')
+    # alldfsetから基本情報、グラフ・画像情報を抽出しPPTXに代入する関数
     set_basic_information(alldfset)
 
 
@@ -268,11 +250,11 @@ def get_layout_type(row):
     layout_type = None
     layout_pictures = []
     if not pd.isna(row['all']):
-        print("True", "aaa")
+        # print("True", "aaa")
         layout_type = "all"
         layout_pictures = [row['土壌化学性診断グラフ'], row['土壌物理性診断グラフ'], row['all']]
     elif not pd.isna(row['left']) and not pd.isna(row['right']):
-        print("True", "bbb")
+        # print("True", "bbb")
         layout_type = "left_and_right"
         layout_pictures = [row['土壌化学性診断グラフ'], row['土壌物理性診断グラフ'],
                            row['left'], row['right']]
@@ -282,14 +264,11 @@ def get_layout_type(row):
     return layout_type, layout_pictures
 
 
-
 def set_basic_information(alldfset):
-    # print(alldfset)
     prs = pptx.Presentation("output/create_powerpnt.pptx")
     # 基本情報で代入する項目のみを抽出したdataframe（alldataset1）を生成
-    alldfset1 = alldfset.iloc[:, 1:17]
-    # alldfset1 = alldfset1.drop(alldfset1.columns[[5, 6]], axis=1)
-    alldfset1.to_csv("alldataset1.csv", encoding='Shift-JIS')
+    alldfset1 = alldfset.iloc[:, 1:16]
+    # alldfset1.to_csv("alldataset1.csv", encoding='Shift-JIS')
 
     headers = 2
     id_pages = 2  # 1圃場当たりに必要なページ数
@@ -306,15 +285,12 @@ def set_basic_information(alldfset):
             pg2.font.size = Pt(16)
     # 圃場画像の貼り付け
     # 圃場画像URLを抽出したdataframe（alldfset2）を生成
-    # alldfset2 = alldfset.iloc[:, 17:]
-    alldfset2 = alldfset.iloc[:, 15:]
-    # alldfset2 = alldfset.drop(alldfset.columns[[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]], axis=1)
-    alldfset2.to_csv("alldataset2.csv", encoding='Shift-JIS')
+    alldfset2 = alldfset.iloc[:, 22:]
+    # alldfset2.to_csv("alldataset2.csv", encoding='Shift-JIS')
     # 圃場画像の情報を読み込み
 
     for index, row in alldfset2.iterrows():
         layout_type, layout_pictures = get_layout_type(row)
-        print(layout_type, layout_pictures)
         page_1 = index * 2 + 2
         page_2 = index * 2 + 3
         slide_in_page_1 = prs.slides[page_1]
@@ -358,9 +334,61 @@ def set_basic_information(alldfset):
                                                pic_left_ch, pic_top_ch, pic_height_ch)
             slide_in_page_2.shapes.add_picture(layout_pictures[1],
                                                pic_left_py, pic_top_ch, pic_height_ch)
-
+    # コメントに代入する項目のみを抽出したdataframe（alldataset3）を生成
+    alldfset3 = alldfset.iloc[:, 16:22]
+    # alldfset3.to_csv("alldataset3.csv", encoding='Shift-JIS')
+    for index, rows in alldfset3.iterrows():
+        rows.dropna(inplace=True)
+        print(rows)
+        page_no = index * 2 + 3
+        table_in_page = prs.slides[page_no].shapes[0].table
+        comment_cell = table_in_page.cell(13, 0)
+        textframe = comment_cell.text_frame
+        comment = '\n'.join(rows)
+        textframe.paragraphs[0].text = "【コメント】" + comment
+        textframe.paragraphs[0].font.size = Pt(15)
     # PowerPointを保存
     prs.save("output/create_powerpnt2.pptx")
+
+
+def exchange_comment(df_comment):
+    comment_dict = {'PH_1': "PHが7以上（アルカリ性）で、PHを矯正する必要があります。",
+                    'PH_2': "PHが6.5以上（弱アルカリ性）で、微量要素欠乏を起こす可能性があります。",
+                    'PH_3': "PHが6以下（酸性）で、PHを矯正する必要があります。",
+                    'PH_4': "PHが低い（酸性）のは窒素過多が原因なので、窒素の施用を控えてください。",
+                    'PH_5': "PHは適正範囲（6.0-6.5）です。",
+                    'N_1': "窒素は十分残っており、減肥可能です。",
+                    'N_2': "ECが高いので、窒素の減肥が可能です。",
+                    'N_3': "窒素は過剰で、これ以上の施用は不要です。",
+                    'N_4': "窒素および塩基類は過剰で、これ以上の施用は不要です。",
+                    'N_5': "EC・無機態窒素の残量は基準値上限以内です。",
+                    'P_1': "リン酸は十分残っており、減肥可能です。",
+                    'P_2': "リン酸は過剰で、これ以上の施用は不要です。",
+                    'P_3': "リン酸吸収力が低いため、施肥量は通常の1.5倍程度必要です。",
+                    'P_4': "リン酸吸収力が低いため、施肥量は通常の2.0倍程度必要です。",
+                    'P_5': "リン酸吸収力が低いため、施肥量は通常の3.0倍程度必要です。",
+                    'P_6': "PHが低い（酸性）ため、リン酸が効きにくくなっています。",
+                    'P_7': "リン酸の残量は基準値上限以内です。",
+                    'ENKI_1': "塩基飽和度が高いので、塩基類を施用しても土が保持できません",
+                    'ENKI_2': "塩基飽和度が高いので、塩基類を施用しても土が保持できません。",
+                    'ENKI_3': "カリは過剰で、これ以上の施用は不要です。",
+                    'ENKI_4': "塩基バランス（苦土不足、カリ過剰）が崩れています。",
+                    'ENKI_5': "塩基バランス（カルシウム不足、苦土・カリ過剰）が崩れています。",
+                    'ENKI_7': "塩基バランス（苦土過剰）が崩れています。",
+                    'SP_1': "保肥力が低いため、追肥型の施肥を心がけてください。",
+                    'SP_2': "十分な腐食があり、高温時の栽培では窒素の減肥が可能です。",
+                    'koudo_1': "作土深は浅め（20ｃｍ以内）で、圃場内での作土深は比較的揃っています。",
+                    'koudo_2': "作土深は浅め（20ｃｍ以内）で、圃場内での作土深はややばらついています。",
+                    'koudo_3': "作土深は浅め（20ｃｍ以内）で、圃場内での作土深のばらつきは普通です。",
+                    'koudo_4': "作土深は深め（30ｃｍ以状）で、圃場内での作土深は比較的揃っています。",
+                    'koudo_5': "作土深は深め（30ｃｍ以上）で、圃場内での作土深はややばらついています。",
+                    'koudo_6': "作土深は深め（30ｃｍ以上）で、圃場内での作土深のばらつきは普通です。",
+                    'koudo_7': "作土深は普通（20-30ｃｍ）で、圃場内での作土深は比較的揃っています。",
+                    'koudo_8': "作土深は普通（20-30ｃｍ）で、圃場内での作土深はややばらついています。",
+                    'koudo_9': "作土深は普通（20-30ｃｍ）で、圃場内での作土深のばらつきは普通です。"
+                    }
+    df_comment.replace(comment_dict, inplace=True)
+    df_comment.to_csv("df_comment.csv", encoding='Shift-JIS')
 
 
 if __name__ == '__main__':
@@ -370,10 +398,16 @@ if __name__ == '__main__':
     # フォルダー内にあるフォルダー名をfolderlist、ファイル名をfilesに所得する
     folderlist = os.listdir(filedir)
     files = glob.glob(filedir + '/**/*.xlsx', recursive=True)
-    # pprint.pprint(files)
+    # コメントCSVファイルの読み込み
+    files2 = glob.glob(filedir + '/**/*.csv', recursive=True)
+    # pprint.pprint(files2)
 
     # 【Step-1-1】フォルダにある測定データ（.xlsx）から基本情報を読み込む
-    for file in files:
+    for file, file2 in zip(files, files2):
+        df_comment = pd.read_csv(file2, index_col=0)
+        df_comment = df_comment.sort_values(by="ID")
+        # コメント番号からコメント文書に置換する関数
+        exchange_comment(df_comment)
         df = pd.read_excel(file, sheet_name='基本情報')
         df = df.loc[:,
              ['ID', '出荷団体名', '生産者名', '圃場名', '面積（平方メートル）', '圃場位置(緯度)',
@@ -387,12 +421,9 @@ if __name__ == '__main__':
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
         alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3,
                          left_on='ID', right_on='ID')
-        # print(alldf, type(alldf))
-        # alldf.to_csv('aaa')
-        # IDをキー列にして昇順ソート、インデックスもリセット
-        alldf = alldf.sort_values(by="ID")
-        alldf = alldf.reset_index()
-        # sortができていない【課題】
+        # alldfと文書変換したdf_commentをmergeする
+        alldf = pd.merge(alldf, df_comment, left_on='ID', right_on='ID')
+
         isvalid = True
         for i in range(len(alldf)):
             if alldf.loc[i].isnull().any():
@@ -400,12 +431,14 @@ if __name__ == '__main__':
                 isvalid = False
             else:
                 print("必要情報は正常です")
-        # 欠損値（NAN）のある行を削除し、indexを振り直す
-        alldf = alldf.dropna(how='any')
-        alldf = alldf.reset_index(drop=True)
+        # 欠損値（NAN）のある行を削除し、IDをキー列にして昇順ソート、indexを振り直す
+        # sortができていない【課題】
+        # 注：コメントで欠損値が出る場合があるため、欠損値のある行削除を解除
+        # alldf = alldf.dropna(how='any')
+        alldf = alldf.sort_values(by="ID")
+        # alldf = alldf.reset_index(drop=True)
         # alldf.to_csv("alldf.csv", encoding='Shift-JIS')
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
         # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
         make_picture_table(alldf)
-

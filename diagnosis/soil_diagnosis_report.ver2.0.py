@@ -273,7 +273,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     # plt.show()
 
 
-def make_comment(alldf):
+def make_comment(alldf, file):
     # alldf.to_csv('alldf.csv', encoding='Shift-JIS')
     # print(alldf, alldf.columns)
     alldf_comment = alldf.loc[:, ['ID']]
@@ -310,6 +310,8 @@ def make_comment(alldf):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'ph_comment'] = 'PH_4'
         elif 6 <= ph <= 6.5:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'ph_comment'] = 'PH_5'
+        else:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'ph_comment'] = float('nan')
         # 窒素に関するコメント付与（N_1～6）
         muki_N = muki_N * (sakudoshin / 10) * karihijyu
         if EC < 0.3 and muki_N >= 10:
@@ -322,9 +324,10 @@ def make_comment(alldf):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = 'N_4'
         elif EC < 0.3 and muki_N < 10:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = 'N_5'
+        else:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = float('nan')
         # リン酸に関するコメント付与（P_1～7）
         P2O = P2O * (sakudoshin / 10) * karihijyu
-        print(P2O)
         if P2O >= 50:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_1'
         elif P2O >= 100:
@@ -339,6 +342,8 @@ def make_comment(alldf):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_6'
         elif P2O < 50:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_7'
+        else:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = float('nan')
         # 塩基類に関するコメント付与（ENKI_1～6）
         if enki_houwa > 80 and CEC > 15:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_1'
@@ -352,11 +357,15 @@ def make_comment(alldf):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_5'
         elif CaMg_ratio < 5 and CaMg_ratio >65:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_6'
+        else:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = float('nan')
         # 土壌ポテンシャルに関するコメント付与（SP_1～2）
         if CEC < 15 and Humus < 3:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_1'
         elif Humus > 8:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_2'
+        else:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = float('nan')
         # 土壌硬度（作土深）に関するコメント付与（koudo_1～9）
         if sakudoshin < 20 and sakudoshin_std < 3:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'koudo_comment'] = 'koudo_1'
@@ -376,9 +385,17 @@ def make_comment(alldf):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'koudo_comment'] = 'koudo_8'
         elif 20 <= sakudoshin < 30 and 3 <= sakudoshin_std < 7:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'koudo_comment'] = 'koudo_9'
+        else:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'koudo_comment'] = float('nan')
+    # alldf_commentを新規エクセルファイルとして保存
+    root, ext = os.path.splitext(file)
+    save_file_name = root + '_comment.csv'
+    # print(save_file_name)
+    print(alldf_comment.isna())
+    alldf_comment.to_csv(save_file_name, encoding='Shift-JIS')
     # alldfとalldf_commentの結合
-    alldf_comment = pd.merge(alldf, alldf_comment, left_on='ID', right_on='ID')
-    print(alldf_comment)
+    # alldf_comment = pd.merge(alldf, alldf_comment, left_on='ID', right_on='ID')
+    # print(alldf_comment)
 
 
 if __name__ == '__main__':
@@ -399,7 +416,7 @@ if __name__ == '__main__':
         df2 = df2.loc[:, ['ID', '作土深の中心値', '作土深のばらつき']]
         # 取得データの結合（キー列'ID'）
         alldf = pd.merge(df, df2, left_on='ID', right_on='ID')
-        make_comment(alldf)
+        make_comment(alldf, file)
         # 欠損値の判定
         isvalid = True
         for i in range(len(alldf)):
@@ -412,4 +429,4 @@ if __name__ == '__main__':
                 graph_titles = alldf_id[['ID', '圃場名', '品目', '作型', '採土日']].values
                 graph_title = '土壌化学性診断_' + '_'.join(graph_titles)
                 hojyomei = alldf_id['圃場名']
-                # graphset_2x2(alldf_id, graph_title, hojyomei)
+                graphset_2x2(alldf_id, graph_title, hojyomei)
