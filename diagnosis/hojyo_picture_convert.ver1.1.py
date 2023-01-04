@@ -1,12 +1,13 @@
 import glob
 import math
+import os
 import pprint
 import re
 import numpy as np
 import pyexiv2
 import pandas as pd
 from PIL.Image import Image
-
+from PIL import Image
 
 def get_datetime(exifdata):
     imagedatetime = exifdata['Exif.Image.DateTime']
@@ -63,8 +64,9 @@ def get_nearest_value(latitude, longitude, imagedatetime1, df_compare):
         return id, hojyo_name
 
 
-def image_resize(img):
-    img_width, img_height = img.size  # 画像のサイズを取得
+def Image_resize(img2, picture_save_dir, picture_save_name):
+    print(picture_save_name, picture_save_dir)
+    img_width, img_height = img2.size  # 画像のサイズを取得
     # 画像の向き判定
     if img_height < img_width:
         # 絵が横向きの場合、縮小率を計算（w500, h300 の画像を例とします）
@@ -74,14 +76,14 @@ def image_resize(img):
         # 絵が縦向きの場合（w300, h500 の画像を例とします）
         scale = img_height / 533
         size = (math.ceil(img_width / scale), 533)  # e.g. (300 / 0.98, 512) → (307, 512)
-    # resize
-    img_resize = img.resize(size)
-    return img_resize
+    # 画像を縮小
+    img_resize = img2.resize(size)
+    img_resize.save(picture_save_dir + picture_save_name)
 
 
 if __name__ == '__main__':
     # 定数
-    picture_dir = 'C:/Users/minam/Desktop/hojyo_picture_diagnosis/'
+    picture_dir = 'C:/Users/minam/Desktop/hojyo_picture_presave/'
     picture_save_dir = 'C:/Users/minam/Desktop/hojyo_picture_save/'
     filedir = 'C:/Users/minam/Desktop/soil_chemical_properties/'
     # フォルダー内にある画像を取り込み
@@ -106,15 +108,17 @@ if __name__ == '__main__':
 
     # 画像の取得
     for j, picture in enumerate(pictures):
+        pre_name = picture
+        # print(pre_name)
         with pyexiv2.Image(picture) as img:
             exifdata = img.read_exif()
             # pprint.pprint(exifdata)
             # EXIFデータから撮影日を取得する関数
-            imagedatetime1, imagedatetime2 = longitude = get_datetime(exifdata)
+            imagedatetime1, imagedatetime2 = get_datetime(exifdata)
             # EXIFデータから撮影場所の座標を取得する関数
             latitude, longitude = get_gpsdata(exifdata)
             id, hojyo_name = get_nearest_value(latitude, longitude, imagedatetime1, df_compare)
             picture_save_name = "圃場画像_" + id + '_' + hojyo_name + '_' + str(j) + '_' + str(imagedatetime2) + ".jpeg"
-            print(picture_save_name)
-            # img_resize = image_resize(img)
-            # img.save(picture_save_dir + picture_save_name)
+            os.rename(pre_name, picture_dir + picture_save_name)
+        # img2 = Image.open(picture)
+        # Image_resize(img2, picture_save_dir, picture_save_name)
