@@ -6,7 +6,6 @@ import re
 import numpy as np
 import pyexiv2
 import pandas as pd
-from PIL.Image import Image
 from PIL import Image
 
 def get_datetime(exifdata):
@@ -64,9 +63,9 @@ def get_nearest_value(latitude, longitude, imagedatetime1, df_compare):
         return id, hojyo_name
 
 
-def Image_resize(img2, picture_save_dir, picture_save_name):
-    print(picture_save_name, picture_save_dir)
-    img_width, img_height = img2.size  # 画像のサイズを取得
+def Image_resize(img1, pre_name2):
+    print(pre_name2)
+    img_width, img_height = img1.size  # 画像のサイズを取得
     # 画像の向き判定
     if img_height < img_width:
         # 絵が横向きの場合、縮小率を計算（w500, h300 の画像を例とします）
@@ -77,21 +76,20 @@ def Image_resize(img2, picture_save_dir, picture_save_name):
         scale = img_height / 533
         size = (math.ceil(img_width / scale), 533)  # e.g. (300 / 0.98, 512) → (307, 512)
     # 画像を縮小
-    img_resize = img2.resize(size)
-    img_resize.save(picture_save_dir + picture_save_name)
+    img_resize = img1.resize(size)
+    img_resize.save(pre_name2)
 
 
 if __name__ == '__main__':
     # 定数
-    picture_dir = 'C:/Users/minam/Desktop/hojyo_picture_presave/'
-    picture_save_dir = 'C:/Users/minam/Desktop/hojyo_picture_save/'
+    picture_dir = 'C:/Users/minam/Desktop/hojyo_picture_rename_resize/'
     filedir = 'C:/Users/minam/Desktop/soil_chemical_properties/'
-    # フォルダー内にある画像を取り込み
-    pictures = glob.glob(picture_dir + '/*.jpeg', recursive=True)
+
     # フォルダー内にある基本情報エクセルファイル（xlsx）を取り込み
     files = glob.glob(filedir + '/**/*.xlsx', recursive=True)
     # pprint.pprint(pictures)
     # pprint.pprint(files)
+
     # 基本情報から「ID」「座標情報」「圃場名」「採土日」「測定日」を取り出しdf_compareに格納
     for file in files:
         df_comp1 = pd.read_excel(file, sheet_name='基本情報')
@@ -106,11 +104,13 @@ if __name__ == '__main__':
         df_compare = pd.merge(pd.merge(df_comp1, df_comp2, left_on='ID', right_on='ID'), df_comp3, left_on='ID', right_on='ID')
         # print(df_compare)
 
-    # 画像の取得
-    for j, picture in enumerate(pictures):
-        pre_name = picture
-        # print(pre_name)
-        with pyexiv2.Image(picture) as img:
+    # フォルダー内にある画像を取り込み
+    pictures1 = glob.glob(picture_dir + '/*.jpeg', recursive=True)
+    # 画像の名前自動付与
+    for j, picture1 in enumerate(pictures1):
+        pre_name1 = picture1
+        print(pre_name1)
+        with pyexiv2.Image(picture1) as img:
             exifdata = img.read_exif()
             # pprint.pprint(exifdata)
             # EXIFデータから撮影日を取得する関数
@@ -119,6 +119,11 @@ if __name__ == '__main__':
             latitude, longitude = get_gpsdata(exifdata)
             id, hojyo_name = get_nearest_value(latitude, longitude, imagedatetime1, df_compare)
             picture_save_name = "圃場画像_" + id + '_' + hojyo_name + '_' + str(j) + '_' + str(imagedatetime2) + ".jpeg"
-            os.rename(pre_name, picture_dir + picture_save_name)
-        # img2 = Image.open(picture)
-        # Image_resize(img2, picture_save_dir, picture_save_name)
+            os.rename(pre_name1, picture_dir + picture_save_name)
+
+    # 画像のサイズ縮小
+    pictures2 = glob.glob(picture_dir + '/*.jpeg', recursive=True)
+    for picture2 in pictures2:
+        pre_name2 = picture2
+        img1 = Image.open(picture2)
+        Image_resize(img1, pre_name2)
