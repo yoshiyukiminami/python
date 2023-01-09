@@ -348,7 +348,17 @@ def set_basic_information(alldfset):
         textframe.paragraphs[0].text = "【コメント】" + comment
         textframe.paragraphs[0].font.size = Pt(15)
     # PowerPointを保存
-    prs.save("output/create_powerpnt2.pptx")
+    # 報告日の取得
+    d_today = datetime.date.today()
+    isvalid = True
+    if set(alldfset['出荷団体']) == 1:
+        group_name = str(set(alldfset['出荷団体'][0]))
+    else:
+        print("出荷団体名が複数あります。PPTXの保存を中断しました。")
+        isvalid = False
+    save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save"
+    save_prs_name = save_prs_dir + "土壌診断書_" + group_name + '_' + str(d_today) + '.pptx'
+    prs.save(save_prs_name)
 
 
 def exchange_comment(df_comment):
@@ -430,13 +440,9 @@ if __name__ == '__main__':
                 isvalid = False
             else:
                 print("必要情報は正常です")
-        # 欠損値（NAN）のある行を削除し、IDをキー列にして昇順ソート、indexを振り直す
-        # sortができていない【課題】
-        # 注：コメントで欠損値が出る場合があるため、欠損値のある行削除を解除
-        # alldf = alldf.dropna(how='any')
+        # IDをキー列にして昇順ソート、indexを振り直す　注：欠損値あっても行削除せず
+        # 【課題】sortができていない？
         alldf = alldf.sort_values(by="ID")
-        # alldf = alldf.reset_index(drop=True)
-        # alldf.to_csv("alldf.csv", encoding='Shift-JIS')
         # ひな形のPPTXを読み込み目次を作成
         make_index(alldf)
         # ID別の紐付け情報（グラフ2種、圃場画像１～４種）のDataframeを作成する
