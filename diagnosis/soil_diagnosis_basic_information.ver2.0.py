@@ -4,6 +4,7 @@
 # Step-4 Step-2のfield_prppertiesに該当画像を追加する
 # ver1.2・・基本情報の名称変更と特性深度数値とばらつき数値の追加
 # ver2.0・・コメントの自動生成を追加（IDに連動したコメント番号のcsvファイルを読み込みからコメント生成）
+# ver2.0・・追加：alldfで欠損値がある列名とID番号をプリント
 
 import datetime
 import glob
@@ -339,7 +340,6 @@ def set_basic_information(alldfset):
     # alldfset3.to_csv("alldataset3.csv", encoding='Shift-JIS')
     for index, rows in alldfset3.iterrows():
         rows.dropna(inplace=True)
-        print(rows)
         page_no = index * 2 + 3
         table_in_page = prs.slides[page_no].shapes[0].table
         comment_cell = table_in_page.cell(13, 0)
@@ -425,6 +425,7 @@ if __name__ == '__main__':
         isvalid = True
         for i in range(len(alldf)):
             if alldf.loc[i].isnull().any():
+                print(alldf.loc[i][0], alldf.columns[i])
                 print("欠損値のある行が含まれています")
                 isvalid = False
             else:

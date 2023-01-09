@@ -51,6 +51,61 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         df_n[j] = x
     df_n2 = pd.DataFrame(df_n)
 
+    # # 窒素に関連する土壌化学性項目グラフを生成[0, 0]
+    # for n, m in df_n2.iterrows():
+    #     # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
+    #     x = m.values
+    #     L_level = (1 * dataset_nl[n]) / dataset_nh[n]
+    #     if x >= 1:
+    #         color = 'red'
+    #         if x >= 2:
+    #             x_text = 1
+    #             t_color = 'white'
+    #         else:
+    #             x_text = x
+    #             t_color = 'black'
+    #     else:
+    #         x_text = x
+    #         if x <= L_level:
+    #             color = 'blue'
+    #             t_color = 'black'
+    #         else:
+    #             color = 'grey'
+    #             t_color = 'black'
+    #     y = [n]
+    #     hyoujimei_n = hyouji_n[n]
+    #     axes[0, 0].barh(y, x, color=color, height=0.5, align='center')
+    #     axes[0, 0].set_title('窒素関連', size=11)
+    #     # axes[0, 0].set_xlabel('飽和度（基準値100％）', size=8)
+    #     axes[0, 0].set_ylabel('測定項目', size=8)
+    #     axes[0, 0].set_xlim(0, 3)
+    #     axes[0, 0].set_yticks([])
+    #     axes[0, 0].text(x_text, y, "{}".format(hyoujimei_n), ha='left', va='center',
+    #                     color=t_color, size=8)
+    #     axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
+    #     axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
+    #     axes[0, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
+    #     axes[0, 0].invert_yaxis()
+
+    # 【窒素関連_0, 0】準備-1 df2からグラフに必要な項目のみ分離・・アンモニア態窒素・無機態窒素項目削除
+    # df_n = alldf_id.iloc[[6, 18, 27, 28]]
+    df_n = alldf_id.iloc[[28, 27, 18, 6]]
+    # dataset_nh = {'EC(mS/cm)': 0.3, 'NH4-N(mg/100g)': 5.0, '無機態窒素': 10, 'NH4/無機態窒素': 0.6}
+    dataset_nh = {'NH4/無機態窒素': 0.6, '無機態窒素': 10, 'NH4-N(mg/100g)': 5.0, 'EC(mS/cm)': 0.3}
+    # dataset_nl = {'EC(mS/cm)': 0.05, 'NH4-N(mg/100g)': 0.2, '無機態窒素': 4, 'NH4/無機態窒素': 0.1}
+    dataset_nl = {'NH4/無機態窒素': 0.1, '無機態窒素': 4, 'NH4-N(mg/100g)': 0.2, 'EC(mS/cm)': 0.05}
+    # hyouji_n = {'EC(mS/cm)': "EC", 'NH4-N(mg/100g)': "アンモニア態窒素", '無機態窒素': "無機態窒素", 'NH4/無機態窒素': "アンモニア態窒素比率(%)"}
+    hyouji_n = {'NH4/無機態窒素': "アンモニア態窒素比率(%)", '無機態窒素': "無機態窒素",
+                'NH4-N(mg/100g)': "アンモニア態窒素", 'EC(mS/cm)': "EC"
+                }
+    # 【窒素関連_0, 0】準備-3 df_nの数値を基準値で除算してパーセントに変換
+    # 作土深・仮比重を換算係数Kに設定・・項目数変更に伴う換算リストの修正および設定ミスの修正
+    kanzan_n = [1, kanzan, kanzan, 1]
+    for j, k in zip(dataset_nh, kanzan_n):
+        x = (df_n[j] * k) / dataset_nh[j]
+        df_n[j] = x
+    df_n2 = pd.DataFrame(df_n)
+
     # 窒素に関連する土壌化学性項目グラフを生成[0, 0]
     for n, m in df_n2.iterrows():
         # 計算値が100％以上の時にBAR色を赤、100％未満はグレー、LOW基準以下はブルー
@@ -80,13 +135,13 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[0, 0].set_ylabel('測定項目', size=8)
         axes[0, 0].set_xlim(0, 3)
         axes[0, 0].set_yticks([])
-        # axes[0, 0].set_xticklabels(x, fontsize=8)
         axes[0, 0].text(x_text, y, "{}".format(hyoujimei_n), ha='left', va='center',
                         color=t_color, size=8)
         axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
         axes[0, 0].axvline(1, linestyle='dotted', color='orange', lw=0.8)
         axes[0, 0].axvline(2, linestyle='dotted', color='red', lw=0.8)
         axes[0, 0].invert_yaxis()
+
 
     # 【リン酸関連_1, 0】準備-1 df2からグラフに必要な項目のみ分離
     df_p = alldf_id.iloc[[16, 17]]
@@ -133,7 +188,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[1, 0].set_ylabel('測定項目', size=8)
         axes[1, 0].set_xlim(0, 3)
         axes[1, 0].set_yticks([])
-        axes[1, 0].set_xticklabels(x, fontsize=8)
         axes[1, 0].text(x_text, y, "{}".format(hyoujimei_p), ha='left', va='center',
                         color=t_color, size=8)
         axes[1, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -193,7 +247,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[0, 1].set_ylabel('測定項目', size=8)
         axes[0, 1].set_xlim(0, 3)
         axes[0, 1].set_yticks([])
-        # axes[0, 1].set_xticklabels(x, fontsize=8)
         axes[0, 1].text(x_text, y, "{}".format(hyoujimei_enki), ha='left', va='center',
                         color=t_color, size=8)
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -243,7 +296,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[1, 1].set_ylabel('測定項目', size=8)
         axes[1, 1].set_xlim(0, 3)
         axes[1, 1].set_yticks([])
-        axes[1, 1].set_xticklabels(x, fontsize=8)
         axes[1, 1].text(x_text, y, "{}".format(hyoujimei_soil), ha='left', va='center',
                         color=t_color, size=8)
         axes[1, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -259,13 +311,9 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
 
 def make_comment(alldf, file):
-    # alldf.to_csv('alldf.csv', encoding='Shift-JIS')
-    # print(alldf, alldf.columns)
     alldf_comment = alldf.loc[:, ['ID']]
     alldf_comment = alldf_comment.assign(ph_comment='Nan', N_comment='Nan', P_comment='Nan',
                                          enki_comment='Nan', SP_comment='Nan', koudo_comment='Nan')
-    # print(alldf_comment)
-
     for col_name, col_val in alldf.iterrows():
         # print(col_name, col_val)
         ID = col_val['ID']
@@ -375,7 +423,7 @@ def make_comment(alldf, file):
     # alldf_commentを新規エクセルファイルとして保存
     root, ext = os.path.splitext(file)
     save_file_name = root + '_comment.csv'
-    print(alldf_comment.isna())
+    # print(alldf_comment.isna())
     alldf_comment.to_csv(save_file_name, encoding='Shift-JIS')
     # alldfとalldf_commentの結合
     # alldf_comment = pd.merge(alldf, alldf_comment, left_on='ID', right_on='ID')
