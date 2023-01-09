@@ -349,7 +349,7 @@ def make_comment(alldf, file):
         muki_N = muki_N * (sakudoshin / 10) * karihijyu
         if EC < 0.3 and muki_N >= 10:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = 'N_1'
-        elif EC >= 0.3:
+        elif 0.3 <= EC < 0.8:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = 'N_2'
         elif EC >= 0.8 and ph < 7:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = 'N_3'
@@ -361,13 +361,13 @@ def make_comment(alldf, file):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'N_comment'] = float('nan')
         # リン酸に関するコメント付与（P_1～7）
         P2O = P2O * (sakudoshin / 10) * karihijyu
-        if P2O >= 50:
+        if 50 <= P2O < 100:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_1'
         elif P2O >= 100:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_2'
-        elif P2O < 50 and ph >= 6.0 and P2O_kyusyu >= 700:
+        elif P2O < 50 and ph >= 6.0 and 700 <= P2O_kyusyu > 1500:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_3'
-        elif P2O < 50 and ph >= 6.0 and P2O_kyusyu >= 1500:
+        elif P2O < 50 and ph >= 6.0 and 1500 <= P2O_kyusyu > 2000:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_4'
         elif P2O < 50 and ph >= 6.0 and P2O_kyusyu >= 2000:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = 'P_5'
@@ -378,7 +378,7 @@ def make_comment(alldf, file):
         else:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'P_comment'] = float('nan')
         # 塩基類に関するコメント付与（ENKI_1～6）
-        if enki_houwa > 80 and CEC > 15:
+        if 80 <= enki_houwa < 100 and CEC > 15:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_1'
         elif enki_houwa > 100 and CEC < 15:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_2'
@@ -388,7 +388,7 @@ def make_comment(alldf, file):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_4'
         elif CaMg_ratio < 5 and Cao_houwa < 65:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_5'
-        elif CaMg_ratio < 5 and CaMg_ratio >65:
+        elif CaMg_ratio < 5 and Cao_houwa > 65:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = 'ENKI_6'
         else:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'enki_comment'] = float('nan')
@@ -397,6 +397,9 @@ def make_comment(alldf, file):
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_1'
         elif Humus > 8:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_2'
+        # 土壌ポテンシャルコメント（SP-3）を追加
+        elif 3 <= Humus < 8:
+            alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_3'
         else:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = float('nan')
         # 土壌硬度（作土深）に関するコメント付与（koudo_1～9）
