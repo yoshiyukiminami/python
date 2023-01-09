@@ -351,13 +351,14 @@ def set_basic_information(alldfset):
     # 報告日の取得
     d_today = datetime.date.today()
     isvalid = True
-    if set(alldfset['出荷団体']) == 1:
-        group_name = str(set(alldfset['出荷団体'][0]))
+    if len(set(alldfset['出荷団体名'])) == 1:
+        group_name = str(alldfset['出荷団体名'][0])
     else:
         print("出荷団体名が複数あります。PPTXの保存を中断しました。")
         isvalid = False
-    save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save"
+    save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save/"
     save_prs_name = save_prs_dir + "土壌診断書_" + group_name + '_' + str(d_today) + '.pptx'
+    print(save_prs_name)
     prs.save(save_prs_name)
 
 
@@ -398,7 +399,7 @@ def exchange_comment(df_comment):
                     'koudo_9': "作土深は普通（20-30ｃｍ）で、圃場内での作土深のばらつきは普通です。"
                     }
     df_comment.replace(comment_dict, inplace=True)
-    df_comment.to_csv("df_comment.csv", encoding='Shift-JIS')
+    # df_comment.to_csv("df_comment.csv", encoding='Shift-JIS')
 
 
 if __name__ == '__main__':
