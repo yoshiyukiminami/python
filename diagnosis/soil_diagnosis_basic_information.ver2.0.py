@@ -357,7 +357,7 @@ def set_basic_information(alldfset):
         print("出荷団体名が複数あります。PPTXの保存を中断しました。")
         isvalid = False
     save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save/"
-    save_prs_name = save_prs_dir + "土壌診断書_" + group_name + '_' + str(d_today) + '.pptx'
+    save_prs_name = save_prs_dir + "土壌診断報告書_" + group_name + '_' + str(d_today) + '.pptx'
     print(save_prs_name)
     prs.save(save_prs_name)
 
