@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 # exとの違いは生成したグラフの保存先
 # Ver1.2・・ID列追加と保存名にID追加、基準値の変更（15㎝→20㎝）
+# グラフの保存名に「_ver1.2」を追加
 
 # 【下準備】日本語対応
 plt.rcParams['font.family'] = 'Meiryo'
@@ -119,7 +120,7 @@ def graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title):
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_physical_graph/'
-    filename = filedir + graph_title + '.jpeg'
+    filename = filedir + graph_title + '_ver1.2.jpeg'
     fig.suptitle(graph_title, fontsize=10)
     # fig.savefig(filename)
     plt.savefig(filename)

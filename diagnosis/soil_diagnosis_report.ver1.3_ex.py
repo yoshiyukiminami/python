@@ -196,7 +196,8 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
                 t_color = 'black'
         y = [n]
         hyoujimei_enki = hyouji_enki[n]
-        axes[0, 1].barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        # axes[0, 1].barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        axes[0, 1].barh(y, x, color=color, height=0.5, align='center')
         axes[0, 1].set_title('塩基類関連', size=11)
         # axes[0, 1].set_xlabel('飽和度（基準値100％）', size=8)
         axes[0, 1].set_ylabel('測定項目', size=8)

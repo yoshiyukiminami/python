@@ -6,6 +6,7 @@
 # グラフの表示修正・・表示項目名、数値表示
 # ver2.0・・数値から自動コメント生成（コメントコードの付与）
 # ver2.1・・アンモニア態窒素の基準復活、それにともなうコメントは追加せず
+# グラフの保存名に「ver2.1」を追加
 import pandas as pd
 import glob
 import os
@@ -46,12 +47,9 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     # kanzan_n = [1, kanzan, kanzan, kanzan, kanzan]
     kanzan_n = [1, kanzan, kanzan, 1]
     for j, k in zip(dataset_nh, kanzan_n):
-        # print(j, k, "aaa")
         x = (df_n[j] * k) / dataset_nh[j]
         df_n[j] = x
-        # print(x, type(x), "bbb")
     df_n2 = pd.DataFrame(df_n)
-    # print(df_n2)
 
     # 窒素に関連する土壌化学性項目グラフを生成[0, 0]
     for n, m in df_n2.iterrows():
@@ -76,7 +74,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
                 t_color = 'black'
         y = [n]
         hyoujimei_n = hyouji_n[n]
-        # print(hyoujimei_n)
         axes[0, 0].barh(y, x, color=color, height=0.5, align='center')
         axes[0, 0].set_title('窒素関連', size=11)
         # axes[0, 0].set_xlabel('飽和度（基準値100％）', size=8)
@@ -84,7 +81,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[0, 0].set_xlim(0, 3)
         axes[0, 0].set_yticks([])
         # axes[0, 0].set_xticklabels(x, fontsize=8)
-        # axes[0, 0].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[0, 0].text(x_text, y, "{}".format(hyoujimei_n), ha='left', va='center',
                         color=t_color, size=8)
         axes[0, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -105,10 +101,8 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     # 作土深・仮比重を換算係数Kに設定
     kanzan_p = [kanzan, 1]
     for j, k in zip(dataset_ph, kanzan_p):
-        # print(j, k, "ccc")
         x = (df_p[j] * k) / dataset_ph[j]
         df_p[j] = x
-        # print(x, "ddd")
     df_p2 = pd.DataFrame(df_p)
     # リン酸に関連する土壌化学性項目グラフを生成
     for n, m in df_p2.iterrows():
@@ -133,7 +127,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
                 t_color = 'black'
         y = [n]
         hyoujimei_p = hyouji_p[n]
-        # print(hyoujimei_p)
         axes[1, 0].barh(y, x, color=color, height=0.5, align='center')
         axes[1, 0].set_title('リン酸関連', size=11)
         axes[1, 0].set_xlabel('飽和度（基準値100％）', size=8)
@@ -141,7 +134,6 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[1, 0].set_xlim(0, 3)
         axes[1, 0].set_yticks([])
         axes[1, 0].set_xticklabels(x, fontsize=8)
-        # axes[1, 0].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[1, 0].text(x_text, y, "{}".format(hyoujimei_p), ha='left', va='center',
                         color=t_color, size=8)
         axes[1, 0].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -169,10 +161,8 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     # 作土深・仮比重を換算係数Kに設定
     kanzan_enki = [1, kanzan, kanzan, kanzan, 1, 1, 1]
     for j, k in zip(dataset_enkih, kanzan_enki):
-        # print(j, k, "eee")
         x = (df_enki[j] * k) / dataset_enkih[j]
         df_enki[j] = x
-        # print(x, "fff")
     df_enki2 = pd.DataFrame(df_enki)
     # 塩基類に関連する土壌化学性項目グラフを生成
     for n, m in df_enki2.iterrows():
@@ -197,14 +187,13 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
                 t_color = 'black'
         y = [n]
         hyoujimei_enki = hyouji_enki[n]
-        axes[0, 1].barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        axes[0, 1].barh(y, x, color=color, height=0.5, align='center')
         axes[0, 1].set_title('塩基類関連', size=11)
         # axes[0, 1].set_xlabel('飽和度（基準値100％）', size=8)
         axes[0, 1].set_ylabel('測定項目', size=8)
         axes[0, 1].set_xlim(0, 3)
         axes[0, 1].set_yticks([])
         # axes[0, 1].set_xticklabels(x, fontsize=8)
-        # axes[0, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[0, 1].text(x_text, y, "{}".format(hyoujimei_enki), ha='left', va='center',
                         color=t_color, size=8)
         axes[0, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -248,14 +237,13 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
                 t_color = 'black'
         y = [n]
         hyoujimei_soil = hyouji_soil[n]
-        axes[1, 1].barh(y, x, color=color, height=0.5, align='center', label=hojyomei)
+        axes[1, 1].barh(y, x, color=color, height=0.5, align='center')
         axes[1, 1].set_title('土壌ポテンシャル関連', size=11)
         axes[1, 1].set_xlabel('飽和度（基準値100％）', size=8)
         axes[1, 1].set_ylabel('測定項目', size=8)
         axes[1, 1].set_xlim(0, 3)
         axes[1, 1].set_yticks([])
         axes[1, 1].set_xticklabels(x, fontsize=8)
-        # axes[1, 1].text(x_text, y, "{}".format(y), ha='left', va='center', color=t_color, size=8)
         axes[1, 1].text(x_text, y, "{}".format(hyoujimei_soil), ha='left', va='center',
                         color=t_color, size=8)
         axes[1, 1].xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
@@ -266,11 +254,8 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
     filename = filedir + graph_title + '_ver2.1' + '.jpeg'
-    # print(filename)
     fig.suptitle(graph_title, fontsize=10)
     fig.savefig(filename)
-    # plt.savefig(filename)
-    # plt.show()
 
 
 def make_comment(alldf, file):
@@ -390,7 +375,6 @@ def make_comment(alldf, file):
     # alldf_commentを新規エクセルファイルとして保存
     root, ext = os.path.splitext(file)
     save_file_name = root + '_comment.csv'
-    # print(save_file_name)
     print(alldf_comment.isna())
     alldf_comment.to_csv(save_file_name, encoding='Shift-JIS')
     # alldfとalldf_commentの結合
