@@ -39,7 +39,7 @@ def back_stitch(line: list, line_bool: list, line_name: str, offset: int = 0):
                         print("figure_count", figure_count)
                         hosei_figure = (line[idx["mean2"]] - line[idx["mean1"]]) / figure_count
                         print("hosei_figure", hosei_figure)
-                        print(line[idx["mean1"]], m, "=")
+                        print(line[idx["mean1"]], m, "==")
                         line[m] = line[idx["mean1"]] + hosei_figure * m
                     line = back_stitch(line, line_bool, line_name, idx["mean2"])
                     break
