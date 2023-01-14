@@ -4,51 +4,64 @@ import glob
 import pandas as pd
 
 
-def back_stitch(line, offset):
+def back_stitch(line: list, line_bool: list, line_name: str, offset: int = 0):
     """
     NaNのセルに補正値を代入する
+    :param line_name: 補正される対象の列名（1列分）
+    :param line_bool: 補正される対象が欠損値（NaN）の場合にTrue（1列分のデータ）
     :param line: 補正される対象（1列分のデータ）
     :param offset: カーソルの初期位置（例：100行処理するうち20行目から開始に19を指定）
     :return: 修正後のlineをline_hosei
     """
     # 欠損値の開始行（修正パンチイン）、修了行（修正パンチアウト）と欠損値前後の数値（平均材料1、2）
-    print(line, offset)
+    print("offset", offset)
     idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
-    index_name = str(line.index)
-    print(index_name)
-    punch_in = False
-    for i, val in enumerate(line):
-        if not punch_in and val is True:
-            idx["mean1"] = i - 1
-            idx["punch_in"] = i
-            punch_in = True
-        if punch_in and val is False:
-            idx["punch_out"] = i - 1
-            idx["mean2"] = i
-            print(idx, "===")
-            if index_name == '平均気温' or index_name == '最高気温' or index_name == '最低気温':
-                for m in range(idx["punch_in"], idx["punch_out"] + 1):
-                    figure_count = len(range(idx["punch_in"], idx["punch_out"])) + 2
-                    hosei_figure = (val[idx["mean2"]] - val[idx["mean1"]]) / figure_count
-                    if val[idx["mean2"]] - val[idx["mean1"]] < 0:
-                        val[m] = val[idx["mean1"]] + hosei_figure * m
-                    else:
-                        val[m] = val[idx["mean1"]] - (hosei_figure * m)
-                    line = back_stitch(line, idx["mean2"])
+    if offset != len(line) and offset < len(line_bool):
+        print("line, line_bool", line, line_bool)
+        punch_in = False
+        for i, (val, nan) in enumerate(zip(line[offset::], line_bool[offset::])):
+            # print("line[offset::]", line[offset::], "line_bool[offset::]", line_bool[offset::])
+            if not punch_in and nan is True:
+                idx["mean1"] = offset + i - 1
+                idx["punch_in"] = offset + i
+                punch_in = True
+            if punch_in and nan is False:
+                idx["punch_out"] = offset + i - 1
+                idx["mean2"] = offset + i
+                print(idx, "==")
+                if idx["punch_in"] == len(line) + 1:
                     break
-            elif index_name == '平均気温（品質）' or index_name == '平均気温（均質）':
-                for j in range(idx["punch_in"], idx["punch_out"] + 1):
-                    val[j] = 0
-            elif index_name == '最高気温（品質）' or index_name == '最高気温（均質）':
-                for j in range(idx["punch_in"], idx["punch_out"] + 1):
-                    val[j] = 0
-            elif index_name == '最低気温（品質）' or index_name == '最低気温（均質）':
-                for j in range(idx["punch_in"], idx["punch_out"] + 1):
-                    val[j] = 0
-            else:
-                line = line
-    print(line)
-
+                elif line_name == '平均気温' or line_name == '最高気温' or line_name == '最低気温':
+                    for m in range(idx["punch_in"], idx["punch_out"] + 1):
+                        print(range(idx["punch_in"], idx["punch_out"] + 1))
+                        print("ddd", len(range(idx["punch_in"], idx["punch_out"])))
+                        figure_count = len(range(idx["punch_in"], idx["punch_out"])) + 2
+                        print("figure_count", figure_count)
+                        hosei_figure = (line[idx["mean2"]] - line[idx["mean1"]]) / figure_count
+                        print("hosei_figure", hosei_figure)
+                        print(line[idx["mean1"]], m, "=")
+                        line[m] = line[idx["mean1"]] + hosei_figure * m
+                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    break
+                elif line_name == '平均気温（品質）' or line_name == '平均気温（均質）':
+                    for j in range(idx["punch_in"], idx["punch_out"] + 1):
+                        line[j] = 0
+                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    break
+                elif line_name == '最高気温（品質）' or line_name == '最高気温（均質）':
+                    for j in range(idx["punch_in"], idx["punch_out"] + 1):
+                        line[j] = 0
+                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    break
+                elif line_name == '最低気温（品質）' or line_name == '最低気温（均質）':
+                    for j in range(idx["punch_in"], idx["punch_out"] + 1):
+                        line[j] = 0
+                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    break
+                else:
+                    line = line
+    print(line, "====")
+    return line
 
 
 def find_invalid_data(file2: str):
@@ -62,13 +75,15 @@ def find_invalid_data(file2: str):
     """
     # 受けたPath名から所定のcsvファイルを読み込む
     df_csv = pd.read_csv(file2, encoding='shift-jis')
-    df_csv_check_nan = df_csv.isnull().any()
-    offset = 0
-    for k, item in enumerate(df_csv_check_nan):
+    df_csv_nan_any = df_csv.isnull().any()
+    df_csv_nan = df_csv.isnull()
+    for k, item in enumerate(df_csv_nan_any):
         if item is True:
-            print(str(df_csv_check_nan.index[k]) + f"に欠損値（NaN）が含まれています。")
-            line = list(df_csv[df_csv_check_nan.index[k]])
-            back_stitch(line, offset)
+            line_name = str(df_csv_nan_any.index[k])
+            print(line_name + f"に欠損値（NaN）が含まれています。")
+            line = list(df_csv[df_csv_nan_any.index[k]])
+            line_bool = list(df_csv_nan[line_name])
+            back_stitch(line, line_bool, line_name)
 
 
 if __name__ == '__main__':
