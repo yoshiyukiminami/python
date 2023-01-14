@@ -31,7 +31,6 @@ def back_stitch(line: list, threshold: int, offset: int = 0) -> list:
     :param offset: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
     :return: 修正後の line
     """
-    print(line)
     if offset != len(line):
         idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
         punch_in = False
