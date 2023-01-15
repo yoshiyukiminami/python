@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 import pandas as pd
 
 
@@ -43,6 +45,34 @@ def back_stitch(line: list, threshold: int, offset: int = 0) -> list:
                 for j in range(idx["punch_in"], idx["punch_out"] + 1):
                     line[j] = sum([line[idx["mean1"]], line[idx["mean2"]]]) / 2
                 line = back_stitch(line, threshold, idx["mean2"])
+                break
+
+    return line
+
+
+def back_stitch2(line: list, offset: int = 0) -> list:
+    """
+    返し縫いのように平均値で埋めていく
+    :param line: 補正される対象（1行分のデータ）
+    :param offset: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
+    :return: 修正後の line
+    """
+    if offset != len(line):
+        idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
+        punch_in = False
+        for col, value in enumerate(line[offset::]):
+            if not punch_in and np.isnan(value):
+                idx["mean1"] = offset + col - 1
+                idx["punch_in"] = offset + col
+                punch_in = True
+            if punch_in and not np.isnan(value):
+                idx["punch_out"] = offset + col - 1
+                idx["mean2"] = offset + col
+                how_many_times = max(idx["mean1"], idx["mean2"]) - min(idx["mean1"], idx["mean2"]) + 1
+                tolerance = np.linspace(line[idx["mean1"]], line[idx["mean2"]], how_many_times)
+                for i, n_value in enumerate(tolerance):
+                    line[idx["mean1"] + i] = n_value
+                line = back_stitch2(line, idx["mean2"])
                 break
 
     return line
