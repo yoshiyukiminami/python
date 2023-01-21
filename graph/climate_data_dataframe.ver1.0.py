@@ -1,66 +1,56 @@
 import csv
 import datetime
 import glob
+import numpy as np
 import pandas as pd
 
 
-def back_stitch(line: list, line_bool: list, line_name: str, offset: int = 0):
+def back_stitch3(line: list, line_name: str, offset: int = 0) -> list:
     """
-    NaNのセルに補正値を代入する
-    :param line_name: 補正される対象の列名（1列分）
-    :param line_bool: 補正される対象が欠損値（NaN）の場合にTrue（1列分のデータ）
+    返し縫いのように平均値で埋めていく
+    :param line_name: 補正される対象列の名前
     :param line: 補正される対象（1列分のデータ）
-    :param offset: カーソルの初期位置（例：100行処理するうち20行目から開始に19を指定）
-    :return: 修正後のlineをline_hosei
+    :param offset: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
+    :return: 修正後の line
     """
-    # 欠損値の開始行（修正パンチイン）、修了行（修正パンチアウト）と欠損値前後の数値（平均材料1、2）
-    print("offset", offset)
-    idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
-    if offset != len(line) and offset < len(line_bool):
-        print("line, line_bool", line, line_bool)
+    if offset != len(line):
+        idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
         punch_in = False
-        for i, (val, nan) in enumerate(zip(line[offset::], line_bool[offset::])):
-            # print("line[offset::]", line[offset::], "line_bool[offset::]", line_bool[offset::])
-            if not punch_in and nan is True:
-                idx["mean1"] = offset + i - 1
-                idx["punch_in"] = offset + i
+        for col, value in enumerate(line[offset::]):
+            if not punch_in and np.isnan(value):
+                idx["mean1"] = offset + col - 1
+                idx["punch_in"] = offset + col
                 punch_in = True
-            if punch_in and nan is False:
-                idx["punch_out"] = offset + i - 1
-                idx["mean2"] = offset + i
-                print(idx, "==")
-                if idx["punch_in"] == len(line) + 1:
-                    break
-                elif line_name == '平均気温' or line_name == '最高気温' or line_name == '最低気温':
-                    for m in range(idx["punch_in"], idx["punch_out"] + 1):
-                        print(range(idx["punch_in"], idx["punch_out"] + 1))
-                        print("ddd", len(range(idx["punch_in"], idx["punch_out"])))
-                        figure_count = len(range(idx["punch_in"], idx["punch_out"])) + 2
-                        print("figure_count", figure_count)
-                        hosei_figure = (line[idx["mean2"]] - line[idx["mean1"]]) / figure_count
-                        print("hosei_figure", hosei_figure)
-                        print(line[idx["mean1"]], m, "==")
-                        line[m] = line[idx["mean1"]] + hosei_figure * m
-                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+            if punch_in and not np.isnan(value):
+                idx["punch_out"] = offset + col - 1
+                idx["mean2"] = offset + col
+                # print(idx, "idx")
+                if line_name == '平均気温' or line_name == '最高気温' or line_name == '最低気温':
+                    how_many_times = max(idx["mean1"], idx["mean2"]) - min(idx["mean1"], idx["mean2"]) + 1
+                    # print(how_many_times, "how_many_times")
+                    tolerance = np.linspace(line[idx["mean1"]], line[idx["mean2"]], how_many_times)
+                    # print(tolerance, "tolerance")
+                    for i, n_value in enumerate(tolerance):
+                        line[idx["mean1"] + i] = n_value
+                    line = back_stitch3(line, line_name, idx["mean2"])
                     break
                 elif line_name == '平均気温（品質）' or line_name == '平均気温（均質）':
                     for j in range(idx["punch_in"], idx["punch_out"] + 1):
                         line[j] = 0
-                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    line = back_stitch3(line, line_name, idx["mean2"])
                     break
                 elif line_name == '最高気温（品質）' or line_name == '最高気温（均質）':
                     for j in range(idx["punch_in"], idx["punch_out"] + 1):
                         line[j] = 0
-                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    line = back_stitch3(line, line_name, idx["mean2"])
                     break
                 elif line_name == '最低気温（品質）' or line_name == '最低気温（均質）':
                     for j in range(idx["punch_in"], idx["punch_out"] + 1):
                         line[j] = 0
-                    line = back_stitch(line, line_bool, line_name, idx["mean2"])
+                    line = back_stitch3(line, line_name, idx["mean2"])
                     break
                 else:
-                    line = line
-    print(line, "====")
+                    break
     return line
 
 
@@ -73,18 +63,20 @@ def find_invalid_data(file2: str):
     :param file2: CSVパス
     :return:
     """
+    # 補正されたデータをrecords、列名をrecords2に追加してリスト化
+    records = []
+    records2 = []
     # 受けたPath名から所定のcsvファイルを読み込む
     df_csv = pd.read_csv(file2, encoding='shift-jis')
     df_csv_nan_any = df_csv.isnull().any()
-    df_csv_nan = df_csv.isnull()
     for k, item in enumerate(df_csv_nan_any):
         if item is True:
             line_name = str(df_csv_nan_any.index[k])
             print(line_name + f"に欠損値（NaN）が含まれています。")
             line = list(df_csv[df_csv_nan_any.index[k]])
-            line_bool = list(df_csv_nan[line_name])
-            back_stitch(line, line_bool, line_name)
-
+            records2.append(line_name)
+            records.append(back_stitch3(line, line_name))
+    return records, records2, df_csv
 
 if __name__ == '__main__':
     # 定数
@@ -152,23 +144,23 @@ if __name__ == '__main__':
         df_climate = df_climate.reset_index(drop=True)
         # 保存ファイル名の生成
         save_name = save_filedir + '気象元データ_2008-2023_' + kansoku_point + '.csv'
-        df_climate.to_csv(save_name, encoding='Shift-JIS')
+        df_climate.to_csv(save_name, encoding='Shift-JIS', index=False)
 
     # 空白の補正（平均気温、最高気温、最低気温とその品質・均質情報のみ）
     # climate_data_saveフォルダー内にあるファイルをfile2に取得
     files2 = glob.glob(save_filedir + '/*.csv', recursive=True)
     for file2 in files2:
-        find_invalid_data(file2)
-        # print('欠損値修正なし版：')
-        # errors = find_invalid_data(file2, adjustment=False)
-        # for error in errors:
-        #     print(error.pop())
-        #
-        # print('欠損値修正あり版：')
-        # df = pd.DataFrame(find_invalid_data(file2, adjustment=True))
-        # try:
-        #     save_name_hosei = save_hosei_filedir + '気象元データ_2008-2023_' + kansoku_point + '_hosei.csv'
-        #     df.to_csv(save_name_hosei, encoding='shift-jis', header=False, index=False)
-        #     print('欠損値修正版の出力が完了しました')
-        # except PermissionError:
-        #     print('※ファイルが使用中のため、CSV出力に失敗しました')
+        records, records2, df_csv = find_invalid_data(file2)
+        df_climate_exchange = pd.DataFrame(records).T.set_axis(records2, axis='columns')
+        # print(df_csv, "処理対象")
+        # print(df_climate_exchange)
+        for target_column in df_csv.columns.intersection(df_climate_exchange.columns):
+            # print(target_column, "更新中")
+            for i, value in enumerate(df_csv[target_column]):
+                df_csv[target_column][i] = df_climate_exchange[target_column][i]
+                # print(df_csv[target_column][i], "置換結果")
+        # df_csv.to_csv('df_csv_exchange.csv', encoding='Shift-JIS')
+
+        save_name_hosei = save_hosei_filedir + '気象元データ_2008-2023_' + kansoku_point + '_hosei.csv'
+        df_csv.to_csv(save_name_hosei, encoding='shift-jis', index=True)
+        print('欠損値修正版の出力が完了しました')
