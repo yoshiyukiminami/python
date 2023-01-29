@@ -102,7 +102,7 @@ if __name__ == '__main__':
         df_comp3 = df_comp3.loc[:, ['ID', '測定日']]
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
         df_compare = pd.merge(pd.merge(df_comp1, df_comp2, left_on='ID', right_on='ID'), df_comp3, left_on='ID', right_on='ID')
-        # print(df_compare)
+        print(df_compare)
 
     # フォルダー内にある画像を取り込み
     pictures1 = glob.glob(picture_dir + '/*.jpeg', recursive=True)
