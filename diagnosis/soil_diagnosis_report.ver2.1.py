@@ -398,7 +398,7 @@ def make_comment(alldf, file):
         elif Humus > 8:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_2'
         # 土壌ポテンシャルコメント（SP-3）を追加
-        elif 3 <= Humus < 8:
+        elif 3 <= Humus <= 8:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = 'SP_3'
         else:
             alldf_comment.loc[alldf_comment['ID'] == ID, 'SP_comment'] = float('nan')
