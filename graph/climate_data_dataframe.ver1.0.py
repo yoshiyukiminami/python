@@ -96,6 +96,7 @@ if __name__ == '__main__':
 
     # climate_data_dlフォルダー内にあるファイルをfilesに取得
     files = glob.glob(filedir + '/*.csv', recursive=True)
+    print(files)
     # ファイル名から観測地点を特定
     isvalid = True
     for file in files:
