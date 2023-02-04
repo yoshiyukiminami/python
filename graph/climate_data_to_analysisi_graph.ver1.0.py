@@ -2,6 +2,7 @@ import csv
 import datetime
 import glob
 import pandas as pd
+import openpyxl
 
 
 def print_hi(name):
@@ -25,16 +26,19 @@ if __name__ == '__main__':
     kikan_start = datetime.datetime.strptime(kikan_start, '%Y/%m/%d')
     kikan_end = '2023/2/28'
     kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
+
     # climate_data_save_hoseiフォルダー内にあるファイルをfilesに取得
     filedir = 'C:/Users/minam/Desktop/climate_data_save_hosei/'
     files = glob.glob(filedir + '/*.csv', recursive=True)
     print(files)
+
     # ファイル名から観測地点を特定
+    # todo:観測地点（例：菊川牧之原）が2つ以上のファイルに含まれていた場合の処理
     isvalid = True
     for file in files:
         with open(file, newline='') as f:
             reader = csv.reader(f)
-            df = pd.DataFrame(reader)
+            df = pd.DataFrame(reader)  # todo:pandasのcsv_readerを使う
             sokutei_point_list = [col for col in df.iteritems()]
             sokutei_point_list = sokutei_point_list[1][1:]
             # 観測地点名の取得とファイルに観測地点が複数ある場合、プログラムを中断する
@@ -44,3 +48,7 @@ if __name__ == '__main__':
                 print("ファイルに複数の観測地点があります")
                 isvalid = False
 
+            # todo:dataframeのsliceを調べる・・https://note.nkmk.me/python-pandas-datetime-timestamp/
+            # dfの日付列をまとめてdatetime型に変換する
+            # 変換したdfから日付（期間）でスライスする
+            datetime_list = datetime.datetime.strptime(df[2])
