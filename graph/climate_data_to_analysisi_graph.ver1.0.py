@@ -3,6 +3,8 @@ import datetime
 import glob
 import pandas as pd
 import openpyxl
+from dateutil.relativedelta import relativedelta
+from monthdelta import monthmod
 
 
 def print_hi(name):
@@ -24,8 +26,10 @@ if __name__ == '__main__':
     # 終了日（本年度）：kikan_end ex.'2023/2/28'
     kikan_start = '2022/9/15'
     kikan_start = datetime.datetime.strptime(kikan_start, '%Y/%m/%d')
-    kikan_end = '2023/2/28'
-    kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
+    # 開始日からの期間（月）で終了日を決定・・修正
+    kikan_range_month = '5'
+    # kikan_end = '2023/2/28'
+    # kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
 
     # climate_data_save_hoseiフォルダー内にあるファイルをfilesに取得
     filedir = 'C:/Users/minam/Desktop/climate_data_save_hosei/'
@@ -34,11 +38,11 @@ if __name__ == '__main__':
 
     # ファイル名から観測地点を特定
     # todo:観測地点（例：菊川牧之原）が2つ以上のファイルに含まれていた場合の処理
+    # ヒント：読み込んだCSVファイルを一つのdataframeにまとめて（concat)エラーチェックをする
     isvalid = True
     for file in files:
         with open(file, newline='') as f:
-            reader = csv.reader(f)
-            df = pd.DataFrame(reader)  # todo:pandasのcsv_readerを使う
+            df = pd.read_csv(f)
             sokutei_point_list = [col for col in df.iteritems()]
             sokutei_point_list = sokutei_point_list[1][1:]
             # 観測地点名の取得とファイルに観測地点が複数ある場合、プログラムを中断する
@@ -50,5 +54,16 @@ if __name__ == '__main__':
 
             # todo:dataframeのsliceを調べる・・https://note.nkmk.me/python-pandas-datetime-timestamp/
             # dfの日付列をまとめてdatetime型に変換する
+            df['年月日'] = pd.to_datetime(df['年月日'])
             # 変換したdfから日付（期間）でスライスする
-            datetime_list = datetime.datetime.strptime(df[2])
+            # 期間開始・終了を年毎に取得する
+            df_header = df.head(0)
+            print(df_header, type(df_header))
+            for loop_year in range(2008, kikan_start.year + 1):
+                temp_kikan_start = datetime.datetime.strptime(f"{loop_year}-{kikan_start.month}-{kikan_start.day}",
+                                                              '%Y-%m-%d')
+                temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))
+
+                df_slice_loop = df[df['年月日'].isin(pd.date_range(temp_kikan_start, temp_kikan_end))]
+                print(df_slice_loop, type(df_slice_loop))
+            # func_filtered_df(df, , kikan_start, kikan_end)
