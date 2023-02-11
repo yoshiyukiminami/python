@@ -36,6 +36,16 @@ if __name__ == '__main__':
     files = glob.glob(filedir + '/*.csv', recursive=True)
     print(files)
 
+    # DATAFRAMEの原型alldf（辞書型）
+    alldf = {'観測地点': [], '年月日': [],
+             '平均気温': [], '平均気温（品質）': [], '平均気温（均質）': [],
+             '日照時間': [], '日照時間（品質）': [], '日照時間（均質）': [],
+             '最高気温': [], '最高気温（品質）': [], '最高気温（均質）': [],
+             '最低気温': [], '最低気温（品質）': [], '最低気温（均質）': [],
+             '降水量の合計': [], '降水量の合計（品質）': [], '降水量の合計（均質）': [],
+             '1時間降水量の最大': [], '1時間降水量の最大（品質）': [], '1時間降水量の最大（均質）': []
+             }
+
     # ファイル名から観測地点を特定
     # todo:観測地点（例：菊川牧之原）が2つ以上のファイルに含まれていた場合の処理
     # ヒント：読み込んだCSVファイルを一つのdataframeにまとめて（concat)エラーチェックをする
@@ -52,18 +62,41 @@ if __name__ == '__main__':
                 print("ファイルに複数の観測地点があります")
                 isvalid = False
 
-            # todo:dataframeのsliceを調べる・・https://note.nkmk.me/python-pandas-datetime-timestamp/
             # dfの日付列をまとめてdatetime型に変換する
             df['年月日'] = pd.to_datetime(df['年月日'])
             # 変換したdfから日付（期間）でスライスする
             # 期間開始・終了を年毎に取得する
-            df_header = df.head(0)
-            print(df_header, type(df_header))
             for loop_year in range(2008, kikan_start.year + 1):
                 temp_kikan_start = datetime.datetime.strptime(f"{loop_year}-{kikan_start.month}-{kikan_start.day}",
                                                               '%Y-%m-%d')
                 temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))
-
                 df_slice_loop = df[df['年月日'].isin(pd.date_range(temp_kikan_start, temp_kikan_end))]
-                print(df_slice_loop, type(df_slice_loop))
+                # print(df_slice_loop)
+                for i, data in enumerate(df_slice_loop.itertuples()):
+                    # print(i, "==", data, type(data))
+                    alldf['観測地点'].append(data[2])
+                    # alldf['年月日'].append(datetime.datetime.strptime(data[2], '%Y-%m-%d'))
+                    alldf['年月日'].append(data[3])
+                    alldf['平均気温'].append(float(data[4]))
+                    alldf['平均気温（品質）'].append(int(data[5]))
+                    alldf['平均気温（均質）'].append(int(data[6]))
+                    alldf['日照時間'].append(float(data[7]))
+                    alldf['日照時間（品質）'].append(int(data[8]))
+                    alldf['日照時間（均質）'].append(int(data[9]))
+                    alldf['最高気温'].append(float(data[10]))
+                    alldf['最高気温（品質）'].append(int(data[11]))
+                    alldf['最高気温（均質）'].append(int(data[12]))
+                    alldf['最低気温'].append(float(data[13]))
+                    alldf['最低気温（品質）'].append(int(data[14]))
+                    alldf['最低気温（均質）'].append(int(data[15]))
+                    alldf['降水量の合計'].append(float(data[16]))
+                    alldf['降水量の合計（品質）'].append(int(data[17]))
+                    alldf['降水量の合計（均質）'].append(int(data[18]))
+                    alldf['1時間降水量の最大'].append(float(data[19]))
+                    alldf['1時間降水量の最大（品質）'].append(int(data[20]))
+                    alldf['1時間降水量の最大（均質）'].append(int(data[21]))
+            df_slice_all = pd.DataFrame(alldf)
+            # df_slice_all.to_csv('df_slice_all.csv', encoding='shift-jis')
+
+            # print(df_slice_all, type(df_slice_all))
             # func_filtered_df(df, , kikan_start, kikan_end)
