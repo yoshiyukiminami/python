@@ -76,6 +76,7 @@ def make_index(alldf):
                 merge_cell_left_top3_b.text_frame.paragraphs[1].font.size = Pt(12)
                 merge_cell_left_top3_b.text_frame.paragraphs[2].font.size = Pt(12)
                 merge_cell_left_top3_b.text_frame.paragraphs[3].font.size = Pt(12)
+                merge_cell_left_top3_b.text_frame.paragraphs[4].font.size = Pt(12)
                 merge_cell_left_top4_b = table_in_page.cell(10, 2)
                 merge_cell_right_bottom4_b = table_in_page.cell(12, 3)
                 merge_cell_left_top4_b.merge(merge_cell_right_bottom4_b)
