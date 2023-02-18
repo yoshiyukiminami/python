@@ -7,14 +7,20 @@ from dateutil.relativedelta import relativedelta
 from monthdelta import monthmod
 
 
-def print_hi(name):
-    print(f'Hi, {name}')
+def func_get_by_perspective(df_slice_loop, perspectives1, perspectives2):
+    sokutei_point = df_slice_loop['観測地点'].iloc[0, ]
+    print(sokutei_point)
+    for perspective in perspectives1:
+        df_perspective = df_slice_loop.loc[:, ['年月日', perspective]]
+        col_year = df_perspective.iloc[0, 0]
+        col_year = str(col_year.year)
+        col_name = col_year + '_' + perspective
+        print(col_name, type(col_name))
 
 
 if __name__ == '__main__':
-    print_hi('Python')
-    # step-1:比較する期間の開始日と終了日を設定する
-    # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する
+    # step-1:比較する期間の開始日と終了日を設定する・・OK
+    # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する・・OK
     # step-3:各年度の抽出データから項目毎のdataframeを作成する
     # step-4:比較年度の項目毎dataframeをまとめる
     # step-5:平均気温、日照時間は積算演算したdataframeを作成する
@@ -30,7 +36,9 @@ if __name__ == '__main__':
     kikan_range_month = '5'
     # kikan_end = '2023/2/28'
     # kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
-
+    # グラフ作成する項目を選定
+    perspectives1 = ['平均気温', '日照時間', '最高気温', '最低気温', '降水量の合計', '1時間降水量の最大']
+    perspectives2 = ['積算平均気温', '積算日照時間']
     # climate_data_save_hoseiフォルダー内にあるファイルをfilesに取得
     filedir = 'C:/Users/minam/Desktop/climate_data_save_hosei/'
     files = glob.glob(filedir + '/*.csv', recursive=True)
@@ -72,6 +80,9 @@ if __name__ == '__main__':
                 temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))
                 df_slice_loop = df[df['年月日'].isin(pd.date_range(temp_kikan_start, temp_kikan_end))]
                 # print(df_slice_loop)
+                # 指定期間で抽出したデータから項目別のdataframeを生成する
+                func_get_by_perspective(df_slice_loop, perspectives1, perspectives2)
+
                 for i, data in enumerate(df_slice_loop.itertuples()):
                     # print(i, "==", data, type(data))
                     alldf['観測地点'].append(data[2])
@@ -97,6 +108,3 @@ if __name__ == '__main__':
                     alldf['1時間降水量の最大（均質）'].append(int(data[21]))
             df_slice_all = pd.DataFrame(alldf)
             # df_slice_all.to_csv('df_slice_all.csv', encoding='shift-jis')
-
-            # print(df_slice_all, type(df_slice_all))
-            # func_filtered_df(df, , kikan_start, kikan_end)
