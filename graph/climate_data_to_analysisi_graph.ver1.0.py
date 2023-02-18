@@ -6,16 +6,33 @@ import openpyxl
 from dateutil.relativedelta import relativedelta
 from monthdelta import monthmod
 
+def func_get_by_perspective2(df_slice_all, perspectives1, perspectives2):
+    # print(df_slice_all)
+    df_slice_all['月日'] = df_slice_all['年月日'].dt.strftime('%m-%d')
+    df_slice_all['年'] = df_slice_all['年月日'].dt.strftime('%Y')
+    print(df_slice_all, df_slice_all['月日'].dtypes)
+    df_slice_perspective = pd.pivot_table(df_slice_all, index='月日', columns='年', values='平均気温')
+    print(df_slice_perspective)
+
 
 def func_get_by_perspective(df_slice_loop, perspectives1, perspectives2):
+    print(df_slice_loop)
     sokutei_point = df_slice_loop['観測地点'].iloc[0, ]
     print(sokutei_point)
     for perspective in perspectives1:
         df_perspective = df_slice_loop.loc[:, ['年月日', perspective]]
+        df_perspective_date = df_slice_loop.loc[:, '年月日']
+        # print(df_perspective_date)
+        for date in df_perspective_date:
+            # print(date)
+            date_replace = date.strftime('%m-%d')
+            # print(date_replace, type(date_replace))
+            df_perspective_date.replace(date, date_replace)
         col_year = df_perspective.iloc[0, 0]
         col_year = str(col_year.year)
         col_name = col_year + '_' + perspective
         print(col_name, type(col_name))
+    # print(df_perspective_date)
 
 
 if __name__ == '__main__':
@@ -81,7 +98,7 @@ if __name__ == '__main__':
                 df_slice_loop = df[df['年月日'].isin(pd.date_range(temp_kikan_start, temp_kikan_end))]
                 # print(df_slice_loop)
                 # 指定期間で抽出したデータから項目別のdataframeを生成する
-                func_get_by_perspective(df_slice_loop, perspectives1, perspectives2)
+                # func_get_by_perspective(df_slice_loop, perspectives1, perspectives2)
 
                 for i, data in enumerate(df_slice_loop.itertuples()):
                     # print(i, "==", data, type(data))
@@ -108,3 +125,4 @@ if __name__ == '__main__':
                     alldf['1時間降水量の最大（均質）'].append(int(data[21]))
             df_slice_all = pd.DataFrame(alldf)
             # df_slice_all.to_csv('df_slice_all.csv', encoding='shift-jis')
+            func_get_by_perspective2(df_slice_all, perspectives1, perspectives2)
