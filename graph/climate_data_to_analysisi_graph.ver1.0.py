@@ -8,57 +8,49 @@ import openpyxl
 from dateutil.relativedelta import relativedelta
 from monthdelta import monthmod
 
-def func_get_by_perspective2(df_slice_all, perspectives1, perspectives2, kikan_start):
-    # print(df_slice_all)
+def func_get_by_perspective(df_slice_all, perspectives1, perspectives2, over_month):
+    # df_slice_allの年月日列から月日のみ取り出した列を追加・・pivot_tableのkeyindex
+    # 年をまだぐ期間設定対策1として、1月以降を13月～（∔12）に変更
+    # 年をまたぐ期間設定対策2として、1月以降が期間の年度合わせ・・要確認（month=3の3は固定で良い？）
     df_slice_all['月日'] = df_slice_all['年月日'].dt.strftime('%m-%d')
+    # todo:下記の［1-3］と［：2］は固定？期間設定と連動した処理が必要か？
     df_slice_all['月日'] = [f"{re.sub('^0[1-3]', f'{12 + int(x[:2])}', x)}" for x in df_slice_all['年月日'].dt.strftime('%m-%d')]
-    df_slice_all['年度'] = [(x - relativedelta(months=3)).strftime('%Y') for x in df_slice_all['年月日']]
-    print("===", df_slice_all)
-    kikan_start_date = kikan_start.strftime('%m-%d')
-    # print(kikan_start_date)
+    # 年をまたぐ期間（月＝変数over_month）を年月日の数値から減算して、年度を割り出すように変更
+    df_slice_all['年度'] = [(x - relativedelta(months=over_month)).strftime('%Y') for x in df_slice_all['年月日']]
     df_slice_all['年'] = df_slice_all['年月日'].dt.strftime('%Y')
-    # df_slice_all['No'] = df_slice_all.groupby('年').cumcount()
-    # print(df_slice_all, df_slice_all['月日'].dtypes)
+    # df_slide_allをpivot_tableに変換（wide型）
     df_slice_perspective = pd.pivot_table(df_slice_all, index='月日',
                                           columns='年度', values=perspectives1)
-    df_slice_perspective.to_csv('aaa.csv', encoding='shift-jis')
+    # 月日表示を元に戻す際の昇順崩れ防止にNo.を付与
+    df_slice_perspective['No'] = range(1, len(df_slice_perspective.index) + 1)
+    # df_slice_perspective.to_csv('aaa.csv', encoding='shift-jis')
+    # print(df_slice_perspective)
+    func_get_describe(df_slice_perspective, perspectives2)
+
+
+def func_get_describe(df_slice_perspective, perspectives2):
+    # Multiindex型のカラム名を統合する（level0とlevel1を統合、level0を削除してMultiindex型を解除
+    print(df_slice_perspective, "==")
+    koumokus = df_slice_perspective.columns.get_level_values(level=0)
+    nendos = df_slice_perspective.columns.get_level_values(level=1)
+    new_col_names = {}
+    for koumoku, nendo in zip(koumokus, nendos):
+        new_col_name = koumoku + "_" + nendo
+        new_col_names[nendo] = new_col_name
+    # todo:Multiindex型カラムの修正
+    print(new_col_names)
+    # df_slice_perspective.columns.set_names(new_col_names, inplace=True)
+    df_slice_perspective.rename(columns=new_col_names, level=1)
+    print(df_slice_perspective.columns)
     print(df_slice_perspective)
-
-
-def func_get_by_perspective(df_slice_loop, perspectives1, perspectives2):
-    df_slice_loop = df_slice_loop.reset_index(drop=True)
-    df_slice_loop['月日'] = df_slice_loop['年月日'].dt.strftime('%m-%d')
-    col_name_year = df_slice_loop['年月日'][0].strftime('%Y')
-    # 切り出したDataframeにNoと年（開始日の年→pivot_tableした時のカラム名になる）列を追加
-    df_slice_loop['No'] = range(1, len(df_slice_loop.index) + 1)
-    df_slice_loop['年度'] = col_name_year
-    # print("===", df_slice_loop)
-    sokutei_point = df_slice_loop['観測地点'].iloc[0, ]
-    # 測定項目毎に切り出してwide-dataにpivotする
-    for perspective in perspectives1:
-        df_perspective = pd.pivot_table(df_slice_loop, index=['No', '月日'], columns='年度',
-                                        values=perspective)
-        col_rename = df_perspective.columns.values + "_" + str(perspective)
-        col_prename = df_perspective.columns.values[0]
-        col_rename = col_rename[0]
-        df_perspective.rename(columns={col_prename: col_rename}, inplace=True)
-        print(df_perspective)
-        # perspective2にある項目は積算したDataframeを生成する
-        if perspective in perspectives2:
-            df_perspective_sekisan = df_perspective.cumsum()
-            col_prename2 = df_perspective_sekisan.columns.values[0]
-            print(col_prename2)
-            col_rename2 = col_prename2.split('_')
-            # col_rename2 = col_prename2.insert(1, "積算")
-            print(col_rename2)
-            print(df_perspective_sekisan)
+    # df_slice_perspective.to_csv('aaa.csv', encoding='shift-jis')
 
 
 if __name__ == '__main__':
     # step-1:比較する期間の開始日と終了日を設定する・・OK
     # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する・・OK
-    # step-3:各年度の抽出データから項目毎のdataframeを作成する
-    # step-4:比較年度の項目毎dataframeをまとめる
+    # step-3:各年度の抽出データから項目毎のdataframeを作成する・・OK
+    # step-4:比較年度の項目毎dataframeをまとめる・・OK
     # step-5:平均気温、日照時間は積算演算したdataframeを作成する
     # step-6:各dataframeから本年度（2022）、昨年度（2021）、2018～2020年平均（暖冬3年）、2008～2020年平均を抽出、グラフ化の元dataframeを作成する
     # step-7:グラフ化元dataframeから比較グラフを作成する
@@ -70,6 +62,8 @@ if __name__ == '__main__':
     kikan_start = datetime.datetime.strptime(kikan_start, '%Y/%m/%d')
     # 開始日からの期間（月）で終了日を決定・・修正
     kikan_range_month = '5'
+    over_month = kikan_start.month + int(kikan_range_month) - 12
+    print(over_month)
     # kikan_end = '2023/2/28'
     # kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
     # グラフ作成する項目を選定
@@ -116,9 +110,7 @@ if __name__ == '__main__':
                                                               '%Y-%m-%d')
                 temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))
                 df_slice_loop = df[df['年月日'].isin(pd.date_range(temp_kikan_start, temp_kikan_end))]
-                # 指定期間で抽出したデータから項目別のdataframeを生成する
-                # func_get_by_perspective(df_slice_loop, perspectives1, perspectives2)
-
+                # 年毎に取得したデータをall_dfのDataframeにappendする
                 for i, data in enumerate(df_slice_loop.itertuples()):
                     # print(i, "==", data, type(data))
                     alldf['観測地点'].append(data[1])
@@ -144,4 +136,5 @@ if __name__ == '__main__':
                     alldf['1時間降水量の最大（均質）'].append(int(data[20]))
             df_slice_all = pd.DataFrame(alldf)
             # df_slice_all.to_csv('df_slice_all.csv', encoding='shift-jis')
-            func_get_by_perspective2(df_slice_all, perspectives1, perspectives2, kikan_start)
+            # 任意の期間で取り出したDataframe（df_slice_all）を項目別・年度別でピボットテーブルを生成・・関数
+            func_get_by_perspective(df_slice_all, perspectives1, perspectives2, over_month)
