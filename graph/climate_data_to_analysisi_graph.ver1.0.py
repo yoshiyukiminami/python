@@ -11,39 +11,51 @@ from monthdelta import monthmod
 def func_get_by_perspective(df_slice_all, perspectives1, perspectives2, over_month):
     # df_slice_allの年月日列から月日のみ取り出した列を追加・・pivot_tableのkeyindex
     # 年をまだぐ期間設定対策1として、1月以降を13月～（∔12）に変更
-    # 年をまたぐ期間設定対策2として、1月以降が期間の年度合わせ・・要確認（month=3の3は固定で良い？）
+    # 年をまたぐ期間設定対策2として、1月以降が期間の年度合わせ
     df_slice_all['月日'] = df_slice_all['年月日'].dt.strftime('%m-%d')
-    # todo:下記の［1-3］と［：2］は固定？期間設定と連動した処理が必要か？
-    df_slice_all['月日'] = [f"{re.sub('^0[1-3]', f'{12 + int(x[:2])}', x)}" for x in df_slice_all['年月日'].dt.strftime('%m-%d')]
-    # 年をまたぐ期間（月＝変数over_month）を年月日の数値から減算して、年度を割り出すように変更
-    df_slice_all['年度'] = [(x - relativedelta(months=over_month)).strftime('%Y') for x in df_slice_all['年月日']]
-    df_slice_all['年'] = df_slice_all['年月日'].dt.strftime('%Y')
+    # over_monthがプラスの時（＝年またぎあり）に期間設定対策1、2を発動
+    if over_month > 0:
+        seiki_hyogen = "^0" + "[" + "1-" + str(over_month+1) + "]"
+        df_slice_all['月日'] = [f"{re.sub(seiki_hyogen, f'{12 + int(x[:over_month])}', x)}" for x in df_slice_all['年月日'].dt.strftime('%m-%d')]
+        # 年をまたぐ期間（月＝変数over_month）を年月日の数値から減算して、年度を割り出すように変更
+        df_slice_all['年度'] = [(x - relativedelta(months=over_month)).strftime('%Y') for x in df_slice_all['年月日']]
+        # df_slice_all['年'] = df_slice_all['年月日'].dt.strftime('%Y')
+        print("年またぎ有り")
+    else:
+        # df_slide_allをpivot_tableに変換（wide型）
+        # 年月日列から年度列を生成
+        df_slice_all['年度'] = df_slice_all['年月日'].dt.strftime('%Y')
+        print("年またぎ無し")
     # df_slide_allをpivot_tableに変換（wide型）
     df_slice_perspective = pd.pivot_table(df_slice_all, index='月日',
                                           columns='年度', values=perspectives1)
-    # 月日表示を元に戻す際の昇順崩れ防止にNo.を付与
-    df_slice_perspective['No'] = range(1, len(df_slice_perspective.index) + 1)
+    # 月日表示を元に戻す際の昇順崩れ防止にNo.を付与、先頭列に挿入する
+    # df_slice_perspective['No'] = range(1, len(df_slice_perspective.index) + 1)
+    No_col = range(1, len(df_slice_perspective.index) + 1)
+    df_slice_perspective.insert(0, 'No', No_col)
     # df_slice_perspective.to_csv('aaa.csv', encoding='shift-jis')
+    func_get_by_perspective2(df_slice_perspective, perspectives1, perspectives2)
+
+
+def func_get_by_perspective2(df_slice_perspective, perspective1, perspective2):
+    # step-5:perspective2の項目は積算演算した列を追加する
+    # df_slice_perspectiveのカラム名から年度のみリスト化する
+    nendo_list = set(df_slice_perspective.columns.droplevel(level=0))
+    nendo_list = [nendo for nendo in nendo_list if nendo]
+    for nendo in nendo_list:
+        nendo = int(nendo)
+    nendo_list.sort()
+    # df_slice_perspectiveに積算したperspective2の項目の列を追加する
+    for perspective in perspective2:
+        for nendo in nendo_list:
+            new_col_name = '積算' + str(perspective)
+            df_slice_perspective[(new_col_name, nendo)] = df_slice_perspective[perspective, nendo].cumsum()
+    # step-6:各項目の2018-2020mean、2008-2020meanを算出し列を追加する
+
+
     # print(df_slice_perspective)
-    func_get_describe(df_slice_perspective, perspectives2)
+    # df_slice_perspective.to_csv('bbb.csv', encoding='shift-jis')
 
-
-def func_get_describe(df_slice_perspective, perspectives2):
-    # Multiindex型のカラム名を統合する（level0とlevel1を統合、level0を削除してMultiindex型を解除
-    print(df_slice_perspective, "==")
-    koumokus = df_slice_perspective.columns.get_level_values(level=0)
-    nendos = df_slice_perspective.columns.get_level_values(level=1)
-    new_col_names = {}
-    for koumoku, nendo in zip(koumokus, nendos):
-        new_col_name = koumoku + "_" + nendo
-        new_col_names[nendo] = new_col_name
-    # todo:Multiindex型カラムの修正
-    print(new_col_names)
-    # df_slice_perspective.columns.set_names(new_col_names, inplace=True)
-    df_slice_perspective.rename(columns=new_col_names, level=1)
-    print(df_slice_perspective.columns)
-    print(df_slice_perspective)
-    # df_slice_perspective.to_csv('aaa.csv', encoding='shift-jis')
 
 
 if __name__ == '__main__':
@@ -51,8 +63,8 @@ if __name__ == '__main__':
     # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する・・OK
     # step-3:各年度の抽出データから項目毎のdataframeを作成する・・OK
     # step-4:比較年度の項目毎dataframeをまとめる・・OK
-    # step-5:平均気温、日照時間は積算演算したdataframeを作成する
-    # step-6:各dataframeから本年度（2022）、昨年度（2021）、2018～2020年平均（暖冬3年）、2008～2020年平均を抽出、グラフ化の元dataframeを作成する
+    # step-5:平均気温、日照時間は積算演算したdataframeを追加する・・OK
+    # step-6:各項目の2018～2020年平均（暖冬3年）、2008～2020年平均を抽出、グラフ化の元dataframeに追加する
     # step-7:グラフ化元dataframeから比較グラフを作成する
 
     # step-1:比較する期間の開始日と終了日を設定する
@@ -63,7 +75,6 @@ if __name__ == '__main__':
     # 開始日からの期間（月）で終了日を決定・・修正
     kikan_range_month = '5'
     over_month = kikan_start.month + int(kikan_range_month) - 12
-    print(over_month)
     # kikan_end = '2023/2/28'
     # kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
     # グラフ作成する項目を選定
