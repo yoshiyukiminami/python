@@ -1,61 +1,74 @@
-import csv
 import datetime
 import glob
 import re
-
 import pandas as pd
-import openpyxl
 from dateutil.relativedelta import relativedelta
-from monthdelta import monthmod
 
-def func_get_by_perspective(df_slice_all, perspectives1, perspectives2, over_month):
-    # df_slice_allの年月日列から月日のみ取り出した列を追加・・pivot_tableのkeyindex
-    # 年をまだぐ期間設定対策1として、1月以降を13月～（∔12）に変更
-    # 年をまたぐ期間設定対策2として、1月以降が期間の年度合わせ
-    df_slice_all['月日'] = df_slice_all['年月日'].dt.strftime('%m-%d')
-    # over_monthがプラスの時（＝年またぎあり）に期間設定対策1、2を発動
-    if over_month > 0:
-        seiki_hyogen = "^0" + "[" + "1-" + str(over_month+1) + "]"
-        df_slice_all['月日'] = [f"{re.sub(seiki_hyogen, f'{12 + int(x[:over_month])}', x)}" for x in df_slice_all['年月日'].dt.strftime('%m-%d')]
-        # 年をまたぐ期間（月＝変数over_month）を年月日の数値から減算して、年度を割り出すように変更
-        df_slice_all['年度'] = [(x - relativedelta(months=over_month)).strftime('%Y') for x in df_slice_all['年月日']]
-        # df_slice_all['年'] = df_slice_all['年月日'].dt.strftime('%Y')
+
+def func_get_by_perspective(df1: pd.DataFrame, k1: list, k2: list, month: int):
+    # df:元のDataframe、k1:抽出する項目、k2：積算を追加する項目、month：年をまたぐ月数
+    # dfの「年月日」列から月日に変換した列を追加
+    df1['月日'] = df1['年月日'].dt.strftime('%m-%d')
+    # monthがプラスの時（＝年またぎあり）のみ年をまたぐ期間対策を発動する
+    if month > 0:
+        # 年をまだぐ期間設定対策1として、1月以降を13月～（∔12）に変更し、1月以降の月日が12月31日以降に配列されるようにする
+        # seiki_hyogenに表示を変更する文字列を指定
+        seiki_hyogen = "^0" + "[" + "1-" + str(month + 1) + "]"
+        df1['月日'] = [f"{re.sub(seiki_hyogen, f'{12 + int(x[:month])}', x)}" for x in df1['年月日'].dt.strftime('%m-%d')]
+        # 年をまたぐ期間設定対策2として、1月以降が入る期間設定の場合、1月以降のデータも年度としては12月までの年度に含む
+        df1['年度'] = [(x - relativedelta(months=i)).strftime('%Y') for x in df1['年月日']]
         print("年またぎ有り")
     else:
-        # df_slide_allをpivot_tableに変換（wide型）
-        # 年月日列から年度列を生成
-        df_slice_all['年度'] = df_slice_all['年月日'].dt.strftime('%Y')
+        # dfの「年月日」列から月日に変換した列を追加
+        df1['年度'] = df['年月日'].dt.strftime('%Y')
         print("年またぎ無し")
     # df_slide_allをpivot_tableに変換（wide型）
-    df_slice_perspective = pd.pivot_table(df_slice_all, index='月日',
-                                          columns='年度', values=perspectives1)
-    # 月日表示を元に戻す際の昇順崩れ防止にNo.を付与、先頭列に挿入する
-    # df_slice_perspective['No'] = range(1, len(df_slice_perspective.index) + 1)
-    No_col = range(1, len(df_slice_perspective.index) + 1)
-    df_slice_perspective.insert(0, 'No', No_col)
-    # df_slice_perspective.to_csv('aaa.csv', encoding='shift-jis')
-    func_get_by_perspective2(df_slice_perspective, perspectives1, perspectives2)
+    df_slice_perspective = pd.pivot_table(df1, index='月日', columns='年度', values=k1)
+    # 月日表示を元に戻す際の昇順崩れ防止に1から連番を降った新しい列（列名：No）を追加し、先頭列に挿入する
+    new_col_no = pd.Series(range(1, len(df_slice_perspective.index) + 1))
+    df_slice_perspective.insert(0, 'No', new_col_no)
+    func_get_by_perspective2(df_slice_perspective, k1, k2)
 
 
-def func_get_by_perspective2(df_slice_perspective, perspective1, perspective2):
-    # step-5:perspective2の項目は積算演算した列を追加する
-    # df_slice_perspectiveのカラム名から年度のみリスト化する
-    nendo_list = set(df_slice_perspective.columns.droplevel(level=0))
-    nendo_list = [nendo for nendo in nendo_list if nendo]
-    for nendo in nendo_list:
-        nendo = int(nendo)
+def func_get_by_perspective2(df2: pd.DataFrame, k1: list, k2: list):
+    # step-5:k2リストの項目のみ、積算演算した列を追加する
+    # df2のカラム名（マルチカラムのlevel=1）から年度のリスト(nendo_list)を生成する
+    nendo_list = set(df2.columns.droplevel(level=0))
+    nendo_list = [x for x in nendo_list if x]
+    # nendo_listを昇順（年度の古いが先）に並び替える
+    for y in nendo_list:
+        y = int(y)
     nendo_list.sort()
     # df_slice_perspectiveに積算したperspective2の項目の列を追加する
-    for perspective in perspective2:
-        for nendo in nendo_list:
-            new_col_name = '積算' + str(perspective)
-            df_slice_perspective[(new_col_name, nendo)] = df_slice_perspective[perspective, nendo].cumsum()
-    # step-6:各項目の2018-2020mean、2008-2020meanを算出し列を追加する
+    for z in k2:
+        for y in nendo_list:
+            new_col_name = '積算' + str(z)
+            df2[(new_col_name, z)] = df2[z, y].cumsum()
+    func_get_by_perspective3_prepare(k1, k2, nendo_list)
 
 
-    # print(df_slice_perspective)
-    # df_slice_perspective.to_csv('bbb.csv', encoding='shift-jis')
+def func_get_by_perspective3_prepare(k1: list, k2: list, nendo_list: list):
+    # step-6:各項目の特定期間の平均を算出する・・事前準備（特定期間の設定）
+    # 比較した年度・期間の設定
+    # ①比較したい期間の初年度
+    compare_year_start1 = '2008'
+    compare_year_end1 = '2020'
 
+    year_ave_list = []
+    for i in range(2008, 2021):
+        year_ave_list.append(('平均気温', i))
+    print(year_ave_list)
+
+
+
+    g = df3.groupby(['月日'])[[('平均気温', '2018'), ('平均気温', '2019'), ('平均気温', '2020')]].mean()
+    # print(g.apply(lambda a: a[:]), type(g))
+    # print(g.mean(axis=1))
+    df3[('平均気温_暖冬平均', '2018-2020')] = g.mean(axis=1)
+    # Dataframeの数値を小数点以下1桁に揃える
+    pd.options.display.float_format = '{:.1f}'.format
+    # print(df3)
+    df3.to_csv('bbb.csv', encoding='shift-jis', index_label=None)
 
 
 if __name__ == '__main__':
