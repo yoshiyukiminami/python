@@ -37,34 +37,60 @@ def func_get_by_perspective2(df2: pd.DataFrame, k1: list, k2: list):
     year_list = [x for x in year_list if x]
     # year_listを昇順（年度の古いが先）に並び替える
     for y in year_list:
-        y = int(y)
+        int(y)
     year_list.sort()
     # df_slice_perspectiveに積算したperspective2の項目の列を追加する
+    # 新しく作成した積算用の列名をリスト（new_col_names）に追加し、次の関数に渡す
+    new_col_names = []
     for z in k2:
         for y in year_list:
             new_col_name = '積算' + str(z)
+            new_col_names.append(new_col_name)
             df2[(new_col_name, y)] = df2[z, y].cumsum()
-    func_get_by_perspective3(df2, k1, k2, year_list)
+    new_col_names = list(set(new_col_names))
+    func_get_by_perspective3(df2, k1, new_col_names, year_list)
 
 
-def func_get_by_perspective3(df3: pd.DataFrame, k1: list, k2: list, year_list: list):
-    # step-6:各項目の特定期間の平均を算出する（比較データ列の作成）
-    for i in k1:
-        compare_term1, compare_term1_start, compare_term1_end = func_get_by_perspective3_prepare1(i, year_list)
-        new_col_name = (i + "_比較期間_A", str(compare_term1_start + '-' + compare_term1_end))
-        g = df3.groupby(['月日'])[compare_term1].mean()
-        # print(g.apply(lambda a: a[:]), type(g))
-        # print(g.mean(axis=1))
-        df3[new_col_name] = g.mean(axis=1)
-        # Dataframeの数値を小数点以下1桁に揃える
-        # todo:表示変化せず
-        pd.options.display.float_format = '{:.1f}'.format
+def func_get_by_perspective3(df3: pd.DataFrame, k1: list, kn: list, year_list: list):
+    # 項目リスト（K1）と積算項目リスト（kn）とをk1に結合する
+    for j in kn:
+        k1.append(j)
+    # step-6-1:各項目の特定期間の平均を算出する（比較データ列の作成）
+    for k in k1:
+        compare_term1, compare_term1_start, compare_term1_end = func_get_by_perspective3_prepare1(k, year_list)
+        new_col_name = (k + "_比較期間_A", str(compare_term1_start + '-' + compare_term1_end))
+        df_k_ave = df3.groupby(['月日'])[compare_term1].mean()
+        # print(df_k_ave.apply(lambda a: a[:]), type(g))
+        # print(df_k_ave.mean(axis=1))
+        # 平均した数値を元のdf3に新しい列として追加する
+        df3[new_col_name] = df_k_ave.mean(axis=1)
+    # Dataframeの数値を小数点以下1桁に揃える
+    # todo:表示変化せず
+    pd.options.display.float_format = '{:.1f}'.format
     # print(df3)
-    df3.to_csv('bbb.csv', encoding='shift-jis')
+    # df3.to_csv('bbb.csv', encoding='shift-jis')
+    func_get_by_perspective4(df3, k1, year_list)
+
+
+def func_get_by_perspective4(df4: pd.DataFrame, koumokus: list, years: list):
+    # step-6-2:各項目の特定期間の平均を算出する（比較データ列の作成）
+    for koumoku in koumokus:
+        compare_term2, compare_term2_start, compare_term2_end = func_get_by_perspective3_prepare2(koumoku, years)
+        new_col_name = (koumoku + "_比較期間_B", str(compare_term2_start + '-' + compare_term2_end))
+        df_k_ave = df4.groupby(['月日'])[compare_term2].mean()
+        # print(df_k_ave.apply(lambda a: a[:]), type(g))
+        # print(df_k_ave.mean(axis=1))
+        # 平均した数値を元のdf3に新しい列として追加する
+        df4[new_col_name] = df_k_ave.mean(axis=1)
+    # Dataframeの数値を小数点以下1桁に揃える
+    # todo:表示変化せず
+    pd.options.display.float_format = '{:.1f}'.format
+    # print(df4)
+    df4.to_csv('ccc.csv', encoding='shift-jis')
 
 
 def func_get_by_perspective3_prepare1(koumoku_basic: list, year: list):
-    # 比較データ列の設定期間を決める関数
+    # 比較データ列の設定期間を決める関数・・その1
     # 設定期間①：暖冬シーズン
     # 比較年の開始日・終了日の設定・・アナログ
     compare_term1_start = '2018'
@@ -87,26 +113,48 @@ def func_get_by_perspective3_prepare1(koumoku_basic: list, year: list):
                 return compare_term1, compare_term1_start, compare_term1_end
 
 
+def func_get_by_perspective3_prepare2(koumokus: list, year: list):
+    # 比較データ列の設定期間を決める関数・・その2
+    # 設定期間②：13年シーズン
+    # 比較年の開始日・終了日の設定・・アナログ
+    compare_term2_start = '2008'
+    compare_term2_end = '2021'
+    # 設定年のエラー検知（Dataframeにない年度の選択、無効な設定期間：開始年の方が新しいや同じ年の選択）
+    if compare_term2_start not in year:
+        print("開始年が対象年にありませんので、以下のリストから再選択してください。")
+        print(year)
+    else:
+        if compare_term2_end not in year:
+            print("終了年が対象年にありませんので、以下のリストから再選択してください。")
+            print(year)
+        else:
+            if int(compare_term2_end) - int(compare_term2_start) <= 0:
+                print("開始年と終了年が同じか、無効な期間設定になっています。")
+            else:
+                compare_term2 = []
+                for j in range(int(compare_term2_start), int(compare_term2_end) + 1):
+                    compare_term2.append((koumokus, str(j)))
+                return compare_term2, compare_term2_start, compare_term2_end
+
+
 if __name__ == '__main__':
     # step-1:比較する期間の開始日と終了日を設定する・・OK
     # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する・・OK
     # step-3:各年度の抽出データから項目毎のdataframeを作成する・・OK
     # step-4:比較年度の項目毎dataframeをまとめる・・OK
     # step-5:平均気温、日照時間は積算演算したdataframeを追加する・・OK
-    # step-6:各項目の2018～2020年平均（暖冬3年）、2008～2020年平均を抽出、グラフ化の元dataframeに追加する
+    # step-6:各項目の2018～2020年平均（暖冬3年）、2008～2020年平均を抽出、グラフ化の元dataframeに追加する・・OK
     # step-7:グラフ化元dataframeから比較グラフを作成する
 
     # step-1:比較する期間の開始日と終了日を設定する
     # 開始日（本年度）：kikan_start ex.'2022/9/15'
-    # 終了日（本年度）：kikan_end ex.'2023/2/28'
     kikan_start = '2022/9/15'
     kikan_start = datetime.datetime.strptime(kikan_start, '%Y/%m/%d')
     # 開始日からの期間（月）で終了日を決定・・修正
     kikan_range_month = '5'
+    # 期間の終了月が年をまたぐかどうか判定（over_monthがプラスの場合、年またぎありで数値が何か月またぐかを示す）
     over_month = kikan_start.month + int(kikan_range_month) - 12
-    # kikan_end = '2023/2/28'
-    # kikan_end = datetime.datetime.strptime(kikan_end, '%Y/%m/%d')
-    # グラフ作成する項目を選定
+    # グラフ作成する項目を選定（不要な品質、均質情報の項目は除く）
     # perspective1:グラフ化する項目、perspective2:積算する項目
     perspectives1 = ['平均気温', '日照時間', '最高気温', '最低気温', '降水量の合計', '1時間降水量の最大']
     perspectives2 = ['平均気温', '日照時間']
@@ -153,7 +201,6 @@ if __name__ == '__main__':
                 for i, data in enumerate(df_slice_loop.itertuples()):
                     # print(i, "==", data, type(data))
                     alldf['観測地点'].append(data[1])
-                    # alldf['年月日'].append(datetime.datetime.strptime(data[2], '%Y-%m-%d'))
                     alldf['年月日'].append(data[2])
                     alldf['平均気温'].append(float(data[3]))
                     alldf['平均気温（品質）'].append(int(data[4]))
