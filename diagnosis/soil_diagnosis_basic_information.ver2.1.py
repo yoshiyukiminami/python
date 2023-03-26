@@ -11,7 +11,6 @@ import datetime
 import glob
 import os
 import pprint
-
 import numpy as np
 import pandas as pd
 import pptx
@@ -240,7 +239,7 @@ def make_picture_table(alldf):
 
     # alldfとalldf2をmergeしてalldf_setを生成
     alldfset = pd.merge(alldf, alldf2, left_on='ID', right_on='ID')
-    alldfset.to_csv('alldfset.csv', encoding='Shift-JIS')
+    # alldfset.to_csv('alldfset.csv', encoding='Shift-JIS')
     # alldfsetから基本情報、グラフ・画像情報を抽出しPPTXに代入する関数
     set_basic_information(alldfset)
 
@@ -356,13 +355,13 @@ def set_basic_information(alldfset):
     isvalid = True
     if len(set(alldfset['出荷団体名'])) == 1:
         group_name = str(alldfset['出荷団体名'][0])
+        save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save/"
+        save_prs_name = save_prs_dir + "土壌診断報告書_" + group_name + '_' + str(d_today) + '.pptx'
+        print(save_prs_name)
+        prs.save(save_prs_name)
     else:
         print("出荷団体名が複数あります。PPTXの保存を中断しました。")
         isvalid = False
-    save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save/"
-    save_prs_name = save_prs_dir + "土壌診断報告書_" + group_name + '_' + str(d_today) + '.pptx'
-    print(save_prs_name)
-    prs.save(save_prs_name)
 
 
 def exchange_comment(df_comment):
@@ -415,7 +414,7 @@ if __name__ == '__main__':
     files = glob.glob(filedir + '/**/*.xlsx', recursive=True)
     # コメントCSVファイルの読み込み
     files2 = glob.glob(filedir + '/**/*.csv', recursive=True)
-    # pprint.pprint(files2)
+    pprint.pprint(files2)
 
     # 【Step-1-1】フォルダにある測定データ（.xlsx）から基本情報を読み込む
     for file, file2 in zip(files, files2):
