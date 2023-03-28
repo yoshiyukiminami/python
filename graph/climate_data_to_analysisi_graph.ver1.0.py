@@ -5,32 +5,32 @@ import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 
-def func_get_by_perspective(df1: pd.DataFrame, k1: list, k2: list, month: int):
+def func_get_by_perspective(df: pd.DataFrame, k1: list, k2: list, month: int):
     # df:元のDataframe、k1:抽出する項目、k2：積算を追加する項目、month：年をまたぐ月数
     # dfの「年月日」列から月日に変換した列を追加
-    df1['月日'] = df1['年月日'].dt.strftime('%m-%d')
+    df['月日'] = df['年月日'].dt.strftime('%m-%d')
     # monthがプラスの時（＝年またぎあり）のみ年をまたぐ期間対策を発動する
     if month > 0:
         # 年をまだぐ期間設定対策1として、1月以降を13月～（∔12）に変更し、1月以降の月日が12月31日以降に配列されるようにする
         # seiki_hyogenに表示を変更する文字列を指定
         seiki_hyogen = "^0" + "[" + "1-" + str(month + 1) + "]"
-        df1['月日'] = [f"{re.sub(seiki_hyogen, f'{12 + int(x[:month])}', x)}" for x in df1['年月日'].dt.strftime('%m-%d')]
+        df['月日'] = [f"{re.sub(seiki_hyogen, f'{12 + int(x[:month])}', x)}" for x in df['年月日'].dt.strftime('%m-%d')]
         # 年をまたぐ期間設定対策2として、1月以降が入る期間設定の場合、1月以降のデータも年度としては12月までの年度に含む
-        df1['年度'] = [(x - relativedelta(months=month + 1)).strftime('%Y') for x in df1['年月日']]
+        df['年度'] = [(x - relativedelta(months=month + 1)).strftime('%Y') for x in df['年月日']]
         print("年またぎ有り")
     else:
         # dfの「年月日」列から月日に変換した列を追加
-        df1['年度'] = df['年月日'].dt.strftime('%Y')
+        df['年度'] = df['年月日'].dt.strftime('%Y')
         print("年またぎ無し")
     # df_slide_allをpivot_tableに変換（wide型）
-    df1 = pd.pivot_table(df1, index='月日', columns='年度', values=k1)
+    df_pivot = pd.pivot_table(df, index='月日', columns='年度', values=k1)
     # 月日表示を元に戻す際の昇順崩れ防止に1から連番を降った新しい列（列名：No）を追加し、先頭列に挿入する
-    new_col_no = pd.Series(range(1, len(df1.index) + 1), index=df1.index)
-    df1.insert(0, 'No', new_col_no)
-    func_get_by_perspective2(df1, k1, k2)
+    new_col_no = pd.Series(range(1, len(df_pivot.index) + 1), index=df_pivot.index)
+    df_pivot.insert(0, 'No', new_col_no)
+    func_add_column_cumsum(df_pivot, k1, k2)
 
 
-def func_get_by_perspective2(df2: pd.DataFrame, k1: list, k2: list):
+def func_add_column_cumsum(df2: pd.DataFrame, k1: list, k2: list):
     # step-5:k2リストの項目のみ、積算演算した列を追加する
     # df2のカラム名（マルチカラムのlevel=1）から年度のリスト(year_list)を生成する
     year_list = set(df2.columns.droplevel(level=0))
@@ -48,18 +48,36 @@ def func_get_by_perspective2(df2: pd.DataFrame, k1: list, k2: list):
             new_col_names.append(new_col_name)
             df2[(new_col_name, y)] = df2[z, y].cumsum()
     new_col_names = list(set(new_col_names))
-    func_get_by_perspective3(df2, k1, new_col_names, year_list)
+    func_add_column_mean1(df2, k1, new_col_names, year_list)
 
 
-def func_get_by_perspective3(df3: pd.DataFrame, k1: list, kn: list, year_list: list):
+def func_add_column_mean1(df2: pd.DataFrame, k1: list, kn: list, year_list: list):
     # 項目リスト（K1）と積算項目リスト（kn）とをk1に結合する
     for j in kn:
         k1.append(j)
     # step-6-1:各項目の特定期間の平均を算出する（比較データ列の作成）
     for k in k1:
-        compare_term1, compare_term1_start, compare_term1_end = func_get_by_perspective3_prepare1(k, year_list)
+        compare_term1, compare_term1_start, compare_term1_end = func_add_column_mean1_prepare(k, year_list)
         new_col_name = (k + "_比較期間_A", str(compare_term1_start + '-' + compare_term1_end))
-        df_k_ave = df3.groupby(['月日'])[compare_term1].mean()
+        df_k_ave = df2.groupby(['月日'])[compare_term1].mean()
+        # print(df_k_ave.apply(lambda a: a[:]), type(g))
+        # print(df_k_ave.mean(axis=1))
+        # 平均した数値を元のdf3に新しい列として追加する
+        df2[new_col_name] = df_k_ave.mean(axis=1)
+    # Dataframeの数値を小数点以下1桁に揃える
+    # todo:表示変化せず
+    pd.options.display.float_format = '{:.1f}'.format
+    # print(df2)
+    # df2.to_csv('bbb.csv', encoding='shift-jis')
+    func_add_column_mean2(df2, k1, year_list)
+
+
+def func_add_column_mean2(df3: pd.DataFrame, koumokus: list, years: list):
+    # step-6-2:各項目の特定期間の平均を算出する（比較データ列の作成）
+    for koumoku in koumokus:
+        compare_term2, compare_term2_start, compare_term2_end = func_add_column_mean2_prepare(koumoku, years)
+        new_col_name = (koumoku + "_比較期間_B", str(compare_term2_start + '-' + compare_term2_end))
+        df_k_ave = df3.groupby(['月日'])[compare_term2].mean()
         # print(df_k_ave.apply(lambda a: a[:]), type(g))
         # print(df_k_ave.mean(axis=1))
         # 平均した数値を元のdf3に新しい列として追加する
@@ -68,28 +86,25 @@ def func_get_by_perspective3(df3: pd.DataFrame, k1: list, kn: list, year_list: l
     # todo:表示変化せず
     pd.options.display.float_format = '{:.1f}'.format
     # print(df3)
-    # df3.to_csv('bbb.csv', encoding='shift-jis')
-    func_get_by_perspective4(df3, k1, year_list)
+    # df3.to_csv('ccc.csv', encoding='shift-jis')
+    func_reset_index_month(df3)
 
 
-def func_get_by_perspective4(df4: pd.DataFrame, koumokus: list, years: list):
-    # step-6-2:各項目の特定期間の平均を算出する（比較データ列の作成）
-    for koumoku in koumokus:
-        compare_term2, compare_term2_start, compare_term2_end = func_get_by_perspective3_prepare2(koumoku, years)
-        new_col_name = (koumoku + "_比較期間_B", str(compare_term2_start + '-' + compare_term2_end))
-        df_k_ave = df4.groupby(['月日'])[compare_term2].mean()
-        # print(df_k_ave.apply(lambda a: a[:]), type(g))
-        # print(df_k_ave.mean(axis=1))
-        # 平均した数値を元のdf3に新しい列として追加する
-        df4[new_col_name] = df_k_ave.mean(axis=1)
-    # Dataframeの数値を小数点以下1桁に揃える
-    # todo:表示変化せず
-    pd.options.display.float_format = '{:.1f}'.format
-    # print(df4)
-    df4.to_csv('ccc.csv', encoding='shift-jis')
+def func_reset_index_month(df_pregraph: pd.DataFrame):
+    # 年またぎ対応のために変更した月日の表示（例：13月）を元の月表示に戻す
+    reset_index = []
+    for i in df_pregraph.index:
+        # 月日（index）の先頭2文字（月）から12を引いた数字を生成（年またぎの13月～の表現をリセット）
+        d1 = str(int(i.split('-')[0]) - 12).zfill(2)
+        # 月日の先頭2文字=月が13～29の場合、月数字から12を引いた数字に置換、それ以外はそのまま
+        reset_index.append(re.sub(r'(^1[3-9]|^2[0-9])', d1, i))
+    df_pregraph['月日'] = [month for month in reset_index]
+    df_pregraph.set_index(df_pregraph['月日'], inplace=True)
+    df_pregraph.to_csv('df_pregraph.csv', encoding='shift-jis')
+    # print(df_pregraph)
 
 
-def func_get_by_perspective3_prepare1(koumoku_basic: list, year: list):
+def func_add_column_mean1_prepare(koumoku_basic: list, year: list):
     # 比較データ列の設定期間を決める関数・・その1
     # 設定期間①：暖冬シーズン
     # 比較年の開始日・終了日の設定・・アナログ
@@ -113,7 +128,7 @@ def func_get_by_perspective3_prepare1(koumoku_basic: list, year: list):
                 return compare_term1, compare_term1_start, compare_term1_end
 
 
-def func_get_by_perspective3_prepare2(koumokus: list, year: list):
+def func_add_column_mean2_prepare(koumokus: list, year: list):
     # 比較データ列の設定期間を決める関数・・その2
     # 設定期間②：13年シーズン
     # 比較年の開始日・終了日の設定・・アナログ
@@ -138,13 +153,15 @@ def func_get_by_perspective3_prepare2(koumokus: list, year: list):
 
 
 if __name__ == '__main__':
-    # step-1:比較する期間の開始日と終了日を設定する・・OK
-    # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する・・OK
-    # step-3:各年度の抽出データから項目毎のdataframeを作成する・・OK
-    # step-4:比較年度の項目毎dataframeをまとめる・・OK
-    # step-5:平均気温、日照時間は積算演算したdataframeを追加する・・OK
-    # step-6:各項目の2018～2020年平均（暖冬3年）、2008～2020年平均を抽出、グラフ化の元dataframeに追加する・・OK
-    # step-7:グラフ化元dataframeから比較グラフを作成する
+    # step-1:比較する期間の開始日と終了日を設定する・・OK:if__name__
+    # step-2:各年度の開始日と終了日にあたる行番号を特定し、各年度の対象データを抽出する・・OK:if__name__
+    # step-3:各年度の抽出データから項目毎のdataframeを作成する・・OK:if__name__
+    # step-4:比較年度の項目毎dataframeをまとめる・・OK:func_get_by_perspective
+    # step-5:平均気温、日照時間は積算演算したdataframeを追加する・・OK:def func_add_column_cumsum
+    # step-6-1:各項目の2018～2020年平均（暖冬3年）を抽出、グラフ化の元dataframeに追加する・・OK:func_add_column_mean1&prepare
+    # step-6-2:各項目の2008～2020年平均を抽出、グラフ化の元dataframeに追加する・・OK:func_add_column_mean2&prepare
+    # step-7-1:グラフ化前のDataframeの整備（月日を元の　月‐日　表示に戻す。例：13-15→1-15）・・OK:func_reset_index_month
+    # step-7-2:グラフ化元dataframeから比較グラフを作成する
 
     # step-1:比較する期間の開始日と終了日を設定する
     # 開始日（本年度）：kikan_start ex.'2022/9/15'
@@ -197,6 +214,7 @@ if __name__ == '__main__':
                                                               '%Y-%m-%d')
                 temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))
                 df_slice_loop = df[df['年月日'].isin(pd.date_range(temp_kikan_start, temp_kikan_end))]
+                # print(df_slice_loop)
                 # 年毎に取得したデータをall_dfのDataframeに追加していく
                 for i, data in enumerate(df_slice_loop.itertuples()):
                     # print(i, "==", data, type(data))
