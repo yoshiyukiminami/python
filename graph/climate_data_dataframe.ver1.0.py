@@ -185,7 +185,13 @@ if __name__ == '__main__':
         df_climate = df_climate.sort_values(by="年月日")
         df_climate = df_climate.reset_index(drop=True)
         # 保存ファイル名の生成
-        save_name = save_filedir + '気象元データ_2008-2023_' + kansoku_point + '.csv'
+        start_year = df_climate.iloc[0]['年月日'].to_pydatetime()
+        start_year = str(start_year.year)
+        end_year = df_climate.iloc[-1]['年月日'].to_pydatetime()
+        end_year = str(end_year.year)
+        years = start_year + "-" + end_year + "_"
+        save_name = save_filedir + '気象元データ_' + years + kansoku_point + '.csv'
+        print(save_name)
         df_climate.to_csv(save_name, encoding='Shift-JIS', index=False)
         # 空白の補正（平均気温、最高気温、最低気温とその品質・均質情報のみ）
         # climate_data_saveフォルダー内にあるファイルをfile2に取得
@@ -202,6 +208,6 @@ if __name__ == '__main__':
                     # print(df_csv[target_column][i], "置換結果")
             # df_csv.to_csv('df_csv_exchange.csv', encoding='Shift-JIS')
 
-            save_name_hosei = save_hosei_filedir + '気象元データ_2008-2023_' + kansoku_point + '_hosei.csv'
+            save_name_hosei = save_hosei_filedir + '気象元データ_' + years + kansoku_point + '_hosei.csv'
             df_csv.to_csv(save_name_hosei, encoding='shift-jis', index=True)
             print('欠損値修正版の出力が完了しました')

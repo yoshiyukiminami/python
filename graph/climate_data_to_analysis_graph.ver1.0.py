@@ -207,9 +207,12 @@ if __name__ == '__main__':
 
             # dfの日付列をまとめてdatetime型に変換する
             df['年月日'] = pd.to_datetime(df['年月日'])
+            # ループの開始年度を取得する
+            start_year = df.iloc[0]['年月日'].to_pydatetime()
+            start_year = start_year.year
             # 変換したdfから日付（期間）でスライスする
             # 期間開始・終了を年毎に取得する
-            for loop_year in range(2008, kikan_start.year + 1):
+            for loop_year in range(start_year, kikan_start.year + 1):
                 temp_kikan_start = datetime.datetime.strptime(f"{loop_year}-{kikan_start.month}-{kikan_start.day}",
                                                               '%Y-%m-%d')
                 temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))

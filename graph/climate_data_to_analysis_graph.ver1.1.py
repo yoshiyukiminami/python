@@ -46,114 +46,125 @@ def func_add_column_cumsum(df1: pd.DataFrame, k2: list, year: int):
 
 def func_save_df_slice_as_dict(df2: pd.DataFrame, year: int):
     # step-5:step-4のDataframeを辞書（all_slice）に格納、Dataframeとしてstep-6に受け渡し
-    print(df2, year, type(year))
-    all_slice = {}
+    # print(df2, year, type(year))
+    # print(df2.items, "1")
+    # print(df2.columns, "2")
+    # print(df2.index, "3")
+    # print(df2.loc[(2, "09-16")])
+    year_slice = {}
+    all_slice = {2022: {('平均気温', '2022'): {(1, '09-16'): 24.2, (2, '09-17'): 25.1}, }}
+    for col in df2.iteritems():
+        key = col[0]
+        # print(col, "次")
+        year_slice.setdefault(key, col)
+    print(year_slice)
+    print("===", year_slice.get(('平均気温', '2018')))
 
 
-def func_add_column_mean1(df2: pd.DataFrame):
-    # step-5:step-4のDataframeに2018～2020年平均（暖冬3年）を追加追加する
-    for col in df2.columns:
-        print(col)
-        compare_term1, compare_term1_start, compare_term1_end = func_add_column_mean1_set_term1(col)
-        new_col_name = (col[0] + "_比較期間_A", str(compare_term1_start + '-' + compare_term1_end))
-        print(new_col_name)
-        df_ave1 = df2.groupby(['月日'])[compare_term1].mean()
-        # print(df_k_ave.apply(lambda a: a[:]), type(g))
-        # print(df_k_ave.mean(axis=1))
-        # 平均した数値を元のdf3に新しい列として追加する
-        df2[new_col_name] = df_ave1.mean(axis=1)
-        # Dataframeの数値を小数点以下1桁に揃える
-        # todo:表示変化せず
-        pd.options.display.float_format = '{:.1f}'.format
-    # print(df2)
-    # df2.to_csv('bbb.csv', encoding='shift-jis')
-    func_add_column_mean2(df2)
-
-
-def func_add_column_mean2(df3: pd.DataFrame, koumokus: list, years: list):
-    # step-6-2:各項目の特定期間の平均を算出する（比較データ列の作成）
-    for koumoku in koumokus:
-        compare_term2, compare_term2_start, compare_term2_end = func_add_column_mean2_prepare(koumoku, years)
-        new_col_name = (koumoku + "_比較期間_B", str(compare_term2_start + '-' + compare_term2_end))
-        df_k_ave = df3.groupby(['月日'])[compare_term2].mean()
-        # print(df_k_ave.apply(lambda a: a[:]), type(g))
-        # print(df_k_ave.mean(axis=1))
-        # 平均した数値を元のdf3に新しい列として追加する
-        df3[new_col_name] = df_k_ave.mean(axis=1)
-    # Dataframeの数値を小数点以下1桁に揃える
-    # todo:表示変化せず
-    pd.options.display.float_format = '{:.1f}'.format
-    # print(df3)
-    # df3.to_csv('ccc.csv', encoding='shift-jis')
-    func_reset_index_month(df3)
-
-
-def func_reset_index_month(df_pregraph: pd.DataFrame):
-    # 年またぎ対応のために変更した月日の表示（例：13月）を元の月表示に戻す
-    reset_index = []
-    for i in df_pregraph.index:
-        # 月日（index）の先頭2文字（月）から12を引いた数字を生成（年またぎの13月～の表現をリセット）
-        d1 = str(int(i.split('-')[0]) - 12).zfill(2)
-        # 月日の先頭2文字=月が13～29の場合、月数字から12を引いた数字に置換、それ以外はそのまま
-        reset_index.append(re.sub(r'(^1[3-9]|^2[0-9])', d1, i))
-    df_pregraph['月日'] = [month for month in reset_index]
-    df_pregraph.set_index(df_pregraph['月日'], inplace=True)
-    df_pregraph.to_csv('df_pregraph.csv', encoding='shift-jis')
-    # print(df_pregraph)
-
-
-def func_add_column_mean1_set_term1(koumokus: list):
-    # 比較データ列の設定期間を決める関数・・その1
-    # 設定期間①：暖冬シーズン
-    # 比較年の開始日・終了日の設定・・アナログ
-    compare_term1_start = '2018'
-    compare_term1_end = '2020'
-    # 設定年のエラー検知（Dataframeにない年度の選択、無効な設定期間：開始年の方が新しいや同じ年の選択）
-    # koumokusの年度をリストに取り出す
-    year_list = []
-    for y in koumokus:
-        print(y, type(y))
-        year_list.append(y[0])
-    print(year_list)
-    if compare_term1_start not in year_list:
-        print("開始年が対象年にありませんので、以下のリストから再選択してください。")
-        print(year_list)
-    else:
-        if compare_term1_end not in year_list:
-            print("終了年が対象年にありませんので、以下のリストから再選択してください。")
-            print(year_list)
-        else:
-            if int(compare_term1_end) - int(compare_term1_start) <= 0:
-                print("開始年と終了年が同じか、無効な期間設定になっています。")
-            else:
-                compare_term1 = []
-                for j in range(int(compare_term1_start), int(compare_term1_end) + 1):
-                    compare_term1.append((koumoku_basic, str(j)))
-                return compare_term1, compare_term1_start, compare_term1_end
-
-
-def func_add_column_mean2_prepare(koumokus: list, year: list):
-    # 比較データ列の設定期間を決める関数・・その2
-    # 設定期間②：13年シーズン
-    # 比較年の開始日・終了日の設定・・アナログ
-    compare_term2_start = '2008'
-    compare_term2_end = '2021'
-    # 設定年のエラー検知（Dataframeにない年度の選択、無効な設定期間：開始年の方が新しいや同じ年の選択）
-    if compare_term2_start not in year:
-        print("開始年が対象年にありませんので、以下のリストから再選択してください。")
-        print(year)
-    else:
-        if compare_term2_end not in year:
-            print("終了年が対象年にありませんので、以下のリストから再選択してください。")
-            print(year)
-        else:
-            if int(compare_term2_end) - int(compare_term2_start) <= 0:
-                print("開始年と終了年が同じか、無効な期間設定になっています。")
-            else:
-                compare_term2 = []
-                for j in range(int(compare_term2_start), int(compare_term2_end) + 1):
-                    compare_term2.append((koumokus, str(j)))
-                return compare_term2, compare_term2_start, compare_term2_end
+# def func_add_column_mean1(df2: pd.DataFrame):
+#     # step-5:step-4のDataframeに2018～2020年平均（暖冬3年）を追加追加する
+#     for col in df2.columns:
+#         print(col)
+#         compare_term1, compare_term1_start, compare_term1_end = func_add_column_mean1_set_term1(col)
+#         new_col_name = (col[0] + "_比較期間_A", str(compare_term1_start + '-' + compare_term1_end))
+#         print(new_col_name)
+#         df_ave1 = df2.groupby(['月日'])[compare_term1].mean()
+#         # print(df_k_ave.apply(lambda a: a[:]), type(g))
+#         # print(df_k_ave.mean(axis=1))
+#         # 平均した数値を元のdf3に新しい列として追加する
+#         df2[new_col_name] = df_ave1.mean(axis=1)
+#         # Dataframeの数値を小数点以下1桁に揃える
+#         # todo:表示変化せず
+#         pd.options.display.float_format = '{:.1f}'.format
+#     # print(df2)
+#     # df2.to_csv('bbb.csv', encoding='shift-jis')
+#     func_add_column_mean2(df2)
+#
+#
+# def func_add_column_mean2(df3: pd.DataFrame, koumokus: list, years: list):
+#     # step-6-2:各項目の特定期間の平均を算出する（比較データ列の作成）
+#     for koumoku in koumokus:
+#         compare_term2, compare_term2_start, compare_term2_end = func_add_column_mean2_prepare(koumoku, years)
+#         new_col_name = (koumoku + "_比較期間_B", str(compare_term2_start + '-' + compare_term2_end))
+#         df_k_ave = df3.groupby(['月日'])[compare_term2].mean()
+#         # print(df_k_ave.apply(lambda a: a[:]), type(g))
+#         # print(df_k_ave.mean(axis=1))
+#         # 平均した数値を元のdf3に新しい列として追加する
+#         df3[new_col_name] = df_k_ave.mean(axis=1)
+#     # Dataframeの数値を小数点以下1桁に揃える
+#     # todo:表示変化せず
+#     pd.options.display.float_format = '{:.1f}'.format
+#     # print(df3)
+#     # df3.to_csv('ccc.csv', encoding='shift-jis')
+#     func_reset_index_month(df3)
+#
+#
+# def func_reset_index_month(df_pregraph: pd.DataFrame):
+#     # 年またぎ対応のために変更した月日の表示（例：13月）を元の月表示に戻す
+#     reset_index = []
+#     for i in df_pregraph.index:
+#         # 月日（index）の先頭2文字（月）から12を引いた数字を生成（年またぎの13月～の表現をリセット）
+#         d1 = str(int(i.split('-')[0]) - 12).zfill(2)
+#         # 月日の先頭2文字=月が13～29の場合、月数字から12を引いた数字に置換、それ以外はそのまま
+#         reset_index.append(re.sub(r'(^1[3-9]|^2[0-9])', d1, i))
+#     df_pregraph['月日'] = [month for month in reset_index]
+#     df_pregraph.set_index(df_pregraph['月日'], inplace=True)
+#     df_pregraph.to_csv('df_pregraph.csv', encoding='shift-jis')
+#     # print(df_pregraph)
+#
+#
+# def func_add_column_mean1_set_term1(koumokus: list):
+#     # 比較データ列の設定期間を決める関数・・その1
+#     # 設定期間①：暖冬シーズン
+#     # 比較年の開始日・終了日の設定・・アナログ
+#     compare_term1_start = '2018'
+#     compare_term1_end = '2020'
+#     # 設定年のエラー検知（Dataframeにない年度の選択、無効な設定期間：開始年の方が新しいや同じ年の選択）
+#     # koumokusの年度をリストに取り出す
+#     year_list = []
+#     for y in koumokus:
+#         print(y, type(y))
+#         year_list.append(y[0])
+#     print(year_list)
+#     if compare_term1_start not in year_list:
+#         print("開始年が対象年にありませんので、以下のリストから再選択してください。")
+#         print(year_list)
+#     else:
+#         if compare_term1_end not in year_list:
+#             print("終了年が対象年にありませんので、以下のリストから再選択してください。")
+#             print(year_list)
+#         else:
+#             if int(compare_term1_end) - int(compare_term1_start) <= 0:
+#                 print("開始年と終了年が同じか、無効な期間設定になっています。")
+#             else:
+#                 compare_term1 = []
+#                 for j in range(int(compare_term1_start), int(compare_term1_end) + 1):
+#                     compare_term1.append((koumoku_basic, str(j)))
+#                 return compare_term1, compare_term1_start, compare_term1_end
+#
+#
+# def func_add_column_mean2_prepare(koumokus: list, year: list):
+#     # 比較データ列の設定期間を決める関数・・その2
+#     # 設定期間②：13年シーズン
+#     # 比較年の開始日・終了日の設定・・アナログ
+#     compare_term2_start = '2008'
+#     compare_term2_end = '2021'
+#     # 設定年のエラー検知（Dataframeにない年度の選択、無効な設定期間：開始年の方が新しいや同じ年の選択）
+#     if compare_term2_start not in year:
+#         print("開始年が対象年にありませんので、以下のリストから再選択してください。")
+#         print(year)
+#     else:
+#         if compare_term2_end not in year:
+#             print("終了年が対象年にありませんので、以下のリストから再選択してください。")
+#             print(year)
+#         else:
+#             if int(compare_term2_end) - int(compare_term2_start) <= 0:
+#                 print("開始年と終了年が同じか、無効な期間設定になっています。")
+#             else:
+#                 compare_term2 = []
+#                 for j in range(int(compare_term2_start), int(compare_term2_end) + 1):
+#                     compare_term2.append((koumokus, str(j)))
+#                 return compare_term2, compare_term2_start, compare_term2_end
 
 
 if __name__ == '__main__':
@@ -187,9 +198,12 @@ if __name__ == '__main__':
                 kansoku_points.append(sokutei_point_list[0][1])
                 # dfの日付列をまとめてdatetime型に変換する
                 df['年月日'] = pd.to_datetime(df['年月日'])
+                # ループの開始年度を取得する
+                start_year = df.iloc[0]['年月日'].to_pydatetime()
+                start_year = start_year.year
                 # 変換したdfから日付（期間）でスライスする
                 # 期間開始・終了を年毎に取得する
-                for loop_year in range(2008, kikan_start.year + 1):
+                for loop_year in range(start_year, kikan_start.year + 1):
                     temp_kikan_start = datetime.datetime.strptime(f"{loop_year}-{kikan_start.month}-{kikan_start.day}",
                                                                   '%Y-%m-%d')
                     temp_kikan_end = temp_kikan_start + relativedelta(months=int(kikan_range_month))
@@ -199,8 +213,6 @@ if __name__ == '__main__':
             else:
                 print("NG:ファイルに複数の観測地点があります")
                 isvalid = False
-
-
     # kansoku_pointsにファイル毎の観測地点をリスト化し、要素個数と重複要素数の差があればエラーメッセージ（重複あり→エラー）
     if not len(kansoku_points) == len(collections.Counter(kansoku_points)):
         print("NG:複数のファイルに同じ観測地点が含まれています")
