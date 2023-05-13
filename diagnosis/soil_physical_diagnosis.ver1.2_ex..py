@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import datetime
-import time
 import glob
 import matplotlib
 import matplotlib.pyplot as plt
@@ -305,6 +304,7 @@ if __name__ == '__main__':
         # print(nojyomei_list)
 
         # Step-2：圃場名でのデータ抽出と所定DATAFRAMEへの格納
+        invalid = True
         for nojyomei in nojyomei_list:
             df1 = df[df['農場名'] == nojyomei]
             hojyomei_list = df1['圃場名'].tolist()
@@ -317,9 +317,7 @@ if __name__ == '__main__':
                 point2_list = df2['圃場内位置2'].tolist()
                 point1_list = list(set(point1_list))
                 point2_list = list(set(point2_list))
-
                 # 測定位置情報のエラー検知
-                isvalid = True
                 if not len(point1_list) == len(point2_list):
                     print("測定位置情報が一致しません。処理を中断しました")
                     isvalid = False

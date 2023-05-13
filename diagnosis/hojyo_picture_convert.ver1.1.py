@@ -44,23 +44,33 @@ def get_gpsdata(exifdata):
     return latitude, longitude
 
 
-def get_nearest_value(latitude, longitude, imagedatetime1, df_compare):
-    list1 = df_compare['圃場位置(緯度)']
+def get_nearest_value(latitude, longitude, df_compare):
+    # list1 = df_compare['圃場位置(緯度)']
     # print(list1)
-    list2 = df_compare['圃場位置(経度)']
+    # list2 = df_compare['圃場位置(経度)']
     # print(list2)
-    idx1 = np.abs(np.asarray(list1) - latitude).argmin()
-    idx2 = np.abs(np.asarray(list2) - longitude).argmin()
-    print(idx1, idx2)
-    if idx1 == idx2:
-        id = df_compare['ID'][idx1]
-        hojyo_name = df_compare['圃場名'][idx1]
-        return id, hojyo_name
-    else:
-        print("一致する座標が無いまたは複数あります。")
-        id = "0000-00000-00000"
-        hojyo_name = "圃場名不明"
-        return id, hojyo_name
+    # idx1 = np.abs(np.asarray(list1) - latitude).argmin()
+    # idx2 = np.abs(np.asarray(list2) - longitude).argmin()
+    # print(idx1, idx2)
+    # if idx1 == idx2:
+    #     id = df_compare['ID'][idx1]
+    #     hojyo_name = df_compare['圃場名'][idx1]
+    #     return id, hojyo_name
+    # else:
+    #     print("一致する座標が無いまたは複数あります。")
+    #     id = "0000-00000-00000"
+    #     hojyo_name = "圃場名不明"
+    #     return id, hojyo_name
+    # 修正_20230506・・画像の緯度経度から一番近い圃場データのIDと圃場名を返すプログラム
+    # 緯度と経度の差の絶対値を計算して、合計を求める
+    df_compare['distance'] = np.abs(df_compare['圃場位置(緯度)'] - latitude) + np.abs(df_compare['圃場位置(経度)'] - longitude)
+    # 距離が最小の行を取得する
+    result = df_compare.loc[df_compare['distance'].idxmin()]
+    print("対象行No：", result)
+    # result（取得した行）のIDと圃場名を返す
+    id = result['ID']
+    hojyo_name = result['圃場名']
+    return id, hojyo_name
 
 
 def Image_resize(img1, pre_name2):
@@ -92,13 +102,13 @@ if __name__ == '__main__':
 
     # 基本情報から「ID」「座標情報」「圃場名」「採土日」「測定日」を取り出しdf_compareに格納
     for file in files:
-        df_comp1 = pd.read_excel(file, sheet_name='基本情報')
+        df_comp1 = pd.read_excel(file, sheet_name='基本情報', engine='openpyxl')
         df_comp1 = df_comp1.loc[:, ['ID',  '圃場名', '圃場位置(緯度)', '圃場位置(経度)']]
         # 「土壌化学性データ」シートから必要情報の取得
-        df_comp2 = pd.read_excel(file, sheet_name='土壌化学性データ')
+        df_comp2 = pd.read_excel(file, sheet_name='土壌化学性データ', engine='openpyxl')
         df_comp2 = df_comp2.loc[:, ['ID', '採土日']]
         # 「土壌物理性データ」シートから必要情報の取得
-        df_comp3 = pd.read_excel(file, sheet_name='土壌物理性データ')
+        df_comp3 = pd.read_excel(file, sheet_name='土壌物理性データ', engine='openpyxl')
         df_comp3 = df_comp3.loc[:, ['ID', '測定日']]
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
         df_compare = pd.merge(pd.merge(df_comp1, df_comp2, left_on='ID', right_on='ID'), df_comp3, left_on='ID', right_on='ID')
@@ -117,7 +127,10 @@ if __name__ == '__main__':
             imagedatetime1, imagedatetime2 = get_datetime(exifdata)
             # EXIFデータから撮影場所の座標を取得する関数
             latitude, longitude = get_gpsdata(exifdata)
-            id, hojyo_name = get_nearest_value(latitude, longitude, imagedatetime1, df_compare)
+            print("latitude:", latitude, "longitude:", longitude)
+            print("==", imagedatetime1)
+            id, hojyo_name = get_nearest_value(latitude, longitude, df_compare)
+            print(id, type(id), "===", hojyo_name, type(hojyo_name))
             picture_save_name = "圃場画像_" + id + '_' + hojyo_name + '_' + str(j) + '_' + str(imagedatetime2) + ".jpeg"
             os.rename(pre_name1, picture_dir + picture_save_name)
 

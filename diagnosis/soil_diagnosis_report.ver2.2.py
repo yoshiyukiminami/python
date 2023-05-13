@@ -7,6 +7,8 @@
 # ver2.0・・数値から自動コメント生成（コメントコードの付与）
 # ver2.1・・アンモニア態窒素の基準復活、それにともなうコメントは追加せず
 # グラフの保存名に「ver2.1」を追加
+# ver2.2・・特定の列を抜き出す指定方法を列名に変更（列番号だと読み込みフォームを更新した時にエラー発生）
+# 上記に合わせてグラフ保存名は「ver2.2」に修正
 import pandas as pd
 import glob
 import os
@@ -24,14 +26,13 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
     fig, axes = plt.subplots(2, 2, tight_layout=True, squeeze=False, sharex='col')
 
     # 作土深データと仮比重を設定
-    sakudoshin = alldf_id.iloc[30]
-    print("作土深", sakudoshin, type(sakudoshin))
-    karihijyu = alldf_id.iloc[21]
+    sakudoshin = alldf_id['作土深の中心値']
+    karihijyu = alldf_id['仮比重']
     kanzan = (sakudoshin / 10) * karihijyu
 
     # 【窒素関連_0, 0】準備-1 df2からグラフに必要な項目のみ分離・・アンモニア態窒素・無機態窒素項目削除
     # df_n = alldf_id.iloc[[6, 18, 19, 27, 28]]
-    df_n = alldf_id.iloc[[6, 18, 27, 28]]
+    df_n = alldf_id[['EC(mS/cm)', 'NH4-N(mg/100g)', '無機態窒素', 'NH4/無機態窒素']]
     # 【窒素関連_0, 0】準備-2 データを換算するための基準値設定・・項目削除に伴う基準値の変更
     # dataset_nh = {'EC(mS/cm)': 0.2, 'NH4-N(mg/100g)': 1.5, 'NO3-N(mg/100g)': 3.5, '無機態窒素': 15,
     #               'NH4/無機態窒素': 0.6}
@@ -89,7 +90,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
     # 【窒素関連_0, 0】準備-1 df2からグラフに必要な項目のみ分離・・アンモニア態窒素・無機態窒素項目削除
     # df_n = alldf_id.iloc[[6, 18, 27, 28]]
-    df_n = alldf_id.iloc[[28, 27, 18, 6]]
+    df_n = alldf_id[['NH4/無機態窒素', '無機態窒素', 'NH4-N(mg/100g)', 'EC(mS/cm)']]
     # dataset_nh = {'EC(mS/cm)': 0.3, 'NH4-N(mg/100g)': 5.0, '無機態窒素': 10, 'NH4/無機態窒素': 0.6}
     dataset_nh = {'NH4/無機態窒素': 0.6, '無機態窒素': 10, 'NH4-N(mg/100g)': 5.0, 'EC(mS/cm)': 0.3}
     # dataset_nl = {'EC(mS/cm)': 0.05, 'NH4-N(mg/100g)': 0.2, '無機態窒素': 4, 'NH4/無機態窒素': 0.1}
@@ -144,7 +145,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
 
     # 【リン酸関連_1, 0】準備-1 df2からグラフに必要な項目のみ分離
-    df_p = alldf_id.iloc[[16, 17]]
+    df_p = alldf_id[['P2O5(mg/100g)', 'リン吸(mg/100g)']]
     # print(df_p)
     # 【リン酸関連_1, 0】準備-2 データを換算するための基準値設定・・設定ミスの修正
     # dataset_ph = {'P2O5(mg/100g)': 50, 'リン吸(mg/100g)': 700}
@@ -196,7 +197,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[1, 0].invert_yaxis()
 
     # 【塩基類関連_0, 1】準備-1 df2からグラフに必要な項目のみ分離
-    df_enki = alldf_id.iloc[[7, 9, 10, 11, 15, 22, 23]]
+    df_enki = alldf_id[['ｐH', 'CaO(mg/100g)', 'MgO(mg/100g)', 'K2O(mg/100g)', '塩基飽和度(%)', 'CaO/MgO', 'MgO/K₂O']]
     # 【塩基類関連_0, 1】準備-2 データを換算するための基準値設定・・基準値の修正
     dataset_enkih = {'ｐH': 6.5, 'CaO(mg/100g)': 400, 'MgO(mg/100g)': 70, 'K2O(mg/100g)': 40,
                     '塩基飽和度(%)': 80, 'CaO/MgO': 8, 'MgO/K₂O': 6
@@ -255,7 +256,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
         axes[0, 1].invert_yaxis()
 
     # 【土壌ポテンシャル関連_1, 1】準備-1 df2からグラフに必要な項目のみ分離
-    df_soil = alldf_id.iloc[[8, 20, 21]]
+    df_soil = alldf_id[['CEC(meq/100g)', '腐植(%)', '仮比重']]
     # 【土壌ポテンシャル関連_1, 1】準備-2 データを換算するための基準値設定・・設定値の修正
     # dataset_soilh = {'CEC(meq/100g)': 40, '腐植(%)': 8, '仮比重': 1}
     dataset_soilh = {'CEC(meq/100g)': 25, '腐植(%)': 8, '仮比重': 1}
@@ -305,7 +306,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
-    filename = filedir + graph_title + '_ver2.1' + '.jpeg'
+    filename = filedir + graph_title + '_ver2.2' + '.jpeg'
     fig.suptitle(graph_title, fontsize=10)
     fig.savefig(filename)
 
@@ -445,7 +446,7 @@ if __name__ == '__main__':
     # フォルダにある測定データ（.xlsx）を読み込む
     for file in files:
         df = pd.read_excel(file, sheet_name='土壌化学性データ')
-        df = df.drop(['出荷団体名', '検体番号', '採土法', '採土者', '分析依頼日', '報告日', '分析機関', '分析番号'], axis=1)
+        # df = df.drop(['出荷団体名', '検体番号', '採土法', '採土者', '分析依頼日', '報告日', '分析機関', '分析番号'], axis=1)
         # 土壌物理性データ・シートからIDと作土深情報を取得する
         df2 = pd.read_excel(file, sheet_name='土壌物理性データ')
         df2 = df2.loc[:, ['ID', '作土深の中心値', '作土深のばらつき']]
@@ -461,7 +462,7 @@ if __name__ == '__main__':
             else:
                 print("データは正常です")
                 alldf_id = alldf.loc[i]
-                graph_titles = alldf_id[['ID', '圃場名', '品目', '作型', '採土日']].values
+                graph_titles = alldf_id[['圃場名', '品目', '作型', '採土日']].values
                 graph_title = '土壌化学性診断_' + '_'.join(graph_titles)
                 hojyomei = alldf_id['圃場名']
                 graphset_2x2(alldf_id, graph_title, hojyomei)
