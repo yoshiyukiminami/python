@@ -293,6 +293,7 @@ if __name__ == '__main__':
     # ☆所定データの読み込み・・【展開】特定フォルダから複数ファイルを同時に読み込む処理
     filedir = 'C:/Users/minam/Desktop/tokusei_precal/'
     files = glob.glob(filedir + '/**/*.csv')
+    print(files)
     # 読み込んだファイルを「農場名」「圃場名」「圃場内測定位置」「圃場内測定位置2」で分類し、df2に格納
     for file in files:
         print(file)

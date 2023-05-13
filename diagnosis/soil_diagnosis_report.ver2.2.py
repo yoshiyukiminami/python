@@ -446,7 +446,6 @@ if __name__ == '__main__':
     # フォルダにある測定データ（.xlsx）を読み込む
     for file in files:
         df = pd.read_excel(file, sheet_name='土壌化学性データ')
-        # df = df.drop(['出荷団体名', '検体番号', '採土法', '採土者', '分析依頼日', '報告日', '分析機関', '分析番号'], axis=1)
         # 土壌物理性データ・シートからIDと作土深情報を取得する
         df2 = pd.read_excel(file, sheet_name='土壌物理性データ')
         df2 = df2.loc[:, ['ID', '作土深の中心値', '作土深のばらつき']]
