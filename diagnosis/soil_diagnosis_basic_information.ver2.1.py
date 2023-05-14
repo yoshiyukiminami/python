@@ -174,6 +174,7 @@ def make_picture_table(alldf):
     # 圃場画像（jpeg）のリストを読み込む
     filedir3 = 'C:/Users/minam/Desktop/hojyo_picture2/'
     files_hp = glob.glob(filedir3 + '/**/*.jpeg', recursive=True)
+    # alldf.to_csv('ccc.csv', encoding='Shift-jis')
 
     # ベースDataframe（alldf2）を作成・・ここにグラフ・画像を紐付ける
     id_list = []
@@ -181,6 +182,7 @@ def make_picture_table(alldf):
     for id in alldf['ID']:
         id_list.append(id)
     alldf2 = pd.DataFrame(data=id_list, columns=col_list1)
+    alldf2.to_csv('alldf2-0.csv', encoding='Shift-jis')
 
     # 土壌物理性診断グラフとIDを結合したDataframe（Pg_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     pg_id = []
@@ -193,10 +195,13 @@ def make_picture_table(alldf):
         pg_name_id = pg_name_id[1]
         pg_id.append(pg_name_id)
         pg_list.append(file_pg)
+    print(pg_id)
+    print(pg_list)
     pg_id = pd.DataFrame(data=pg_id, columns=col_list1)
     pg_list = pd.DataFrame(data=pg_list, columns=col_list2)
     pg_df = pd.concat([pg_id, pg_list], axis=1)
     alldf2 = pd.merge(alldf2, pg_df, left_on='ID', right_on='ID')
+    alldf2.to_csv('alldf2-1.csv', encoding='Shift-jis')
 
     # 土壌化学性診断グラフとIDを結合したDataframe（cg_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     cg_id = []
@@ -213,6 +218,7 @@ def make_picture_table(alldf):
     cg_list = pd.DataFrame(data=cg_list, columns=col_list3)
     cg_df = pd.concat([cg_id, cg_list], axis=1)
     alldf2 = pd.merge(alldf2, cg_df, left_on='ID', right_on='ID')
+    alldf2.to_csv('alldf2-2.csv', encoding='Shift-jis')
 
     # 圃場画像とIDを結合したDataframe（hp_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     # ベースのDataframe（hp_df）を作成
@@ -236,6 +242,7 @@ def make_picture_table(alldf):
             if str(hp_id) + '_' + col in file_hp_list:
                 hp_df.loc[i, col] = file_hp_list[str(hp_id) + '_' + col]
     alldf2 = pd.merge(alldf2, hp_df, left_on='ID', right_on='ID')
+    alldf2.to_csv('alldf2-3.csv', encoding='Shift-jis')
 
     # alldfとalldf2をmergeしてalldf_setを生成
     alldfset = pd.merge(alldf, alldf2, left_on='ID', right_on='ID')
@@ -253,11 +260,11 @@ def get_layout_type(row):
     layout_type = None
     layout_pictures = []
     if not pd.isna(row['all']):
-        # print("True", "aaa")
+        print("True", "aaa")
         layout_type = "all"
         layout_pictures = [row['土壌化学性診断グラフ'], row['土壌物理性診断グラフ'], row['all']]
     elif not pd.isna(row['left']) and not pd.isna(row['right']):
-        # print("True", "bbb")
+        print("True", "bbb")
         layout_type = "left_and_right"
         layout_pictures = [row['土壌化学性診断グラフ'], row['土壌物理性診断グラフ'],
                            row['left'], row['right']]
@@ -272,6 +279,7 @@ def set_basic_information(alldfset):
     # 基本情報で代入する項目のみを抽出したdataframe（alldataset1）を生成
     alldfset1 = alldfset.iloc[:, 1:16]
     # alldfset1.to_csv("alldataset1.csv", encoding='Shift-JIS')
+    # alldfset.to_csv('bbb.csv', encoding='Shift-jis')
 
     headers = 2
     id_pages = 2  # 1圃場当たりに必要なページ数
@@ -353,6 +361,7 @@ def set_basic_information(alldfset):
     # 報告日の取得
     d_today = datetime.date.today()
     isvalid = True
+    # alldfset.to_csv('aaa.csv', encoding='Shift-jis')
     if len(set(alldfset['出荷団体名'])) == 1:
         group_name = str(alldfset['出荷団体名'][0])
         save_prs_dir = "C:/Users/minam/Desktop/soil_analysisi_report_save/"
@@ -439,11 +448,10 @@ if __name__ == '__main__':
         isvalid = True
         for i in range(len(alldf)):
             if alldf.loc[i].isnull().any():
-                print(alldf.loc[i][0], alldf.columns[i])
-                print("欠損値のある行が含まれています")
+                print(i, "行目", "欠損値のある行が含まれています", "ID:", alldf.loc[i][0])
                 isvalid = False
             else:
-                print("必要情報は正常です")
+                print(i, "行目", "必要情報は正常です")
         # IDをキー列にして昇順ソート、indexを振り直す　注：欠損値あっても行削除せず
         # 【課題】sortができていない？
         alldf = alldf.sort_values(by="ID")

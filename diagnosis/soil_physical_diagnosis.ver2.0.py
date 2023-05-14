@@ -289,7 +289,7 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei, id):
                 save_pic_names = df_all[['id', 'hojyomei', 'item', 'jiki', 'ymd']].values
                 graph_titles2 = graph_titles[0]
                 save_pic_name = save_pic_names[0]
-                save_pic_name2 = '土壌物理性診断' + '_'.join(save_pic_name)
+                save_pic_name2 = '土壌物理性診断_' + '_'.join(save_pic_name)
                 graph_title = '土壌物理性診断_' + '_'.join(graph_titles2)
                 graphset_1x3(df_all, df_ave, line_color, line_shape, y, graph_title, save_pic_name2)
                 # time.sleep(1.5)

@@ -21,7 +21,7 @@ plt.rcParams['font.family'] = 'Meiryo'
 # 【グラフ下準備】グラフサイズを統一
 plt.figure(figsize=[8, 8])
 
-def graphset_2x2(alldf_id, graph_title, hojyomei):
+def graphset_2x2(alldf_id, graph_title, save_pic_name, hojyomei):
     # 1つのfigに4つのaxesを行2×列2で描画
     fig, axes = plt.subplots(2, 2, tight_layout=True, squeeze=False, sharex='col')
 
@@ -306,7 +306,7 @@ def graphset_2x2(alldf_id, graph_title, hojyomei):
 
     # 生成したグラフの保存
     filedir = 'C:/Users/minam/Desktop/soil_chemical_graph2/'
-    filename = filedir + graph_title + '_ver2.2' + '.jpeg'
+    filename = filedir + save_pic_name + '_ver2.2' + '.jpeg'
     fig.suptitle(graph_title, fontsize=10)
     fig.savefig(filename)
 
@@ -462,6 +462,8 @@ if __name__ == '__main__':
                 print("データは正常です")
                 alldf_id = alldf.loc[i]
                 graph_titles = alldf_id[['圃場名', '品目', '作型', '採土日']].values
+                save_pic_names = alldf_id[['ID', '圃場名', '品目', '作型', '採土日']].values
                 graph_title = '土壌化学性診断_' + '_'.join(graph_titles)
+                save_pic_name = '土壌化学性診断_' + '_'.join(save_pic_names)
                 hojyomei = alldf_id['圃場名']
-                graphset_2x2(alldf_id, graph_title, hojyomei)
+                graphset_2x2(alldf_id, graph_title, save_pic_name, hojyomei)
