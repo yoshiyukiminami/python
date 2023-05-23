@@ -6,4 +6,6 @@ migrations/
 __pycache__/
 media
 .env
-.idea
+workspace.xml
+usage.statistics.xml
+tasks.xml
