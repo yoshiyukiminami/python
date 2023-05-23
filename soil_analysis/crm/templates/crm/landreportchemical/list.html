@@ -1,0 +1,66 @@
+{% extends "crm/base.html" %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'crm/css/landreport/chemical.css' %}">
+{% endblock %}
+{% block header %}
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'crm:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'crm:land_list' company_id %}">Land list</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Land report chemical</li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-6">
+            <img src="data:image/png;base64,{{ chart_1 | safe }}" alt="Nitrogen related information">
+        </div>
+        <div class="col-6">
+            <img src="data:image/png;base64,{{ chart_2 | safe }}" alt="Base related information">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-6">
+            <img src="data:image/png;base64,{{ chart_3 | safe }}" alt="Phosphoric acid related information">
+        </div>
+        <div class="col-6">
+            <img src="data:image/png;base64,{{ chart_4 | safe }}" alt="Soil potential related information">
+        </div>
+    </div>
+    <div class="alert alert-primary " role="alert">
+        {{ land_review_comment }}
+    </div>
+    <div class="card-group">
+        {% for landscore in landscore_list %}
+            <div class="card" style="width: 18rem;">
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect fill="#868e96" width="100%" height="100%"/><text fill="#dee2e6" dy=".3em" x="38%" y="50%">Image cap</text></svg>
+                <div class="card-body">
+                    <h5 class="card-title">{{ landscore.field_area.name }}</h5>
+                    <ul class="card-text">
+                        <li>時期: {{ landscore.period.name|default:"-" }}</li>
+                        <li>ec: {{ landscore.ec }}</li>
+                        <li>nh4n: {{ landscore.nh4n }}</li>
+                        <li>no3n: {{ landscore.no3n }}</li>
+                        <li>total_nitrogen: {{ landscore.total_nitrogen }}</li>
+                        <li>nh4_per_nitrogen: {{ landscore.nh4_per_nitrogen }}</li>
+                        <li>ph: {{ landscore.ph }}</li>
+                        <li>cao: {{ landscore.cao }}</li>
+                        <li>mgo: {{ landscore.mgo }}</li>
+                        <li>k2o: {{ landscore.k2o }}</li>
+                        <li>base_saturation: {{ landscore.base_saturation }}</li>
+                        <li>cao_per_mgo: {{ landscore.cao_per_mgo }}</li>
+                        <li>mgo_per_k2o: {{ landscore.mgo_per_k2o }}</li>
+                        <li>phosphorus_absorption: {{ landscore.phosphorus_absorption }}</li>
+                        <li>p2o5: {{ landscore.p2o5 }}</li>
+                        <li>cec: {{ landscore.cec }}</li>
+                        <li>humus: {{ landscore.humus }}</li>
+                        <li>bulk_density: {{ landscore.bulk_density }}</li>
+                        <li>備考: {{ landscore.remark|default:"-" }}</li>
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

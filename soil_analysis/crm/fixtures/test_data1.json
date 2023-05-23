@@ -1,6 +1,6 @@
 [
   {
-    "model": "chemical_report.companies",
+    "model": "crm.company",
     "pk": 1,
     "fields": {
       "name": "(有)アグリファクトリー",
@@ -8,7 +8,7 @@
     }
   },
   {
-    "model": "chemical_report.clops",
+    "model": "crm.crop",
     "pk": 1,
     "fields": {
       "name": "レタス",
@@ -16,7 +16,7 @@
     }
   },
   {
-    "model": "chemical_report.clops",
+    "model": "crm.crop",
     "pk": 2,
     "fields": {
       "name": "ほうれん草",
@@ -24,195 +24,119 @@
     }
   },
   {
-    "model": "chemical_report.fields",
+    "model": "crm.cultivationtype",
+    "pk": 1,
+    "fields": {
+      "name": "露地",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "crm.cultivationtype",
+    "pk": 2,
+    "fields": {
+      "name": "ビニールハウス",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "crm.land",
     "pk": 1,
     "fields": {
       "name": "圃場1",
       "prefecture": "茨城県",
       "location": "結城郡八千代町",
-      "class_clops": "露地",
-      "companies": 1,
-      "clops": 1,
+      "cultivation_type": 1,
+      "company": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fields",
+    "model": "crm.land",
     "pk": 2,
     "fields": {
       "name": "圃場2",
       "prefecture": "茨城県",
       "location": "結城郡八千代町",
-      "class_clops": "ビニールハウス",
-      "companies": 1,
-      "clops": 2,
+      "cultivation_type": 2,
+      "company": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 1,
     "fields": {
       "name": "A1",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 2,
     "fields": {
       "name": "A2",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 3,
     "fields": {
       "name": "A3",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 4,
     "fields": {
       "name": "B1",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 5,
     "fields": {
       "name": "B2",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 6,
     "fields": {
       "name": "B3",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 7,
     "fields": {
       "name": "C1",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 8,
     "fields": {
       "name": "C2",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
+    "model": "crm.Area",
     "pk": 9,
     "fields": {
       "name": "C3",
-      "fields": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldarea",
-    "pk": 10,
-    "fields": {
-      "name": "A1",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 11,
-    "fields": {
-      "name": "A2",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 12,
-    "fields": {
-      "name": "A3",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 13,
-    "fields": {
-      "name": "B1",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 14,
-    "fields": {
-      "name": "B2",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 15,
-    "fields": {
-      "name": "B3",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 16,
-    "fields": {
-      "name": "C1",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 17,
-    "fields": {
-      "name": "C2",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.fieldarea",
-    "pk": 18,
-    "fields": {
-      "name": "C3",
-      "fields": 2,
-      "created_at": "2022-08-13"
-    }
-  },
-  {
-    "model": "chemical_report.period",
+    "model": "crm.period",
     "pk": 1,
     "fields": {
       "name": "定植時",
@@ -221,7 +145,7 @@
     }
   },
   {
-    "model": "chemical_report.period",
+    "model": "crm.period",
     "pk": 2,
     "fields": {
       "name": "定植時",
@@ -230,7 +154,7 @@
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 1,
     "fields": {
       "ec": 1,
@@ -250,13 +174,15 @@
       "cec": 1,
       "humus": 0.1,
       "bulk_density": 0.1,
+      "land": 1,
+      "area": 1,
       "period": 2,
-      "field_area": 1,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 2,
     "fields": {
       "ec": 2,
@@ -276,13 +202,15 @@
       "cec": 2,
       "humus": 0.2,
       "bulk_density": 0.2,
+      "land": 1,
+      "area": 2,
       "period": 2,
-      "field_area": 2,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 3,
     "fields": {
       "ec": 3,
@@ -302,13 +230,15 @@
       "cec": 3,
       "humus": 0.3,
       "bulk_density": 0.3,
+      "land": 1,
+      "area": 3,
       "period": 2,
-      "field_area": 3,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 4,
     "fields": {
       "ec": 4,
@@ -328,13 +258,15 @@
       "cec": 4,
       "humus": 0.4,
       "bulk_density": 0.4,
+      "land": 1,
+      "area": 4,
       "period": 2,
-      "field_area": 4,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 5,
     "fields": {
       "ec": 5,
@@ -354,13 +286,15 @@
       "cec": 5,
       "humus": 0.5,
       "bulk_density": 0.5,
+      "land": 1,
+      "area": 5,
       "period": 2,
-      "field_area": 5,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 6,
     "fields": {
       "ec": 6,
@@ -380,13 +314,15 @@
       "cec": 6,
       "humus": 0.6,
       "bulk_density": 0.6,
+      "land": 1,
+      "area": 6,
       "period": 2,
-      "field_area": 6,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 7,
     "fields": {
       "ec": 7,
@@ -406,13 +342,15 @@
       "cec": 7,
       "humus": 0.7,
       "bulk_density": 0.7,
+      "land": 1,
+      "area": 7,
       "period": 2,
-      "field_area": 7,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 8,
     "fields": {
       "ec": 8,
@@ -432,13 +370,15 @@
       "cec": 8,
       "humus": 0.8,
       "bulk_density": 0.8,
+      "land": 1,
+      "area": 8,
       "period": 2,
-      "field_area": 8,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareadetail",
+    "model": "crm.LandScore",
     "pk": 9,
     "fields": {
       "ec": 9,
@@ -458,28 +398,30 @@
       "cec": 9,
       "humus": 0.9,
       "bulk_density": 0.9,
+      "land": 1,
+      "area": 9,
       "period": 2,
-      "field_area": 9,
+      "crop": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareasummary",
+    "model": "crm.landreview",
     "pk": 1,
     "fields": {
       "comment": "とても良い結果が出ています",
       "period": 2,
-      "fields": 1,
+      "land": 1,
       "created_at": "2022-08-13"
     }
   },
   {
-    "model": "chemical_report.fieldareasummary",
+    "model": "crm.landreview",
     "pk": 2,
     "fields": {
       "comment": "全体的に肥料が多すぎです",
       "period": 2,
-      "fields": 2,
+      "land": 2,
       "created_at": "2022-08-13"
     }
   }

@@ -1,0 +1,21 @@
+{% extends "crm/base.html" %}
+{% load static %}
+{% block header %}
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">Home</li>
+        </ol>
+    </nav>
+{% endblock %}
+{% block content %}
+    {% for company in object_list %}
+        <div class="card" style="width: 18rem;">
+            <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect fill="#868e96" width="100%" height="100%"/><text fill="#dee2e6" dy=".3em" x="38%" y="50%">Image cap</text></svg>
+            <div class="card-body">
+                <h5 class="card-title">{{ company.name }}</h5>
+                <p class="card-text">{{ company.remark|default:"説明はありません" }}</p>
+                <a href="{% url 'crm:land_list' company.pk %}" class="btn btn-primary">圃場リスト</a>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

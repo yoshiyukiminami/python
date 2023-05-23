@@ -1,9 +1,9 @@
 from django.db import models
 
 
-class Companies(models.Model):
+class Company(models.Model):
     """
-    法人名（ｎ個の圃場の持ち主）
+    顧客マスタ
     name 名称 e.g. (有)アグリファクトリー
     """
     name = models.CharField(max_length=256)
@@ -12,9 +12,9 @@ class Companies(models.Model):
     updated_at = models.DateField(null=True)
 
 
-class Clops(models.Model):
+class Crop(models.Model):
     """
-    作物ひとつを１レコードという単位で収録します
+    作物マスタ
     name    作物名 e.g. キャベツ、レタスなど
     """
     name = models.CharField(max_length=256)
@@ -23,53 +23,33 @@ class Clops(models.Model):
     updated_at = models.DateField(null=True)
 
 
-class Fields(models.Model):
+class Area(models.Model):
     """
-    法人が持つ圃場ひとつを１レコードという単位で収録します
-    prefecture  都道府県    e.g. 茨城県
-    location    住所       e.g. 結城郡八千代町
-    latlon      緯度経度    e.g. 36.164677272061,139.86772928159
-    class_clops 栽培方法  e.g. 露地、ビニールハウス
-    """
-    name = models.CharField(max_length=256)
-    prefecture = models.CharField(max_length=256)
-    location = models.CharField(max_length=256)
-    latlon = models.CharField(null=True, max_length=256)
-    class_clops = models.CharField(max_length=256)
-    remark = models.TextField(null=True)
-    companies = models.ForeignKey('Companies', on_delete=models.CASCADE)
-    clops = models.ForeignKey('Clops', on_delete=models.CASCADE)
-    created_at = models.DateField(auto_now_add=True)
-    updated_at = models.DateField(null=True)
-
-
-class FieldArea(models.Model):
-    """
-    圃場のエリアひとつを１レコードという単位で収録します
+    圃場の「エリア」マスタ
     name        エリア名    e.g. A1
     """
     name = models.CharField(max_length=256)
-    fields = models.ForeignKey('Fields', on_delete=models.CASCADE)
+    remark = models.TextField(null=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["fields", "name"],
-                name="fields_name_unique"
+                fields=["name"],
+                name="name_unique"
             ),
         ]
 
 
 class Period(models.Model):
     """
-    時期
-    name    時期の名前   e.g. 定植時
+    時期マスタ
     year    西暦年      e.g. 2022
+    name    時期の名前   e.g. 定植時
     """
-    name = models.CharField(max_length=256)
     year = models.IntegerField()
+    name = models.CharField(max_length=256)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
@@ -82,30 +62,56 @@ class Period(models.Model):
         ]
 
 
-class FieldAreaSummary(models.Model):
+class CultivationType(models.Model):
+    name = models.CharField(max_length=256)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
+
+
+class Land(models.Model):
     """
-    顧客が持つ圃場ひとつのサマリーレポート用
+    法人が持つ「圃場」単位で収録
+    prefecture  都道府県    e.g. 茨城県
+    location    住所       e.g. 結城郡八千代町
+    latlon      緯度経度    e.g. 36.164677272061,139.86772928159
+    cultivation_type 作型  e.g. 露地、ビニールハウス
+    """
+    name = models.CharField(max_length=256)
+    prefecture = models.CharField(max_length=256)
+    location = models.CharField(max_length=256)
+    latlon = models.CharField(null=True, max_length=256)
+    remark = models.TextField(null=True)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE)
+    cultivation_type = models.ForeignKey('CultivationType', on_delete=models.CASCADE)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
+
+
+class LandReview(models.Model):
+    """
+    顧客が持つ圃場にperiod単位で評価コメントをつける
+    remarkはあくまで定型的につけたもの（commentが主体）
     """
     comment = models.TextField()
     remark = models.TextField(null=True)
+    land = models.ForeignKey('Land', on_delete=models.CASCADE)
     period = models.ForeignKey('Period', on_delete=models.CASCADE)
-    fields = models.ForeignKey('Fields', on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["period", "fields"],
-                name="period_fields_unique"
+                fields=["land", "period"],
+                name="land_period_unique"
             ),
         ]
 
 
-class FieldAreaDetail(models.Model):
+class LandScore(models.Model):
     """
-    顧客が持つ圃場ひとつのエリアひとつを１レコードという単位で収録します
-    圃場ひとつは９つのエリアに分かれる
+    顧客が持つ圃場をエリア単位で１レコードに収録します
+    圃場ひとつは９つのエリアに分かれるが計測は5エリア✕5箇所で、1圃場あたり25箇所計測
     ec                      電気伝導率 e.g. 1(mS/cm)
     nh4n                    アンモニア態窒素 e.g. 1(mg/100g)
     no3n                    硝酸態窒素 e.g. 1(mg/100g)
@@ -142,15 +148,17 @@ class FieldAreaDetail(models.Model):
     humus = models.FloatField(null=True)
     bulk_density = models.FloatField(null=True)
     remark = models.TextField(null=True)
+    land = models.ForeignKey('Land', on_delete=models.CASCADE)
+    area = models.ForeignKey('Area', on_delete=models.CASCADE)
     period = models.ForeignKey('Period', on_delete=models.CASCADE)
-    field_area = models.ForeignKey('FieldArea', on_delete=models.CASCADE)
+    crop = models.ForeignKey('Crop', on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["period", "field_area"],
-                name="period_field_area_unique"
+                fields=["land", "area", "period"],
+                name="land_area_period_unique"
             ),
         ]

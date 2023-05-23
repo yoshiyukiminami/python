@@ -11,19 +11,19 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# read at .env
+env = environ.Env(DEBUG=(bool, False))
+environ.Env.read_env(Path(BASE_DIR, '.env'))
+DEBUG = env('DEBUG')  # read DEBUG at .env
+SECRET_KEY = env('SECRET_KEY')  # read SECRET_KEY at .env
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-fgj7nav2sti4e7lnsd&-w7+u*4=933b&6d4_)583ler1*zv%z5'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chemical_report.apps.ChemicalReportConfig'
+    'crm.apps.CrmConfig',
 ]
 
 MIDDLEWARE = [
