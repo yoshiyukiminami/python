@@ -1,0 +1,26 @@
+[
+  {
+    "model": "crm.company",
+    "pk": 1,
+    "fields": {
+      "name": "(有)アグリファクトリー",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "crm.company",
+    "pk": 2,
+    "fields": {
+      "name": "農業法人2",
+      "created_at": "2022-08-13"
+    }
+  },
+  {
+    "model": "crm.company",
+    "pk": 3,
+    "fields": {
+      "name": "農業法人3",
+      "created_at": "2022-08-13"
+    }
+  }
+]

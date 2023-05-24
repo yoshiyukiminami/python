@@ -27,7 +27,14 @@ pip freeze > requirements.txt
 ```console
 python manage.py makemigrations crm
 python manage.py migrate
-python manage.py loaddata .\crm\fixtures\test_data1.json
+python manage.py loaddata .\crm\fixtures\company.json
+python manage.py loaddata .\crm\fixtures\crop.json
+python manage.py loaddata .\crm\fixtures\area.json
+python manage.py loaddata .\crm\fixtures\period.json
+python manage.py loaddata .\crm\fixtures\cultivationtype.json
+python manage.py loaddata .\crm\fixtures\land.json
+python manage.py loaddata .\crm\fixtures\landreview.json
+python manage.py loaddata .\crm\fixtures\landscore.json
 ```
 
 ## tokuseishindo
