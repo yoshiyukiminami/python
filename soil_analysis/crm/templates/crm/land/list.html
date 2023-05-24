@@ -9,22 +9,31 @@
     </nav>
 {% endblock %}
 {% block content %}
-    {% for field in object_list %}
-        <div class="card" style="width: 18rem;">
-            <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect fill="#868e96" width="100%" height="100%"/><text fill="#dee2e6" dy=".3em" x="38%" y="50%">Image cap</text></svg>
-            <div class="card-body">
-                <h5 class="card-title">{{ field.name }}</h5>
-                <ul class="card-text">
-                    <li>都道府県: {{ field.prefecture|default:"-" }}</li>
-                    <li>住所: {{ field.location|default:"-" }}</li>
-                    <li>緯度経度: {{ field.latlon|default:"-" }}</li>
-                    <li>栽培方法: {{ field.class_crop|default:"-" }}</li>
-                    <li>作物: {{ field.crop.name|default:"-" }}</li>
-                    <li>備考: {{ field.remark|default:"-" }}</li>
-                </ul>
-                <a href="{% url 'crm:land_report_chemical' company_id field.pk %}" class="btn btn-primary">化学レポート</a>
-                <a href="#" class="btn btn-primary disabled">硬度レポート</a>
+    <button type="button" class="btn btn-outline-primary">＋圃場の追加</button>
+    {% for a_land in object_list %}
+        {% if not forloop.counter|divisibleby:"2" %}
+            <div class="row">
+        {% endif %}
+        <div class="col-sm-6">
+            <div class="card">
+                <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect fill="#868e96" width="100%" height="100%"/><text fill="#dee2e6" dy=".3em" x="38%" y="50%">Image cap</text></svg>
+                <div class="card-body">
+                    <h5 class="card-title">{{ a_land.name }}</h5>
+                    <ul class="card-text">
+                        <li>都道府県: {{ a_land.prefecture|default:"-" }}</li>
+                        <li>住所: {{ a_land.location|default:"-" }}</li>
+                        <li>緯度経度: {{ a_land.latlon|default:"-" }}</li>
+                        <li>栽培方法: {{ a_land.class_crop|default:"-" }}</li>
+                        <li>作物: {{ a_land.crop.name|default:"-" }}</li>
+                        <li>備考: {{ a_land.remark|default:"-" }}</li>
+                    </ul>
+                    <a href="{% url 'crm:land_report_chemical' company_id a_land.pk %}" class="btn btn-outline-primary">化学レポート</a>
+                    <a href="#" class="btn btn-outline-primary disabled">硬度レポート</a>
+                </div>
             </div>
         </div>
+        {% if forloop.counter|divisibleby:"2" %}
+            </div>
+        {% endif %}
     {% endfor %}
 {% endblock %}
