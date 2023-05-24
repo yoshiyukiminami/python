@@ -9,10 +9,10 @@
     </nav>
 {% endblock %}
 {% block content %}
-    <button type="button" class="btn btn-outline-primary">＋圃場の追加</button>
+    <button type="button" class="btn btn-outline-primary mb-3">＋圃場の追加</button>
     {% for a_land in object_list %}
         {% if not forloop.counter|divisibleby:"2" %}
-            <div class="row">
+            <div class="row mb-4">
         {% endif %}
         <div class="col-sm-6">
             <div class="card">
