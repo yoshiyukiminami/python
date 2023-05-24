@@ -18,7 +18,7 @@
                 <svg class="bd-placeholder-img card-img-top" width="100%" height="180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Image cap"><title>Placeholder</title><rect fill="#868e96" width="100%" height="100%"/><text fill="#dee2e6" dy=".3em" x="38%" y="50%">Image cap</text></svg>
                 <div class="card-body">
                     <h5 class="card-title">{{ a_company.name }}</h5>
-                    <p class="card-text">{{ a_company.remark|default:"説明はありません" }}</p>
+                    <p class="card-text">備考: {{ a_company.remark|default:"-" }}</p>
                     <a href="{% url 'crm:land_list' a_company.pk %}" class="btn btn-outline-primary">圃場リスト</a>
                 </div>
             </div>
