@@ -1,5 +1,8 @@
 {% extends "crm/base.html" %}
 {% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'crm/css/land/list.css' %}">
+{% endblock %}
 {% block header %}
     <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
