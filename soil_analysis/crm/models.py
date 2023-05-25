@@ -108,7 +108,7 @@ class LandReview(models.Model):
         ]
 
 
-class LandScore(models.Model):
+class LandScoreChemical(models.Model):
     """
     顧客が持つ圃場をエリア単位で１レコードに収録します
     圃場ひとつは９つのエリアに分かれるが計測は5エリア✕5箇所で、1圃場あたり25箇所計測

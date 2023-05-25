@@ -2,7 +2,7 @@ from django.db.models import Avg
 from django.views.generic import ListView
 
 from .domain.graph.graph_matplotlib import GraphMatplotlib
-from .models import Company, Land, LandScore, LandReview
+from .models import Company, Land, LandScoreChemical, LandReview
 
 
 class CompanyList(ListView):
@@ -25,15 +25,15 @@ class LandList(ListView):
 
 
 class LandReportChemical(ListView):
-    model = LandScore
+    model = LandScoreChemical
     template_name = "crm/landreportchemical/list.html"
 
     def get_queryset(self):
         return super().get_queryset().filter(land=self.kwargs['land_id'])
 
     def get_context_data(self, **kwargs):
-        # LandScore
-        land_score = LandScore.objects.filter(land=self.kwargs['land_id'])
+        # LandScoreChemical
+        land_score = LandScoreChemical.objects.filter(land=self.kwargs['land_id'])
         land_score_agg = land_score.aggregate(
             Avg('ec'), Avg('nh4n'), Avg('no3n'), Avg('total_nitrogen'), Avg('nh4_per_nitrogen'),
             Avg('ph'), Avg('cao'), Avg('mgo'), Avg('k2o'), Avg('base_saturation'), Avg('cao_per_mgo'),

@@ -34,7 +34,7 @@ python manage.py loaddata .\crm\fixtures\period.json
 python manage.py loaddata .\crm\fixtures\cultivationtype.json
 python manage.py loaddata .\crm\fixtures\land.json
 python manage.py loaddata .\crm\fixtures\landreview.json
-python manage.py loaddata .\crm\fixtures\landscore.json
+python manage.py loaddata .\crm\fixtures\landscorechemical.json
 ```
 
 ## tokuseishindo
