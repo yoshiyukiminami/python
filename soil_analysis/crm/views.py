@@ -14,6 +14,9 @@ class LandList(ListView):
     model = Land
     template_name = "crm/land/list.html"
 
+    def get_queryset(self):
+        return super().get_queryset().filter(company=self.kwargs['company_id'])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['company_id'] = self.kwargs['company_id']
@@ -24,6 +27,9 @@ class LandList(ListView):
 class LandReportChemical(ListView):
     model = LandScore
     template_name = "crm/landreportchemical/list.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(land=self.kwargs['land_id'])
 
     def get_context_data(self, **kwargs):
         # LandScore
@@ -84,14 +90,13 @@ class LandReportChemical(ListView):
         ]
         chart4 = g.plot_graph("土壌ポテンシャル関連（1圃場の全エリア平均）", x, y)
 
-        land_review = LandReview.objects.get(land=self.kwargs['land_id'])
-
+        land_review = LandReview.objects.filter(land=self.kwargs['land_id'])
         context = super().get_context_data(**kwargs)
         context['chart_1'] = chart1
         context['chart_2'] = chart2
         context['chart_3'] = chart3
         context['chart_4'] = chart4
         context['company_id'] = self.kwargs['company_id']
-        context['land_review_comment'] = land_review.comment
+        context['land_review'] = land_review
 
         return context
