@@ -14,10 +14,10 @@
 {% endblock %}
 {% block content %}
     <div class="row mb-4">
-        <div class="col-sm-3">
+        <div class="col-sm-6">
             <img src="data:image/png;base64,{{ chart_1 | safe }}" alt="窒素関連">
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-6">
             <img src="data:image/png;base64,{{ chart_2 | safe }}" alt="塩基類関連">
         </div>
     </div>
@@ -33,13 +33,17 @@
         {{ land_review.first.comment }}
     </div>
 
-    <div class="row m-4">
-        <select class="col-sm-4">
-            {% for item in ledger %}
-                <option value="{{ item.pk }}">{{ item.analysis_number }}（採土日: {{ item.sampling_date }}）</option>
-            {% endfor %}
-        </select>
-        <p class="col-sm-8">TODO: いまは台帳全部出るのでドロップダウンで選んだ日付の９マスを出すようにする</p>
+    <div class="m-4">
+        <div class="row">
+            <label>
+                <select class="col-sm-3">
+                    {% for item in ledger %}
+                        <option value="{{ item.pk }}">{{ item.analysis_number }}（採土日: {{ item.sampling_date }}）</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <p class="col-sm-9 small">TODO: いまは台帳全部出るのでドロップダウンで選んだ日付の９マスを出すようにする</p>
+        </div>
     </div>
 
     <div class="card-group justify-content-center">

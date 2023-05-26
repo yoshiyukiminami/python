@@ -22,6 +22,7 @@ class GraphMatplotlib(GraphAbstract):
         plt.title(title)                # グラフタイトル
 
         buffer = BytesIO()                  # バイナリI/O(画像や音声データを取り扱う際に利用)
+        plt.tight_layout()
         plt.savefig(buffer, format="png")   # png形式の画像データを取り扱う
         buffer.seek(0)                      # ストリーム先頭のoffset byteに変更
         img = buffer.getvalue()             # バッファの全内容を含むbytes
