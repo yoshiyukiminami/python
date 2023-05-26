@@ -2,7 +2,7 @@ from django.db.models import Avg
 from django.views.generic import ListView
 
 from .domain.graph.graph_matplotlib import GraphMatplotlib
-from .models import Company, Land, LandScoreChemical, LandReview, Category
+from .models import Company, Land, LandScoreChemical, LandReview, Category, Ledger
 
 
 class CompanyList(ListView):
@@ -100,6 +100,7 @@ class LandReportChemical(ListView):
         context['chart_3'] = chart3
         context['chart_4'] = chart4
         context['company_id'] = self.kwargs['company_id']
+        context['ledger'] = Ledger.objects.filter(land=self.kwargs['land_id'])
         context['land_review'] = land_review
 
         return context

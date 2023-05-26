@@ -141,6 +141,7 @@ class Ledger(models.Model):
     sampling_staff = models.ForeignKey(User, on_delete=models.CASCADE)
     analysis_request_date = models.DateField(null=True)
     reporting_date = models.DateField(null=True)
+    land = models.ForeignKey(Land, on_delete=models.CASCADE)
     analytical_agency = models.ForeignKey(Company, on_delete=models.CASCADE)
     analysis_number = models.IntegerField(null=True)
     created_at = models.DateField(auto_now_add=True)
