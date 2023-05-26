@@ -34,12 +34,12 @@
     </div>
 
     <div class="row m-4">
-        <select class="col-sm-3">
+        <select class="col-sm-4">
             {% for item in ledger %}
-                <option value="{{ item.pk }}">{{ item.analysis_number }}（{{ item.sampling_date }}）</option>
+                <option value="{{ item.pk }}">{{ item.analysis_number }}（採土日: {{ item.sampling_date }}）</option>
             {% endfor %}
         </select>
-        <p class="col-sm-9">TODO: いまは台帳全部出るのでドロップダウンで選んだ日付の９マスを出すようにする</p>
+        <p class="col-sm-8">TODO: いまは台帳全部出るのでドロップダウンで選んだ日付の９マスを出すようにする</p>
     </div>
 
     <div class="card-group justify-content-center">
