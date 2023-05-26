@@ -3,6 +3,8 @@ from django.db import models
 
 
 class Category(models.Model):
+    AGRI_COMPANY = 1
+
     name = models.CharField(max_length=256)
     remark = models.TextField(null=True)
     created_at = models.DateField(auto_now_add=True)

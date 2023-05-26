@@ -2,12 +2,15 @@ from django.db.models import Avg
 from django.views.generic import ListView
 
 from .domain.graph.graph_matplotlib import GraphMatplotlib
-from .models import Company, Land, LandScoreChemical, LandReview
+from .models import Company, Land, LandScoreChemical, LandReview, Category
 
 
 class CompanyList(ListView):
     model = Company
     template_name = "crm/company/list.html"
+
+    def get_queryset(self):
+        return super().get_queryset().filter(category=Category.AGRI_COMPANY)
 
 
 class LandList(ListView):
