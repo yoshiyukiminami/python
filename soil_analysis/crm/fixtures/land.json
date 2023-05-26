@@ -8,6 +8,7 @@
       "location": "結城郡八千代町",
       "cultivation_type": 1,
       "company": 1,
+      "owner": 3,
       "created_at": "2022-08-13"
     }
   },
@@ -20,6 +21,7 @@
       "location": "結城郡八千代町",
       "cultivation_type": 2,
       "company": 1,
+      "owner": 3,
       "created_at": "2022-08-13"
     }
   },
@@ -32,6 +34,7 @@
       "location": "結城郡八千代町",
       "cultivation_type": 2,
       "company": 1,
+      "owner": 4,
       "created_at": "2022-08-13"
     }
   }

@@ -1,4 +1,12 @@
+from django.contrib.auth.models import User
 from django.db import models
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=256)
+    remark = models.TextField(null=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
 
 
 class Company(models.Model):
@@ -7,6 +15,7 @@ class Company(models.Model):
     name 名称 e.g. (有)アグリファクトリー
     """
     name = models.CharField(max_length=256)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     remark = models.TextField(null=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
@@ -75,14 +84,16 @@ class Land(models.Model):
     location    住所       e.g. 結城郡八千代町
     latlon      緯度経度    e.g. 36.164677272061,139.86772928159
     cultivation_type 作型  e.g. 露地、ビニールハウス
+    owner       オーナー    e.g. Ａ生産者
     """
     name = models.CharField(max_length=256)
     prefecture = models.CharField(max_length=256)
     location = models.CharField(max_length=256)
     latlon = models.CharField(null=True, max_length=256)
     remark = models.TextField(null=True)
-    company = models.ForeignKey('Company', on_delete=models.CASCADE)
-    cultivation_type = models.ForeignKey('CultivationType', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    cultivation_type = models.ForeignKey(CultivationType, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
@@ -94,8 +105,8 @@ class LandReview(models.Model):
     """
     comment = models.TextField()
     remark = models.TextField(null=True)
-    land = models.ForeignKey('Land', on_delete=models.CASCADE)
-    period = models.ForeignKey('Period', on_delete=models.CASCADE)
+    land = models.ForeignKey(Land, on_delete=models.CASCADE)
+    period = models.ForeignKey(Period, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
@@ -106,6 +117,32 @@ class LandReview(models.Model):
                 name="land_period_unique"
             ),
         ]
+
+
+class SamplingMethod(models.Model):
+    """
+    採土法 e.g. 5点法
+    """
+    name = models.CharField(max_length=256)
+    remark = models.TextField(null=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
+
+
+class Ledger(models.Model):
+    """
+    採土した日についてまとめる台帳
+    採土日, 採土法, 採土者, 分析依頼日, 報告日, 分析機関, 分析番号
+    """
+    sampling_date = models.DateField()
+    sampling_method = models.ForeignKey(SamplingMethod, on_delete=models.CASCADE)
+    sampling_staff = models.ForeignKey(User, on_delete=models.CASCADE)
+    analysis_request_date = models.DateField(null=True)
+    reporting_date = models.DateField(null=True)
+    analytical_agency = models.ForeignKey(Company, on_delete=models.CASCADE)
+    analysis_number = models.IntegerField(null=True)
+    created_at = models.DateField(auto_now_add=True)
+    updated_at = models.DateField(null=True)
 
 
 class LandScoreChemical(models.Model):
@@ -148,10 +185,11 @@ class LandScoreChemical(models.Model):
     humus = models.FloatField(null=True)
     bulk_density = models.FloatField(null=True)
     remark = models.TextField(null=True)
-    land = models.ForeignKey('Land', on_delete=models.CASCADE)
-    area = models.ForeignKey('Area', on_delete=models.CASCADE)
-    period = models.ForeignKey('Period', on_delete=models.CASCADE)
-    crop = models.ForeignKey('Crop', on_delete=models.CASCADE)
+    land = models.ForeignKey(Land, on_delete=models.CASCADE)
+    area = models.ForeignKey(Area, on_delete=models.CASCADE)
+    period = models.ForeignKey(Period, on_delete=models.CASCADE)
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE)
+    ledger = models.ForeignKey(Ledger, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
