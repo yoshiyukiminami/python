@@ -41,4 +41,9 @@ python manage.py loaddata .\crm\fixtures\ledger.json
 python manage.py loaddata .\crm\fixtures\landscorechemical.json
 ```
 
+- webアプリを動かす
+```console
+soil_analysis> python manage.py runserver
+```
+
 ## tokuseishindo
