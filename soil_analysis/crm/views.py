@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
 
 from .domain.graph.graph_matplotlib import GraphMatplotlib
-from .forms import CompanyCreateForm
+from .forms import CompanyCreateForm, LandCreateForm
 from .models import Company, Land, LandScoreChemical, LandReview, Category, Ledger
 
 
@@ -41,6 +41,31 @@ class LandListView(ListView):
         context['company_id'] = self.kwargs['company_id']
 
         return context
+
+
+class LandCreateView(CreateView):
+    model = Land
+    template_name = "crm/land/create.html"
+    form_class = LandCreateForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['company_id'] = self.kwargs['company_id']
+
+        return context
+
+    def form_valid(self, form):
+        form.instance.company_id = self.kwargs['company_id']
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('crm:land_detail', kwargs={'company_id': self.kwargs['company_id'], 'pk': self.object.pk})
+
+
+class LandDetailView(DetailView):
+    model = Land
+    template_name = 'crm/land/detail.html'
 
 
 class LandReportChemicalListView(ListView):

@@ -85,6 +85,9 @@ class CultivationType(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Land(models.Model):
     """
@@ -98,8 +101,8 @@ class Land(models.Model):
     name = models.CharField(max_length=256)
     prefecture = models.CharField(max_length=256)
     location = models.CharField(max_length=256)
-    latlon = models.CharField(null=True, max_length=256)
-    remark = models.TextField(null=True)
+    latlon = models.CharField(null=True, blank=True, max_length=256)
+    remark = models.TextField(null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     cultivation_type = models.ForeignKey(CultivationType, on_delete=models.CASCADE)
