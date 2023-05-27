@@ -24,7 +24,6 @@
       "land_id":1,
       "area_id":1,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -55,7 +54,6 @@
       "land_id":1,
       "area_id":2,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -86,7 +84,6 @@
       "land_id":1,
       "area_id":3,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -117,7 +114,6 @@
       "land_id":1,
       "area_id":4,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -148,7 +144,6 @@
       "land_id":1,
       "area_id":5,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -179,7 +174,6 @@
       "land_id":1,
       "area_id":6,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -210,7 +204,6 @@
       "land_id":1,
       "area_id":7,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -241,7 +234,6 @@
       "land_id":1,
       "area_id":8,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -272,7 +264,6 @@
       "land_id":1,
       "area_id":9,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 2,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -303,7 +294,6 @@
       "land_id":2,
       "area_id":1,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -334,7 +324,6 @@
       "land_id":2,
       "area_id":2,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -365,7 +354,6 @@
       "land_id":2,
       "area_id":3,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -396,7 +384,6 @@
       "land_id":2,
       "area_id":4,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -427,7 +414,6 @@
       "land_id":2,
       "area_id":5,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -458,7 +444,6 @@
       "land_id":2,
       "area_id":6,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -489,7 +474,6 @@
       "land_id":2,
       "area_id":7,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -520,7 +504,6 @@
       "land_id":2,
       "area_id":8,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
@@ -551,7 +534,6 @@
       "land_id":2,
       "area_id":9,
       "period_id":2,
-      "crop_id":1,
       "ledger_id": 1,
       "created_at":"2022-08-13",
       "updated_at":null
