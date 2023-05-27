@@ -1,11 +1,13 @@
 from django.db.models import Avg
-from django.views.generic import ListView
+from django.urls import reverse
+from django.views.generic import ListView, CreateView, DetailView
 
 from .domain.graph.graph_matplotlib import GraphMatplotlib
+from .forms import CompanyCreateForm
 from .models import Company, Land, LandScoreChemical, LandReview, Category, Ledger
 
 
-class CompanyList(ListView):
+class CompanyListView(ListView):
     model = Company
     template_name = "crm/company/list.html"
 
@@ -13,7 +15,21 @@ class CompanyList(ListView):
         return super().get_queryset().filter(category=Category.AGRI_COMPANY)
 
 
-class LandList(ListView):
+class CompanyCreateView(CreateView):
+    model = Company
+    template_name = "crm/company/create.html"
+    form_class = CompanyCreateForm
+
+    def get_success_url(self):
+        return reverse('crm:company_detail', kwargs={'pk': self.object.pk})
+
+
+class CompanyDetailView(DetailView):
+    model = Company
+    template_name = 'crm/company/detail.html'
+
+
+class LandListView(ListView):
     model = Land
     template_name = "crm/land/list.html"
 
@@ -27,7 +43,7 @@ class LandList(ListView):
         return context
 
 
-class LandReportChemical(ListView):
+class LandReportChemicalListView(ListView):
     model = LandScoreChemical
     template_name = "crm/landreportchemical/list.html"
 

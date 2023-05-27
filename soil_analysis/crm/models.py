@@ -10,6 +10,9 @@ class Category(models.Model):
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Company(models.Model):
     """
@@ -18,7 +21,7 @@ class Company(models.Model):
     """
     name = models.CharField(max_length=256)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    remark = models.TextField(null=True)
+    remark = models.TextField(null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
 
@@ -74,6 +77,10 @@ class Period(models.Model):
 
 
 class CultivationType(models.Model):
+    """
+    作型マスタ
+    name    作型の名前   e.g. 路地、ビニールハウス
+    """
     name = models.CharField(max_length=256)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(null=True)
