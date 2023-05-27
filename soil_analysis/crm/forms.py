@@ -13,6 +13,11 @@ class CompanyCreateForm(forms.ModelForm):
             'remark': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
         }
+        labels = {
+            'name': '圃場名',
+            'remark': '備考',
+            'category': 'カテゴリー',
+        }
 
     def clean_name(self):
         name = self.cleaned_data['name']
@@ -25,16 +30,27 @@ class CompanyCreateForm(forms.ModelForm):
 class LandCreateForm(forms.ModelForm):
     class Meta:
         model = Land
-        fields = ('name', 'prefecture', 'location', 'latlon', 'remark', 'cultivation_type', 'owner')
+        fields = ('name', 'prefecture', 'location', 'latlon', 'area', 'remark', 'cultivation_type', 'owner')
         exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'prefecture': forms.TextInput(attrs={'class': 'form-control'}),
-            'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'latlon': forms.TextInput(attrs={'class': 'form-control'}),
+            'prefecture': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 東京都'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 港区芝公園４丁目２−８'}),
+            'latlon': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 35.658581,139.745433'}),
+            'area': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 100'}),
             'remark': forms.TextInput(attrs={'class': 'form-control'}),
             'cultivation_type': forms.Select(attrs={'class': 'form-control'}),
             'owner': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'name': '圃場名',
+            'prefecture': '都道府県',
+            'location': '住所',
+            'latlon': '緯度・経度',
+            'area': '圃場面積（㎡）',
+            'remark': '備考',
+            'cultivation_type': '栽培タイプ',
+            'owner': '所有者',
         }
 
     def clean_name(self):

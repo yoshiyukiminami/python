@@ -102,6 +102,7 @@ class Land(models.Model):
     prefecture = models.CharField(max_length=256)
     location = models.CharField(max_length=256)
     latlon = models.CharField(null=True, blank=True, max_length=256)
+    area = models.FloatField(null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)

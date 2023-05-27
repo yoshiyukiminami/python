@@ -44,6 +44,19 @@
             </label>
             <p class="col-sm-9 small">TODO: いまは台帳全部出るのでドロップダウンで選んだ日付の９マスを出すようにする</p>
         </div>
+        {% for item in ledger %}
+            <ul>
+                <li>圃場: {{ item.land.name|default:"-" }}</li>
+                <li>作物: {{ item.crop.name|default:"-" }}</li>
+                <li>採土日: {{ item.sampling_date|default:"-" }}</li>
+                <li>採土法: {{ item.sampling_method.name|default:"-" }}</li>
+                <li>採土者: {{ item.sampling_staff|default:"-" }}</li>
+                <li>分析依頼日: {{ item.analysis_request_date|default:"-" }}</li>
+                <li>報告日: {{ item.reporting_date|default:"-" }}</li>
+                <li>分析機関: {{ item.analytical_agency.name|default:"-" }}</li>
+                <li>分析番号: {{ item.analysis_number|default:"-" }}</li>
+            </ul>
+        {% endfor %}
     </div>
 
     <div class="card-group justify-content-center">
