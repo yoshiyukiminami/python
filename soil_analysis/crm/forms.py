@@ -6,15 +6,17 @@ from .models import Company, Land
 class CompanyCreateForm(forms.ModelForm):
     class Meta:
         model = Company
-        fields = ('name', 'remark', 'category')
+        fields = ('name', 'image', 'remark', 'category')
         exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'remark': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
         }
         labels = {
             'name': '圃場名',
+            'image': '画像',
             'remark': '備考',
             'category': 'カテゴリー',
         }
@@ -30,7 +32,7 @@ class CompanyCreateForm(forms.ModelForm):
 class LandCreateForm(forms.ModelForm):
     class Meta:
         model = Land
-        fields = ('name', 'prefecture', 'location', 'latlon', 'area', 'remark', 'cultivation_type', 'owner')
+        fields = ('name', 'prefecture', 'location', 'latlon', 'area', 'image', 'remark', 'cultivation_type', 'owner')
         exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -38,6 +40,7 @@ class LandCreateForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 港区芝公園４丁目２−８'}),
             'latlon': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 35.658581,139.745433'}),
             'area': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '例: 100'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'remark': forms.TextInput(attrs={'class': 'form-control'}),
             'cultivation_type': forms.Select(attrs={'class': 'form-control'}),
             'owner': forms.Select(attrs={'class': 'form-control'}),
@@ -48,6 +51,7 @@ class LandCreateForm(forms.ModelForm):
             'location': '住所',
             'latlon': '緯度・経度',
             'area': '圃場面積（㎡）',
+            'image': '画像',
             'remark': '備考',
             'cultivation_type': '栽培タイプ',
             'owner': '所有者',

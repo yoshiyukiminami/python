@@ -13,6 +13,9 @@
 {% block content %}
     <div class="container">
         <h1>会社の詳細</h1>
+        {% if object.image %}
+            <img src="{{ object.image.url }}" alt="Company Image">
+        {% endif %}
         <ul>
             <li>名称: {{ object.name }}</li>
             <li>備考: {{ object.remark|default:'-' }}</li>

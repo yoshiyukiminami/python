@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 
 from . import views
@@ -11,4 +13,4 @@ urlpatterns = [
     path('company/<int:company_id>/land/create', views.LandCreateView.as_view(), name='land_create'),
     path('company/<int:company_id>/land/<int:pk>/detail/', views.LandDetailView.as_view(), name='land_detail'),
     path('company/<int:company_id>/land/<int:land_id>/land_report_chemical', views.LandReportChemicalListView.as_view(), name='land_report_chemical')
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

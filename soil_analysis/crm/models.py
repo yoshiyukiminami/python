@@ -20,6 +20,7 @@ class Company(models.Model):
     name 名称 e.g. (有)アグリファクトリー
     """
     name = models.CharField(max_length=256)
+    image = models.ImageField(upload_to='company/', null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     remark = models.TextField(null=True, blank=True)
     created_at = models.DateField(auto_now_add=True)
@@ -103,6 +104,7 @@ class Land(models.Model):
     location = models.CharField(max_length=256)
     latlon = models.CharField(null=True, blank=True, max_length=256)
     area = models.FloatField(null=True, blank=True)
+    image = models.ImageField(upload_to='land/', null=True, blank=True)
     remark = models.TextField(null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)

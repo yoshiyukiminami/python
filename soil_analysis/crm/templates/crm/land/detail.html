@@ -14,6 +14,9 @@
 {% block content %}
     <div class="container">
         <h1>{{ object.name }}の詳細</h1>
+        {% if object.image %}
+            <img src="{{ object.image.url }}" alt="Land Image">
+        {% endif %}
         <ul>
             <li>都道府県: {{ object.prefecture|default:"-" }}</li>
             <li>住所: {{ object.location|default:"-" }}</li>
