@@ -47,7 +47,7 @@ if __name__ == '__main__':
             text_box = slide.shapes.add_textbox(Cm(1), Cm(15), Cm(17), Cm(17))
             text_box.text_frame.text = '＜コメント＞'
 
-    save_path = 'output/sample.pptx'
+    save_path = '../output/sample.pptx'
 
     try:
         pptx.save(save_path)

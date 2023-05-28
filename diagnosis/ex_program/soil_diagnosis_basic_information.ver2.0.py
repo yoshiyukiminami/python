@@ -420,13 +420,13 @@ if __name__ == '__main__':
         df_comment = df_comment.sort_values(by="ID")
         # コメント番号からコメント文書に置換する関数
         exchange_comment(df_comment)
-        df = pd.read_excel(file, sheet_name='基本情報')
+        df = pd.read_excel(file, sheet_name='基本情報', engine='openpyxl')
         df = df.loc[:, ['ID', '出荷団体名', '生産者名', '圃場名', '面積（平方メートル）', '圃場位置(緯度)', '圃場位置(経度)', '品目名', '作型']]
         # 「土壌化学性データ」シートから必要情報の取得
-        df2 = pd.read_excel(file, sheet_name='土壌化学性データ')
+        df2 = pd.read_excel(file, sheet_name='土壌化学性データ',engine='openpyxl')
         df2 = df2.loc[:, ['ID', '採土日', '採土法', '仮比重']]
         # 「土壌物理性データ」シートから必要情報の取得
-        df3 = pd.read_excel(file, sheet_name='土壌物理性データ')
+        df3 = pd.read_excel(file, sheet_name='土壌物理性データ', engine='openpyxl')
         df3 = df3.loc[:, ['ID', '測定日', '測定法', '測定状態', '作土深の中心値']]
         # 【Step-1-2】取得データの結合（キー列'ID'）と欠損値の判定
         alldf = pd.merge(pd.merge(df, df2, left_on='ID', right_on='ID'), df3,

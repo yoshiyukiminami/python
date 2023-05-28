@@ -182,7 +182,7 @@ def make_picture_table(alldf):
     for id in alldf['ID']:
         id_list.append(id)
     alldf2 = pd.DataFrame(data=id_list, columns=col_list1)
-    alldf2.to_csv('alldf2-0.csv', encoding='Shift-jis')
+    # alldf2.to_csv('alldf2-0.csv', encoding='Shift-jis')
 
     # 土壌物理性診断グラフとIDを結合したDataframe（Pg_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     pg_id = []
@@ -195,13 +195,13 @@ def make_picture_table(alldf):
         pg_name_id = pg_name_id[1]
         pg_id.append(pg_name_id)
         pg_list.append(file_pg)
-    print(pg_id)
-    print(pg_list)
+    # print(pg_id)
+    # print(pg_list)
     pg_id = pd.DataFrame(data=pg_id, columns=col_list1)
     pg_list = pd.DataFrame(data=pg_list, columns=col_list2)
     pg_df = pd.concat([pg_id, pg_list], axis=1)
     alldf2 = pd.merge(alldf2, pg_df, left_on='ID', right_on='ID')
-    alldf2.to_csv('alldf2-1.csv', encoding='Shift-jis')
+    # alldf2.to_csv('alldf2-1.csv', encoding='Shift-jis')
 
     # 土壌化学性診断グラフとIDを結合したDataframe（cg_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     cg_id = []
@@ -218,7 +218,7 @@ def make_picture_table(alldf):
     cg_list = pd.DataFrame(data=cg_list, columns=col_list3)
     cg_df = pd.concat([cg_id, cg_list], axis=1)
     alldf2 = pd.merge(alldf2, cg_df, left_on='ID', right_on='ID')
-    alldf2.to_csv('alldf2-2.csv', encoding='Shift-jis')
+    # alldf2.to_csv('alldf2-2.csv', encoding='Shift-jis')
 
     # 圃場画像とIDを結合したDataframe（hp_df)を作成し、ベースDataframe（alldf2）に結合（IDキー）
     # ベースのDataframe（hp_df）を作成
@@ -242,7 +242,7 @@ def make_picture_table(alldf):
             if str(hp_id) + '_' + col in file_hp_list:
                 hp_df.loc[i, col] = file_hp_list[str(hp_id) + '_' + col]
     alldf2 = pd.merge(alldf2, hp_df, left_on='ID', right_on='ID')
-    alldf2.to_csv('alldf2-3.csv', encoding='Shift-jis')
+    # alldf2.to_csv('alldf2-3.csv', encoding='Shift-jis')
 
     # alldfとalldf2をmergeしてalldf_setを生成
     alldfset = pd.merge(alldf, alldf2, left_on='ID', right_on='ID')
