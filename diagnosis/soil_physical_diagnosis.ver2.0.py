@@ -168,9 +168,9 @@ def soil_data_dataset(df_dp1, df_dp2, nojyomei, hojyomei, id):
                 # 測定日をdatetimeに変換する
                 sokuteibi2 = sokuteibi[0] + ' ' + '00:00:00'
                 sokuteibi2 = datetime.datetime.strptime(sokuteibi2, '%Y.%m.%d %H:%M:%S')
-
                 # 【Step-1-3】df_dp2に格納したデータ（文字列含む）の平均値を算出しAll_listに格納する
-                df_ave = df_dp2.groupby(['圃場内位置', '圃場内位置2']).mean()
+                # pandasのver2以降の対応、引数指定がないとstringを平均するエラーが発生
+                df_ave = df_dp2.groupby(['圃場内位置', '圃場内位置2']).mean(numeric_only=True)
                 new_header = ['1cm', '2cm', '3cm', '4cm', '5cm', '6cm', '7cm', '8cm', '9cm', '10cm',
                               '11cm', '12cm', '13cm', '14cm', '15cm', '16cm', '17cm', '18cm', '19cm',
                               '20cm', '21cm', '22cm', '23cm', '24cm', '25cm', '26cm', '27cm', '28cm',
@@ -318,7 +318,6 @@ if __name__ == '__main__':
                 df2 = df1[df1['圃場名'] == hojyomei]
                 id_list = df2['ID'].tolist()
                 id_list = list(set(id_list))
-
                 isvalid = True
                 # IDが複数あるエラー検知
                 if not len(id_list) == 1:
