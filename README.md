@@ -24,6 +24,7 @@ pip freeze > requirements.txt
 ## soil analysis
 - `.env` をもらってください
 - ローカルmysqlに `soil_db` というデータベースを作成してから以下コマンドを実行
+### crm
 ```console
 python manage.py makemigrations crm
 python manage.py migrate
@@ -39,6 +40,15 @@ python manage.py loaddata .\crm\fixtures\landreview.json
 python manage.py loaddata .\crm\fixtures\samplingmethod.json
 python manage.py loaddata .\crm\fixtures\ledger.json
 python manage.py loaddata .\crm\fixtures\landscorechemical.json
+```
+### maps
+```console
+npm install
+```
+```console
+python manage.py makemigrations maps
+python manage.py migrate
+python manage.py loaddata .\maps\fixtures\pincollection.json
 ```
 
 - webアプリを動かす
