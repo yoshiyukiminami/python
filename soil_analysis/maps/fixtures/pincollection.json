@@ -3,9 +3,8 @@
     "model": "maps.pincollection",
     "pk": 1,
     "fields": {
-      "place_id": "渋谷駅",
-      "name": "渋谷駅",
-      "latlng": "35.6598003,139.7023894",
+      "name": "恵比寿駅",
+      "latlng": "35.646853368837114,139.71031373111083",
       "created_at": "2023-06-07"
     }
   },
@@ -13,9 +12,8 @@
     "model": "maps.pincollection",
     "pk": 2,
     "fields": {
-      "place_id": "忠犬ハチ公像",
-      "name": "忠犬ハチ公像",
-      "latlng": "35.6590439,139.7005917",
+      "name": "池尻大橋",
+      "latlng": "35.65105981260097,139.6843992441602",
       "created_at": "2023-06-07"
     }
   },
@@ -23,9 +21,8 @@
     "model": "maps.pincollection",
     "pk": 3,
     "fields": {
-      "place_id": "明治神宮",
-      "name": "明治神宮",
-      "latlng": "35.676236,139.6993411",
+      "name": "代々木八幡駅",
+      "latlng": "35.66971577700573, 139.689001648296",
       "created_at": "2023-06-07"
     }
   },
@@ -33,151 +30,8 @@
     "model": "maps.pincollection",
     "pk": 4,
     "fields": {
-      "place_id": "ChIJdzVqu7mLGGAREHNYcPpi1eg",
-      "name": "日本料理「Japanese Cuisine 桜丘」",
-      "latlng": "35.6564093,139.6993541",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 5,
-    "fields": {
-      "place_id": "ChIJScoZHluLGGARABa2mTp0o9I",
-      "name": "日本料理 TAKEMOTO",
-      "latlng": "35.6532845,139.703945",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 6,
-    "fields": {
-      "place_id": "ChIJY-do8UWLGGARigu1QkQVVSk",
-      "name": "Isshin Daikanyama",
-      "latlng": "35.6471899,139.7017788",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 7,
-    "fields": {
-      "place_id": "ChIJIWHYtXDzGGAR422tb4iyf-U",
-      "name": "THE WASHIN by 上越やすだ",
-      "latlng": "35.6697832,139.6883438",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 8,
-    "fields": {
-      "place_id": "ChIJOdFuQayMGGAR9wJl5bO6rt8",
-      "name": "レストラン 二合目",
-      "latlng": "35.6632833,139.6947878",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 9,
-    "fields": {
-      "place_id": "ChIJTzNfw1eLGGARoFu9Fug9RmY",
-      "name": "Shunsai",
-      "latlng": "35.6586987,139.6996793",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-
-
- "model": "maps.pincollection",
-    "pk": 10,
-    "fields": {
-      "place_id": "ChIJM-khpRmNGGAR74SagF8UpBk",
-      "name": "SHIKAKU｜四角｜THE AOYAMA GRAND HOTEL｜青山グランドホテル 内",
-      "latlng": "35.6696082,139.7157907",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 11,
-    "fields": {
-      "place_id": "ChIJZfR-K6qMGGARdCkjm3XFA1k",
-      "name": "Shun Ju",
-      "latlng": "35.6600314,139.6959636",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 12,
-    "fields": {
-      "place_id": "ChIJX69BC5yMGGARAeS1U7Uufew",
-      "name": "Asada",
-      "latlng": "35.6709343,139.7178066",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 13,
-    "fields": {
-      "place_id": "ChIJe1hJhF-LGGARkQBefJuyVXM",
-      "name": "青山 星のなる木",
-      "latlng": "35.66280210000001,139.7095619",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 14,
-    "fields": {
-      "place_id": "ChIJnzYWIpyMGGARsTitM8wyi6M",
-      "name": "SEIZAN TOGO’S",
-      "latlng": "35.6697256,139.7170793",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 15,
-    "fields": {
-      "place_id": "ChIJkX0iUFuLGGARC3KvpsCHxKI",
-      "name": "和食時々酒 ときのとき",
-      "latlng": "35.6591041,139.703742",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 16,
-    "fields": {
-      "place_id": "ChIJ6RGWTFeLGGARGI2QivGlCIc",
-      "name": "One Garden",
-      "latlng": "35.6551622,139.7003852",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 17,
-    "fields": {
-      "place_id": "ChIJU_GMx2yLGGARUhqC9E86_7Q",
-      "name": "Toki Tarazu",
-      "latlng": "35.6485514,139.7138108",
-      "created_at": "2023-06-07"
-    }
-  },
-  {
-    "model": "maps.pincollection",
-    "pk": 18,
-    "fields": {
-      "place_id": "ChIJSdVkP0CLGGARSUTVDGYSO48",
-      "name": "Kokappou Ohashi Ebisu",
-      "latlng": "35.6472772,139.7097127",
+      "name": "恵比寿駅",
+      "latlng": "35.67071234754373, 139.71816938509227",
       "created_at": "2023-06-07"
     }
   }
