@@ -5,6 +5,15 @@ from soil_analysis.crm.domain.valueobject.coordinates import Coordinates
 
 class PhotoProcessingService:
     @staticmethod
+    def calculate_midpoint(photo_coordinates: Coordinates, land_coordinates: Coordinates) -> Coordinates:
+        photo_lng, photo_lat = photo_coordinates.get_lng_lat()
+        land_lng, land_lat = land_coordinates.get_lng_lat()
+        midpoint_lng = (photo_lng + land_lng) / 2
+        midpoint_lat = (photo_lat + land_lat) / 2
+
+        return Coordinates(f"{midpoint_lng},{midpoint_lat}")
+
+    @staticmethod
     def calculate_distance(coord1: Coordinates, coord2: Coordinates, unit: str = Unit.METERS) -> float:
         """
         他の座標との距離を計算します。
