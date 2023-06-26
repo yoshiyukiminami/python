@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from soil_analysis.crm.domain.valueobject.coordinates import Coordinates
+from soil_analysis.crm.domain.valueobject.coordinates.landcoord import LandCoord
 from soil_analysis.crm.domain.valueobject.land import Land
 
 
@@ -11,7 +11,7 @@ class TestLand(TestCase):
                           "137.6487806,34.7436403 137.6492809,34.743865"
 
         # ススムA3の中心点をgooglemapで手動で手に入れた
-        expected_coordinates = Coordinates("137.6491060553256,34.74361968398954")
+        expected_coordinates = LandCoord("137.6491060553256,34.74361968398954")
 
         land = Land(name, coordinates_str)
 

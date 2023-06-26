@@ -4,10 +4,10 @@ from soil_analysis.crm.domain.valueobject.coordinates.coordinates import Coordin
 from soil_analysis.crm.domain.valueobject.coordinates.googlemapcoord import GoogleMapCoord
 
 
-class XarvioCoord(Coordinates):
+class LandCoord(Coordinates):
     def __init__(self, coordinates_str: str):
         """
-        xarvio は 経度緯度(lng, lat) を4以上のタプルをspaceで区切ってエクスポートする
+        xarvioは圃場情報を 経度緯度(lng, lat) のタプルを4以上で構成し、その4以上の座標をspaceで区切ってエクスポートする
         See Also: https://developers.google.com/kml/documentation/kmlreference?hl=ja#coordinates
         """
         coordinates = coordinates_str.split()
