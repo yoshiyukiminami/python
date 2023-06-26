@@ -1,11 +1,13 @@
 from typing import Tuple
 
+from soil_analysis.crm.domain.valueobject.coordinates.coordinates import Coordinates
+from soil_analysis.crm.domain.valueobject.coordinates.googlemapcoord import GoogleMapCoord
 
-class Coordinates:
+
+class XarvioCoord(Coordinates):
     def __init__(self, coordinates_str: str):
         """
-        xarvio は 経度緯度(lng,lat) を4以上のタプルをspaceで区切ってエクスポートするのでxarvioベースで作成する
-        検証で googlemap を検索するときは 緯度経度(lat,lng) で検索しないといけない
+        xarvio は 経度緯度(lng, lat) を4以上のタプルをspaceで区切ってエクスポートする
         See Also: https://developers.google.com/kml/documentation/kmlreference?hl=ja#coordinates
         """
         coordinates = coordinates_str.split()
@@ -20,8 +22,8 @@ class Coordinates:
         self.longitude = round(self.longitude_sum / self.num_points, 7)
         self.latitude = round(self.latitude_sum / self.num_points, 7)
 
-    def get_lng_lat(self) -> Tuple[float, float]:
+    def get_coordinates(self) -> Tuple[float, float]:
         return self.longitude, self.latitude
 
-    def get_lat_lng(self) -> Tuple[float, float]:
-        return self.latitude, self.longitude
+    def to_googlemapcoord(self) -> GoogleMapCoord:
+        return GoogleMapCoord(self.latitude, self.longitude)

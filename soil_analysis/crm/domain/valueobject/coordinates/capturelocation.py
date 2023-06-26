@@ -1,6 +1,6 @@
 import math
 
-from soil_analysis.crm.domain.valueobject.coordinates import Coordinates
+from soil_analysis.crm.domain.valueobject.coordinates.capturelocationcoord import CaptureLocationCoord
 
 
 class CaptureLocation:
@@ -10,7 +10,7 @@ class CaptureLocation:
       そんな下準備をして find_nearest_land で処理できれば、写真から圃場を特定できる
     """
     def __init__(self, longitude, latitude, azimuth):
-        self._coordinates_origin = Coordinates(f"{longitude},{latitude}")
+        self._coordinates_origin = CaptureLocationCoord(longitude, latitude)
         self._coordinates = self._move(azimuth)
 
     def _move(self, azimuth: float, distance: float = 0.01):
@@ -21,7 +21,7 @@ class CaptureLocation:
         :param distance: 移動距離（単位: キロメートル）
         :return: 移動後の座標を表す Coordinates オブジェクト
         """
-        origin_latitude, origin_longitude = self._coordinates_origin.get_lat_lng()
+        origin_longitude, origin_latitude = self._coordinates_origin.get_coordinates()
 
         # 角度をラジアンに変換
         azimuth_rad = math.radians(azimuth)
@@ -40,7 +40,10 @@ class CaptureLocation:
         # 目的地の経度を計算
         destination_longitude = origin_longitude + math.degrees(delta_longitude)
 
-        return Coordinates(f"{destination_longitude},{destination_latitude}")
+        return CaptureLocationCoord(destination_longitude, destination_latitude)
 
-    def get_coordinates(self):
+    def get_adjusted_coordinates(self):
         return self._coordinates
+
+    def get_origin_coordinates(self):
+        return self._coordinates_origin
