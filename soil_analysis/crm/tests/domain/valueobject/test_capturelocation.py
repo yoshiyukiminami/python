@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from soil_analysis.crm.domain.valueobject.capturelocation import CaptureLocation
+from soil_analysis.crm.domain.valueobject.coordinates.capturelocation import CaptureLocation
 
 
 class TestCaptureLocation(TestCase):
@@ -21,6 +21,6 @@ class TestCaptureLocation(TestCase):
         capture_location = CaptureLocation(capture_point_lng, capture_point_lat, capture_point_azimuth)
 
         print(f'gmap検証用_撮影位置: 34.743865,137.6492809')
-        print(f'gmap検証用_10m先の位置: {capture_location.get_coordinates().get_lat_lng()}')
-        self.assertAlmostEqual(137.64923, capture_location.get_coordinates().get_lng_lat()[0], delta=0.0003)
-        self.assertAlmostEqual(34.74378, capture_location.get_coordinates().get_lng_lat()[1], delta=0.0003)
+        print(f'gmap検証用_10m先の位置: {capture_location.get_adjusted_coordinates().to_googlemapcoord().get_coordinates()}')
+        self.assertAlmostEqual(137.6492, capture_location.get_adjusted_coordinates().get_coordinates()[0], delta=0.0003)
+        self.assertAlmostEqual(34.74378, capture_location.get_adjusted_coordinates().get_coordinates()[1], delta=0.0003)
