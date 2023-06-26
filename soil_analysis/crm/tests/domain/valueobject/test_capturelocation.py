@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from soil_analysis.crm.domain.valueobject.coordinates.capturelocation import CaptureLocation
+from soil_analysis.crm.domain.valueobject.capturelocation import CaptureLocation
 
 
 class TestCaptureLocation(TestCase):
