@@ -1,20 +1,12 @@
 from haversine import haversine, Unit
 
-from soil_analysis.crm.domain.valueobject.coordinates import Coordinates
+from soil_analysis.crm.domain.valueobject.coordinates.capturelocationcoord import CaptureLocationCoord
+from soil_analysis.crm.domain.valueobject.coordinates.landcoord import LandCoord
 
 
 class PhotoProcessingService:
     @staticmethod
-    def calculate_midpoint(photo_coordinates: Coordinates, land_coordinates: Coordinates) -> Coordinates:
-        photo_lng, photo_lat = photo_coordinates.get_lng_lat()
-        land_lng, land_lat = land_coordinates.get_lng_lat()
-        midpoint_lng = (photo_lng + land_lng) / 2
-        midpoint_lat = (photo_lat + land_lat) / 2
-
-        return Coordinates(f"{midpoint_lng},{midpoint_lat}")
-
-    @staticmethod
-    def calculate_distance(coord1: Coordinates, coord2: Coordinates, unit: str = Unit.METERS) -> float:
+    def calculate_distance(coord1: CaptureLocationCoord, coord2: LandCoord, unit: str = Unit.METERS) -> float:
         """
         他の座標との距離を計算します。
         xarvio は 経度緯度(lng,lat) をエクスポートする
@@ -26,4 +18,7 @@ class PhotoProcessingService:
         :param unit: 距離の単位（'km'、'miles'、'm'など）
         :return: 距離（単位に応じた値）
         """
-        return haversine(coord1.get_lat_lng(), coord2.get_lat_lng(), unit=unit)
+        return haversine(
+            coord1.to_googlemapcoord().get_coordinates(),
+            coord2.to_googlemapcoord().get_coordinates(),
+            unit=unit)
