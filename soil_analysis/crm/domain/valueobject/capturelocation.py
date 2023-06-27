@@ -43,9 +43,17 @@ class CaptureLocation:
         return CaptureLocationCoord(destination_longitude, destination_latitude)
 
     @property
-    def corrected(self):
+    def corrected(self) -> CaptureLocationCoord:
+        """
+        圃場方向に 10m 進んだあとのオブジェクト
+        :rtype: CaptureLocationCoord
+        """
         return self._coordinates
 
     @property
-    def origin(self):
+    def origin(self) -> CaptureLocationCoord:
+        """
+        圃場方向に進む前（撮影位置）のオブジェクト
+        :rtype: CaptureLocationCoord
+        """
         return self._coordinates_origin
