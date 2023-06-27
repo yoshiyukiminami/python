@@ -42,8 +42,10 @@ class CaptureLocation:
 
         return CaptureLocationCoord(destination_longitude, destination_latitude)
 
-    def get_adjusted_coordinates(self):
+    @property
+    def corrected(self):
         return self._coordinates
 
-    def get_origin_coordinates(self):
+    @property
+    def origin(self):
         return self._coordinates_origin
