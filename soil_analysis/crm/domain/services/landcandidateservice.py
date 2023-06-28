@@ -33,15 +33,15 @@ class LandCandidateService:
             for placemark in kml_document.features():
                 placemark_object = placemark.geometry
                 name = placemark.name
-                coordinates_str = self._convert_coordinates_str(placemark_object.geoms[self.KML_POLYGON].exterior.coords)
-                land_candidate = Land(name, coordinates_str)
+                coords_str = self._convert_coords_str(placemark_object.geoms[self.KML_POLYGON].exterior.coords)
+                land_candidate = Land(name, coords_str)
                 land_candidates.add(land_candidate)
 
             return land_candidates
         except ValueError as e:
             raise ValueError("Invalid KML format") from e
 
-    def _convert_coordinates_str(self, coords):
+    def _convert_coords_str(self, coords):
         """
         座標のリストを文字列表現に変換します。
 

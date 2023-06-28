@@ -1,7 +1,7 @@
-from soil_analysis.crm.domain.valueobject.coordinates.landcoord import LandCoord
+from soil_analysis.crm.domain.valueobject.coords.landcoords import LandCoords
 
 
 class Land:
-    def __init__(self, name, coordinates_str):
+    def __init__(self, name, coords_str):
         self.name = name
-        self.center = LandCoord(coordinates_str)
+        self.center = LandCoords(coords_str)

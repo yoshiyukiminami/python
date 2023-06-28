@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple
 
 
-class Coordinates(ABC):
+class BaseCoords(ABC):
     @abstractmethod
-    def get_coordinates(self) -> Tuple[float, float]:
+    def get_coords(self) -> Tuple[float, float]:
         pass

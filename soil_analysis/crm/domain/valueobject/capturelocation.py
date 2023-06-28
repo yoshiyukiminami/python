@@ -1,6 +1,6 @@
 import math
 
-from soil_analysis.crm.domain.valueobject.coordinates.capturelocationcoord import CaptureLocationCoord
+from soil_analysis.crm.domain.valueobject.coords.capturelocationcoords import CaptureLocationCoords
 
 
 class CaptureLocation:
@@ -10,8 +10,8 @@ class CaptureLocation:
       そんな下準備をして find_nearest_land で処理できれば、写真から圃場を特定できる
     """
     def __init__(self, longitude, latitude, azimuth):
-        self._coordinates_origin = CaptureLocationCoord(longitude, latitude)
-        self._coordinates = self._move(azimuth)
+        self._coords_origin = CaptureLocationCoords(longitude, latitude)
+        self._coords = self._move(azimuth)
 
     def _move(self, azimuth: float, distance: float = 0.01):
         """
@@ -19,9 +19,9 @@ class CaptureLocation:
 
         :param azimuth: 方位角（単位: 度）
         :param distance: 移動距離（単位: キロメートル）
-        :return: 移動後の座標を表す Coordinates オブジェクト
+        :return: 移動後の座標を表す Coords オブジェクト
         """
-        origin_longitude, origin_latitude = self._coordinates_origin.get_coordinates()
+        origin_longitude, origin_latitude = self._coords_origin.get_coords()
 
         # 角度をラジアンに変換
         azimuth_rad = math.radians(azimuth)
@@ -40,20 +40,20 @@ class CaptureLocation:
         # 目的地の経度を計算
         destination_longitude = origin_longitude + math.degrees(delta_longitude)
 
-        return CaptureLocationCoord(destination_longitude, destination_latitude)
+        return CaptureLocationCoords(destination_longitude, destination_latitude)
 
     @property
-    def corrected(self) -> CaptureLocationCoord:
+    def corrected(self) -> CaptureLocationCoords:
         """
         圃場方向に 10m 進んだあとのオブジェクト
-        :rtype: CaptureLocationCoord
+        :rtype: CaptureLocationCoords
         """
-        return self._coordinates
+        return self._coords
 
     @property
-    def origin(self) -> CaptureLocationCoord:
+    def origin(self) -> CaptureLocationCoords:
         """
         圃場方向に進む前（撮影位置）のオブジェクト
-        :rtype: CaptureLocationCoord
+        :rtype: CaptureLocationCoords
         """
-        return self._coordinates_origin
+        return self._coords_origin

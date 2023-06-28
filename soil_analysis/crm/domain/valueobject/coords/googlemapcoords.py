@@ -1,9 +1,9 @@
 from typing import Tuple
 
-from soil_analysis.crm.domain.valueobject.coordinates.coordinates import Coordinates
+from soil_analysis.crm.domain.valueobject.coords.basecoords import BaseCoords
 
 
-class GoogleMapCoord(Coordinates):
+class GoogleMapCoords(BaseCoords):
     def __init__(self, latitude: float, longitude: float):
         """
         googlemap は 緯度経度(lat, lng) で作成する
@@ -11,7 +11,7 @@ class GoogleMapCoord(Coordinates):
         self.latitude = latitude
         self.longitude = longitude
 
-    def get_coordinates(self) -> Tuple[float, float]:
+    def get_coords(self) -> Tuple[float, float]:
         """
         :return: latitude, longitude
         """
