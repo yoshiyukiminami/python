@@ -7,7 +7,7 @@ from .models import PinCollection
 
 
 class HomeView(TemplateView):
-    TOKYO_TOWER_COORDINATES = "35.65861,139.745447"
+    TOKYO_TOWER_COORDS = "35.65861,139.745447"
     DISPLAY_RADIUS = 1500
 
     template_name = 'maps/index.html'
@@ -54,7 +54,7 @@ class HomeView(TemplateView):
             avg_lng = lng_sum / count
             center_location = Location(f"{avg_lat},{avg_lng}")
         except ZeroDivisionError:
-            # Use Tokyo Tower coordinates as default when there are no pins
-            center_location = Location(HomeView.TOKYO_TOWER_COORDINATES)
+            # Use Tokyo Tower coords as default when there are no pins
+            center_location = Location(HomeView.TOKYO_TOWER_COORDS)
 
         return center_location
