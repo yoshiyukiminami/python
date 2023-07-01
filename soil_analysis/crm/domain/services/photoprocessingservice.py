@@ -1,3 +1,5 @@
+from typing import List
+
 from haversine import haversine, Unit
 
 from soil_analysis.crm.domain.valueobject.capturelocation import CaptureLocation
@@ -5,9 +7,26 @@ from soil_analysis.crm.domain.valueobject.coords.capturelocationcoords import Ca
 from soil_analysis.crm.domain.valueobject.coords.landcoords import LandCoords
 from soil_analysis.crm.domain.valueobject.land import Land
 from soil_analysis.crm.domain.valueobject.landcandidates import LandCandidates
+from soil_analysis.crm.domain.valueobject.photo.androidphoto import AndroidPhoto
 
 
 class PhotoProcessingService:
+    def process_photos(self, photosfolder: List[str], land_candidates: LandCandidates) -> List[str]:
+        processed_photos = []
+
+        # あるフォルダのn個の写真を処理
+        for photopath in photosfolder:
+            # IMG20230630190442.jpg のようなファイル名になっている
+            android_photo = AndroidPhoto(photopath)
+            # 画像（＝撮影位置）から最も近い圃場を特定
+            nearest_land = self.find_nearest_land(android_photo.location, land_candidates)
+
+            # TODO: ここで写真のリネーム処理やoutputfolderへの保存などの操作を行う
+
+            processed_photos.append(photopath)
+
+        return processed_photos
+
     def find_nearest_land(self, photo_coords: CaptureLocation, land_candidates: LandCandidates) -> Land:
         """
         n個圃場の距離をそれぞれ調べていちばん距離の近い圃場を特定します
