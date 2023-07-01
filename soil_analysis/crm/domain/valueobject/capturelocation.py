@@ -9,9 +9,13 @@ class CaptureLocation:
       それでは圃場が特定できないので、撮影した方位角（例えば圃場２）に向かって撮影座標を10m補正できれば、圃場１からは少し遠くなり、圃場２へは少し近くなる
       そんな下準備をして find_nearest_land で処理できれば、写真から圃場を特定できる
     """
-    def __init__(self, longitude, latitude, azimuth):
+    def __init__(self, longitude: float, latitude: float, azimuth: float = None):
         self._coords_origin = CaptureLocationCoords(longitude, latitude)
-        self._coords = self._move(azimuth)
+
+        if azimuth:
+            self._coords = self._move(azimuth)
+        else:
+            self._coords = self._coords_origin
 
     def _move(self, azimuth: float, distance: float = 0.01):
         """
