@@ -8,17 +8,17 @@ from soil_analysis.crm.domain.valueobject.landcandidates import LandCandidates
 
 
 class PhotoProcessingService:
-    def find_nearest_land(self, photo_coords: CaptureLocation, kml_land_candidates: LandCandidates) -> Land:
+    def find_nearest_land(self, photo_coords: CaptureLocation, land_candidates: LandCandidates) -> Land:
         """
         n個圃場の距離をそれぞれ調べていちばん距離の近い圃場を特定します
         :param photo_coords:
-        :param kml_land_candidates:
+        :param land_candidates:
         :return:
         """
         min_distance = float('inf')
         nearest_land = None
 
-        for land in kml_land_candidates.list():
+        for land in land_candidates.list():
             distance = self.calculate_distance(photo_coords.corrected, land.center)
             if distance < min_distance:
                 min_distance = distance
