@@ -4,8 +4,10 @@ from soil_analysis.crm.domain.valueobject.land import Land
 
 
 class LandCandidates:
-    def __init__(self):
-        self._land_list: List[Land] = []
+    def __init__(self, candidates: List[Land] = None):
+        if candidates is None:
+            candidates = []
+        self._land_list: List[Land] = candidates
 
     def add(self, land: Land):
         self._land_list.append(land)
