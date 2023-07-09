@@ -6,6 +6,7 @@
 # ver2.0・・コメントの自動生成を追加（IDに連動したコメント番号のcsvファイルを読み込みからコメント生成）
 # ver2.0・・追加：alldfで欠損値がある列名とID番号をプリント
 # ver2.1・・化学性グラフの説明文修正
+# ver2.2・・生成した報告書（pptx）を2スライド毎に分割して保存する関数を追加（ザルビオ添付のため）
 
 import datetime
 import glob
@@ -368,9 +369,34 @@ def set_basic_information(alldfset):
         save_prs_name = save_prs_dir + "土壌診断報告書_" + group_name + '_' + str(d_today) + '.pptx'
         print(save_prs_name)
         prs.save(save_prs_name)
+        # saveしたpptxを分割する関数・・ver2.2の追加点
+        split_pptx(save_prs_name, save_prs_dir)
     else:
         print("出荷団体名が複数あります。PPTXの保存を中断しました。")
         isvalid = False
+
+
+def split_pptx(save_prs_name, save_prs_dir):
+    print(save_prs_name)
+    # PPTXファイルを読み込む
+    presentation = Presentation(save_prs_name)
+
+    # スライドをセットごとに分割して保存する
+    for i in range(0, len(presentation.slides), 2):
+        # スライドセットごとに新しいプレゼンテーションを作成
+        new_presentation = Presentation()
+
+        # 2枚のスライドを新しいプレゼンテーションに追加
+        for j in range(i, min(i+2, len(presentation.slides))):
+            slide = presentation.slides[j]
+            new_presentation.slides.add_slide(slide)
+
+        # 分割したスライドを保存
+        new_pptx_path = save_prs_dir + f"slides_{i+1}-{i+2}.pptx"
+        new_presentation.save(new_pptx_path)
+        print(f"Saved slides {i+1}-{i+2} to {new_pptx_path}")
+
+    print("Splitting complete!")
 
 
 def exchange_comment(df_comment):
