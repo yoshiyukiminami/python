@@ -4,24 +4,20 @@ import numpy as np
 import pandas as pd
 
 
-def iterate_and_find_exceeded_threshold_in_line(line_slice: list, threshold: int, start_position: int,
-                                                direction: int) -> int | None:
+def iterate_and_find_exceeded_threshold_in_line(line_slice: list, threshold: int) -> int | None:
     """
-    line_sliceの中で与えられた閾値を超える最初の要素のインデックスを取得
-
-    :param line_slice: 反復処理を行う行のスライス
-    :param threshold: 閾値（通常は 232 ）
-    :param start_position: 結果となるインデックスに追加されるオフセット
-    :param direction: The direction in which to iterate (-1 for reverse, 1 for forward).
-    :return: The index of the first element that exceeds the threshold, or None if not found.
+    データ（行）を順に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す。
+    :param line_slice: データの行 (スライス)。
+    :param threshold: 値がこれを超えたら"spike"と見なす。
+    :return: 閾値を超えた最初の位置。
     """
     for i, value in enumerate(line_slice):
         if value > threshold:
-            return start_position + (i * direction)
+            return i
     return None
 
 
-def find_spike_point_in_line(line: list, threshold: int, process_range: tuple, reverse: bool = False) -> int:
+def find_spike_point_in_line(line: list, threshold: int, process_range: tuple, reverse: bool = False) -> int | None:
     """
     指定した範囲内のデータ（行）を順（または逆順）に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す
     :param line: データの行
@@ -30,13 +26,18 @@ def find_spike_point_in_line(line: list, threshold: int, process_range: tuple, r
     :param reverse: このフラグがTrueならば逆順にデータを調査する
     :return: 閾値を超えた最初の位置
     """
-    direction = 1 if not reverse else -1
-    from_index, to_index = process_range if not reverse else reversed(process_range)
-    line_slice = line[from_index:to_index:direction]
-    exceeded_index = iterate_and_find_exceeded_threshold_in_line(line_slice, threshold, from_index, direction)
+    from_index, to_index = process_range
+    line_slice = line[from_index:to_index]  # Slice early to only include relevant data
 
-    # 閾値を超える値が見つからなかった場合、終了位置（to_index）を返す
-    return to_index if exceeded_index is None else exceeded_index
+    if reverse:
+        line_slice = line_slice[::-1]  # Only reverse the slice if needed
+
+    exceeded_index = iterate_and_find_exceeded_threshold_in_line(line_slice, threshold)
+
+    if reverse and exceeded_index is not None:
+        exceeded_index = len(line_slice) - exceeded_index - 1  # Adjust index if reversed
+
+    return exceeded_index
 
 
 def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
@@ -47,7 +48,9 @@ def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
     :param start_position: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
     :return: 修正後の line
     """
-    if start_position != len(line):
+    print('start_position: ', start_position)
+    print(line)
+    if start_position is not None:
         idx = {
             'mean1': 0,  # 平均の材料1
             'punch_in': 0,
@@ -78,7 +81,7 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     :param start_position: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
     :return: 修正後の line
     """
-    if start_position != len(line):
+    if start_position is not None:
         idx = {
             'mean1': 0,  # 平均の材料1
             'punch_in': 0,
@@ -123,20 +126,26 @@ def find_invalid_data(file_path: str, apply_adjustment: bool):
 
     records = [] if not apply_adjustment else [list(df_csv.columns)]
     for i, line in enumerate(df_csv.itertuples(index=False)):
+        # 数値部分だけ（'圧力[kPa]1cm'～'圧力[kPa]60cm'）のスライスデータにします（通常は 12, 71）
         offset = (df_csv.columns.get_loc('圧力[kPa]1cm'), df_csv.columns.get_loc('圧力[kPa]60cm'))
-        first_col_in_a_line = find_spike_point_in_line(line, under_threshold, offset, False)
-        end_col_in_a_line = find_spike_point_in_line(line, under_threshold, offset, True)
+        first_col_in_a_line = find_spike_point_in_line(list(line), under_threshold, offset, False)
+        end_col_in_a_line = find_spike_point_in_line(list(line), under_threshold, offset, True)
         if not apply_adjustment:
-            line = line[first_col_in_a_line:end_col_in_a_line + 1]  # slice の end は "未満" なので注意する
-            if len(line) == 0:
-                records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} のみで構成されています。確認してください"])
+            if first_col_in_a_line == end_col_in_a_line is None:
+                records.append([
+                    str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} のみで構成されています。確認してください"])
                 continue
+            # 両端の 232 を除外したスライスデータにします
+            line = line[first_col_in_a_line:end_col_in_a_line + 1]
             for col, cell in enumerate(line):
                 if cell == under_threshold:
                     records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} が含まれています"])
                     break
         else:
-            records.append(average_fill(list(line), under_threshold, first_col_in_a_line))
+            if first_col_in_a_line is not None:
+                records.append(average_fill(list(line), under_threshold, offset[0] + first_col_in_a_line))
+            else:
+                records.append(list(line))
 
     return records
 

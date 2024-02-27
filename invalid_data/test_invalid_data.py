@@ -14,16 +14,16 @@ class TestGetCursorOfSpike(TestCase):
         self.assertEqual(7, result)
 
     def test_get_cursor_of_spike_no_inverse_with_offset(self):
-        result = find_spike_point_in_line([8, 2, 3, 4, 5, 5, 4, 3, 2, 1], 4, process_range=(2, 8))
-        self.assertEqual(4, result)
+        result = find_spike_point_in_line(['属性', '属性', 3, 4, 5, 5, 4, 3, 2, '属性'], 4, process_range=(2, 8))
+        self.assertEqual(2, result)
 
     def test_get_cursor_of_spike_inverse_with_offset(self):
-        result = find_spike_point_in_line([1, 2, 3, 4, 5, 5, 4, 3, 2, 1], 4, process_range=(2, 8), reverse=True)
-        self.assertEqual(5, result)
+        result = find_spike_point_in_line(['属性', '属性', 3, 4, 5, 5, 4, 3, 2, '属性'], 4, process_range=(2, 8), reverse=True)
+        self.assertEqual(3, result)
 
     def test_get_cursor_of_spike_no_spike(self):
         result = find_spike_point_in_line([1, 2, 3, 4, 5, 5, 4, 3, 2, 1], 6, (0, 9))
-        self.assertEqual(9, result)
+        self.assertEqual(None, result)
 
 
 class TestAverageFill(TestCase):
