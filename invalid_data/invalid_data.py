@@ -168,7 +168,7 @@ if __name__ == "__main__":
 
     os.makedirs(name='output', exist_ok=True)
 
-    print('エラー値の補正あり版：')
+    print('\nエラー値の補正あり版：')
     df = pd.DataFrame(find_invalid_records(df_csv, apply_adjustment=True))
     try:
         df.to_csv(save_path, encoding='shift-jis', header=False, index=False)
