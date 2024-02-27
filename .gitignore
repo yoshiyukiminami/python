@@ -10,3 +10,5 @@ workspace.xml
 usage.statistics.xml
 tasks.xml
 /soil_analysis/node_modules/
+/invalid_data/output/*
+!/invalid_data/output/.gitkeep
