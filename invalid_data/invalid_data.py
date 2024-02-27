@@ -4,6 +4,9 @@ import numpy as np
 import pandas as pd
 
 
+INVALID_DATA_VALUE = 232
+
+
 def iterate_and_find_exceeded_threshold_in_line(line_slice: list, threshold: int) -> int | None:
     """
     データ（行）を順に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す。
@@ -48,8 +51,6 @@ def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
     :param start_position: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
     :return: 修正後の line
     """
-    print('start_position: ', start_position)
-    print(line)
     if start_position is not None:
         idx = {
             'mean1': 0,  # 平均の材料1
@@ -107,59 +108,70 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     return line
 
 
-def find_invalid_data(file_path: str, apply_adjustment: bool):
-    """
-    shift-jisを前提としたcsvを読み込み、不正値（under_threshold）を含む行をlistで返す\n
-    step1: 深度60cmからマイナス方向に、232を初めて超える列までを1行あたりの処理範囲とする\n
-    step2: 深度1cmからプラス方向に、232を初めて超える列以降の列を1行あたりの処理範囲とする\n
-    step3-A: 定まった処理範囲のなかで232が見つかったらエラー行情報として返却する\n
-    step3-B: 定まった処理範囲のなかで232が見つかったら両サイドの平均値で埋める（1行の中で複数発生することもある）\n
-    :param file_path: CSVパス
-    :param apply_adjustment: 無効値の補正を行う場合は True にする
-    :return: apply_adjustment が False の場合はエラーリストを、Trueの場合は補正済みのデータを返す
-    """
-    under_threshold = 232
-    df_csv = pd.read_csv(file_path, encoding='shift-jis')
+def manage_invalid_values_with_adjustment(line, first_col_in_a_line, offset, records):
+    if first_col_in_a_line is not None:
+        records.append(average_fill(list(line), INVALID_DATA_VALUE, offset[0] + first_col_in_a_line))
+    else:
+        records.append(list(line))
 
-    # output フォルダがなければ作成
-    os.makedirs(name='./output', exist_ok=True)
 
-    records = [] if not apply_adjustment else [list(df_csv.columns)]
-    for i, line in enumerate(df_csv.itertuples(index=False)):
-        # 数値部分だけ（'圧力[kPa]1cm'～'圧力[kPa]60cm'）のスライスデータにします（通常は 12, 71）
-        offset = (df_csv.columns.get_loc('圧力[kPa]1cm'), df_csv.columns.get_loc('圧力[kPa]60cm'))
-        first_col_in_a_line = find_spike_point_in_line(list(line), under_threshold, offset, False)
-        end_col_in_a_line = find_spike_point_in_line(list(line), under_threshold, offset, True)
+def manage_invalid_values_without_adjustment(i, line, first_col_in_a_line, end_col_in_a_line, records):
+    if first_col_in_a_line == end_col_in_a_line is None:
+        records.append([
+            str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"])
+        return
+    # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
+    line = line[first_col_in_a_line:end_col_in_a_line + 1]
+    for col, cell in enumerate(line):
+        if cell == INVALID_DATA_VALUE:
+            records.append([str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} が含まれています"])
+            break
+
+
+def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_directory: str = './output'):
+    """
+    この関数は 'shift-jis' でエンコードされたCSVファイルを読み込み、INVALID_DATA_VALUEを含む無効な行をチェックします。
+    これらが見つかった場合、それらをリストとして返します。 apply_adjustment フラグが設定されている場合、
+    この関数は見つかった任意の無効な値を、隣接する値の平均で置き換えます。
+
+    :param data: CSVから読み込まれた DataFrame
+    :param apply_adjustment: True の場合、無効な値に対して補正が行われます
+    :param output_directory: 出力ファイルが保存されるディレクトリ
+    :return: apply_adjustmentがFalseの場合、無効な行のリストを返します。それ以外の場合、補正された値を持つ DataFrame を返します
+    """
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    records = [] if not apply_adjustment else [list(data.columns)]
+    for i, line in enumerate(data.itertuples(index=False)):
+        offset = (data.columns.get_loc('圧力[kPa]1cm'), data.columns.get_loc('圧力[kPa]60cm'))
+        first_col_in_a_line = find_spike_point_in_line(list(line), INVALID_DATA_VALUE, offset, False)
+        end_col_in_a_line = find_spike_point_in_line(list(line), INVALID_DATA_VALUE, offset, True)
+
         if not apply_adjustment:
-            if first_col_in_a_line == end_col_in_a_line is None:
-                records.append([
-                    str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} のみで構成されています。確認してください"])
-                continue
-            # 両端の 232 を除外したスライスデータにします
-            line = line[first_col_in_a_line:end_col_in_a_line + 1]
-            for col, cell in enumerate(line):
-                if cell == under_threshold:
-                    records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} が含まれています"])
-                    break
+            manage_invalid_values_without_adjustment(i, line, first_col_in_a_line, end_col_in_a_line, records)
         else:
-            if first_col_in_a_line is not None:
-                records.append(average_fill(list(line), under_threshold, offset[0] + first_col_in_a_line))
-            else:
-                records.append(list(line))
+            manage_invalid_values_with_adjustment(line, first_col_in_a_line, offset, records)
 
     return records
 
 
 if __name__ == "__main__":
-    print('エラー値調整なし版：')
-    errors = find_invalid_data('data_sample_error-disp-on.csv', apply_adjustment=False)
+    data_sample_path = 'data_sample_error-disp-on.csv'
+    save_path = 'output/processed_data.csv'
+    df_csv = pd.read_csv(data_sample_path, encoding='shift-jis')
+
+    print('エラー値の補正なし版（コンソールに出力するだけ）：')
+    errors = find_invalid_records(df_csv, apply_adjustment=False)
     for error in errors:
         print(error.pop())
 
-    print('エラー値調整あり版：')
-    df = pd.DataFrame(find_invalid_data('data_sample_error-disp-on.csv', apply_adjustment=True))
+    os.makedirs(name='output', exist_ok=True)
+
+    print('エラー値の補正あり版：')
+    df = pd.DataFrame(find_invalid_records(df_csv, apply_adjustment=True))
     try:
-        df.to_csv('output/processed_data.csv', encoding='shift-jis', header=False, index=False)
-        print('output/processed_data.csv に出力が完了しました')
+        df.to_csv(save_path, encoding='shift-jis', header=False, index=False)
+        print(f'{save_path} に出力が完了しました')
     except PermissionError:
         print('※ファイルが使用中のため、CSV出力に失敗しました')
