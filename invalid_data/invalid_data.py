@@ -83,11 +83,23 @@ class FillingIndexes:
 
 def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
     """
-    補完開始位置と終了位置を認識して、返し縫いのように平均値で埋めていく
-    :param line: 補正される対象（1行分のデータ）
-    :param threshold: スパイク判定基準
-    :param start_position: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
-    :return: 修正後の line
+    :param line: 数値のリストで表現されたデータ行
+    :param threshold: 無効な値を決定するために使用する閾値
+    :param start_position: 無効な値のチェックを開始する行の開始位置
+    :return: 無効な値が周りの有効な値の平均で置き換えられ、修正された数値のリスト
+
+    このメソッドは、数値のリストとして表現されたデータ行を取り、無効な値（閾値を超える値）を周囲の有効な値の平均で置き換えます。閾値は値が無効であるかどうかを判断するために使用されます。
+    start_positionが指定されている場合、その行のインデックスから無効な値のチェックを開始します。
+
+    このメソッドは、行内の複数の無効な値を処理するために再帰を使用します。無効な値が見つかると、メソッドは前後の有効な値の平均を計算し、
+    その無効な値を計算した平均で置き換えます。次に、それ自体を再帰的に呼び出し、置き換えた値のインデックスから開始して、さらに無効な値をチェックします。
+    このメソッドは、すべての無効な値がその平均で置き換えられ、修正された数値のリストを返します。
+
+    Example usage:
+        line = [1334, 232, 232, 1360]
+        threshold = 232
+        result = average_fill(line, threshold)
+        print(result)  # Output: [1334, 1347.0, 1347.0, 1360]
     """
     if start_position is not None:
         idx = FillingIndexes()
@@ -110,10 +122,11 @@ def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
 
 def linear_fill(line: list, start_position: int = 0) -> list:
     """
-    補完開始位置と終了位置を認識して、返し縫いのように線形回帰で埋めていく
-    :param line: 補正される対象（1行分のデータ）
-    :param start_position: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
-    :return: 修正後の line
+    指定された行にある欠損値を線形補間を使用して埋めます
+
+    :param line: 欠損値を埋める対象の行
+    :param start_position: 欠損値の補間を開始する位置（再帰的に変わる）
+    :return: 線形補間を用いて欠損値が補完された行
     """
     if start_position is not None:
         idx = FillingIndexes()
@@ -147,27 +160,26 @@ def manage_invalid_values_with_adjustment(line, record_validator: RangeExtractor
 
 def manage_invalid_values_without_adjustment(i, line, record_validator: RangeExtractor, records):
     if record_validator.punch_range.start_pos == record_validator.punch_range.end_pos is None:
-        records.append([
-            str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"])
+        invalid_data_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"
+        records.append([invalid_data_message])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
     line = line[record_validator.punch_range.start_pos:record_validator.punch_range.end_pos + 1]
     for col, cell in enumerate(line):
         if cell == INVALID_DATA_VALUE:
-            records.append([str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} が含まれています"])
+            invalid_data_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています"
+            records.append([invalid_data_message])
             break
 
 
 def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_directory: str = './output'):
     """
-    この関数は 'shift-jis' でエンコードされたCSVファイルを読み込み、INVALID_DATA_VALUEを含む無効な行をチェックします。
-    これらが見つかった場合、それらをリストとして返します。 apply_adjustment フラグが設定されている場合、
-    この関数は見つかった任意の無効な値を、隣接する値の平均で置き換えます。
+    指定されたデータ内で無効なレコードを見つけ、apply_adjustment が指定された場合には補正を適用します
 
-    :param data: CSVから読み込まれた DataFrame
-    :param apply_adjustment: True の場合、無効な値に対して補正が行われます
-    :param output_directory: 出力ファイルが保存されるディレクトリ
-    :return: apply_adjustmentがFalseの場合、無効な行のリストを返します。それ以外の場合、補正された値を持つ DataFrame を返します
+    :param data: 検証するレコードを含むデータフレーム
+    :param apply_adjustment: 無効なレコードに補正を適用するかどうか
+    :param output_directory: 出力ファイルを保存するディレクトリ
+    :return: 出力レコードのリスト
     """
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
