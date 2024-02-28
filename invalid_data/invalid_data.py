@@ -3,44 +3,74 @@ import os
 import numpy as np
 import pandas as pd
 
-
 INVALID_DATA_VALUE = 232
 
 
-def iterate_and_find_exceeded_threshold_in_line(line_slice: list, threshold: int) -> int | None:
-    """
-    データ（行）を順に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す。
-    :param line_slice: データの行 (スライス)。
-    :param threshold: 値がこれを超えたら"spike"と見なす。
-    :return: 閾値を超えた最初の位置。
-    """
-    for i, value in enumerate(line_slice):
-        if value > threshold:
-            return i
-    return None
+class DataRange:
+    def __init__(self, start_pos, end_pos):
+        self.start_pos = start_pos
+        self.end_pos = end_pos
 
 
-def find_spike_point_in_line(line: list, threshold: int, process_range: tuple, reverse: bool = False) -> int | None:
-    """
-    指定した範囲内のデータ（行）を順（または逆順）に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す
-    :param line: データの行
-    :param threshold: 値がこれを超えたら"spike"とみなす
-    :param process_range: 調査の開始位置と終了位置
-    :param reverse: このフラグがTrueならば逆順にデータを調査する
-    :return: 閾値を超えた最初の位置
-    """
-    from_index, to_index = process_range
-    line_slice = line[from_index:to_index]  # Slice early to only include relevant data
+class NumericRange(DataRange):
+    def __str__(self):
+        return f"NumericRange(start={self.start_pos}, end={self.end_pos})"
 
-    if reverse:
-        line_slice = line_slice[::-1]  # Only reverse the slice if needed
 
-    exceeded_index = iterate_and_find_exceeded_threshold_in_line(line_slice, threshold)
+class PunchRange(DataRange):
+    def __str__(self):
+        return f"PunchRange(start={self.start_pos}, end={self.end_pos})"
 
-    if reverse and exceeded_index is not None:
-        exceeded_index = len(line_slice) - exceeded_index - 1  # Adjust index if reversed
 
-    return exceeded_index
+class RecordValidator:
+    def __init__(self, row: pd.Series):
+        self.row = row
+        self.numeric_range = None
+        self.punch_range = None
+        self.extract_data_ranges()
+
+    def extract_data_ranges(self):
+        self.numeric_range = NumericRange(self.row.index.get_loc('圧力[kPa]1cm'),
+                                          self.row.index.get_loc('圧力[kPa]60cm'))
+        self.punch_range = PunchRange(
+            self.find_spike_point_in_line(list(self.row), INVALID_DATA_VALUE, self.numeric_range, False),
+            self.find_spike_point_in_line(list(self.row), INVALID_DATA_VALUE, self.numeric_range, True)
+        )
+
+    def find_spike_point_in_line(self, line: list, threshold: int, process_range: NumericRange,
+                                 reverse: bool = False) -> int | None:
+        """
+        指定した範囲内のデータ（行）を順（または逆順）に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す
+        :param line: データの行
+        :param threshold: 値がこれを超えたら"spike"とみなす
+        :param process_range: 調査の開始位置と終了位置
+        :param reverse: このフラグがTrueならば逆順にデータを調査する
+        :return: 閾値を超えた最初の位置
+        """
+        line_slice = line[process_range.start_pos:process_range.end_pos]
+
+        if reverse:
+            line_slice = line_slice[::-1]  # Only reverse the slice if needed
+
+        exceeded_index = self.iterate_and_find_exceeded_threshold_in_line(line_slice, threshold)
+
+        if reverse and exceeded_index is not None:
+            exceeded_index = len(line_slice) - exceeded_index - 1  # Adjust index if reversed
+
+        return exceeded_index
+
+    @staticmethod
+    def iterate_and_find_exceeded_threshold_in_line(line_slice: list, threshold: int) -> int | None:
+        """
+        データ（行）を順に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す。
+        :param line_slice: データの行 (スライス)。
+        :param threshold: 値がこれを超えたら"spike"と見なす。
+        :return: 閾値を超えた最初の位置。
+        """
+        for i, value in enumerate(line_slice):
+            if value > threshold:
+                return i
+        return None
 
 
 def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
@@ -83,6 +113,7 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     :return: 修正後の line
     """
     if start_position is not None:
+        # TODO: リソース（クラス化）にして型安全にしたいね
         idx = {
             'mean1': 0,  # 平均の材料1
             'punch_in': 0,
@@ -108,20 +139,22 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     return line
 
 
-def manage_invalid_values_with_adjustment(line, first_col_in_a_line, offset, records):
-    if first_col_in_a_line is not None:
-        records.append(average_fill(list(line), INVALID_DATA_VALUE, offset[0] + first_col_in_a_line))
+def manage_invalid_values_with_adjustment(line, record_validator: RecordValidator, records):
+    if record_validator.punch_range.start_pos is not None:
+        # TODO: ここはいま average_fill しかできないので process.type みたいなので選択できるといいと思う
+        start_pos = record_validator.numeric_range.start_pos + record_validator.punch_range.start_pos
+        records.append(average_fill(list(line), INVALID_DATA_VALUE, start_pos))
     else:
-        records.append(list(line))
+        records.append(list(line))  # このケースは「すべて232」のケース
 
 
-def manage_invalid_values_without_adjustment(i, line, first_col_in_a_line, end_col_in_a_line, records):
-    if first_col_in_a_line == end_col_in_a_line is None:
+def manage_invalid_values_without_adjustment(i, line, record_validator: RecordValidator, records):
+    if record_validator.punch_range.start_pos == record_validator.punch_range.end_pos is None:
         records.append([
             str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
-    line = line[first_col_in_a_line:end_col_in_a_line + 1]
+    line = line[record_validator.punch_range.start_pos:record_validator.punch_range.end_pos + 1]
     for col, cell in enumerate(line):
         if cell == INVALID_DATA_VALUE:
             records.append([str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} が含まれています"])
@@ -130,6 +163,7 @@ def manage_invalid_values_without_adjustment(i, line, first_col_in_a_line, end_c
 
 def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_directory: str = './output'):
     """
+    TODO: find_invalid_records は manage_... のふたつをクラス化してカプセル化できると思う
     この関数は 'shift-jis' でエンコードされたCSVファイルを読み込み、INVALID_DATA_VALUEを含む無効な行をチェックします。
     これらが見つかった場合、それらをリストとして返します。 apply_adjustment フラグが設定されている場合、
     この関数は見つかった任意の無効な値を、隣接する値の平均で置き換えます。
@@ -142,18 +176,15 @@ def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_dire
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    records = [] if not apply_adjustment else [list(data.columns)]
-    for i, line in enumerate(data.itertuples(index=False)):
-        offset = (data.columns.get_loc('圧力[kPa]1cm'), data.columns.get_loc('圧力[kPa]60cm'))
-        first_col_in_a_line = find_spike_point_in_line(list(line), INVALID_DATA_VALUE, offset, False)
-        end_col_in_a_line = find_spike_point_in_line(list(line), INVALID_DATA_VALUE, offset, True)
-
+    output_records = [] if not apply_adjustment else [list(data.columns)]
+    for i, row in data.iterrows():
+        record_validator = RecordValidator(row)
         if not apply_adjustment:
-            manage_invalid_values_without_adjustment(i, line, first_col_in_a_line, end_col_in_a_line, records)
+            manage_invalid_values_without_adjustment(i, row, record_validator, output_records)
         else:
-            manage_invalid_values_with_adjustment(line, first_col_in_a_line, offset, records)
+            manage_invalid_values_with_adjustment(row, record_validator, output_records)
 
-    return records
+    return output_records
 
 
 if __name__ == "__main__":
