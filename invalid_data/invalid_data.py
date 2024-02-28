@@ -3,128 +3,214 @@ import os
 import numpy as np
 import pandas as pd
 
-
-def get_cursor_of_spike(line: list, threshold: int, offset: tuple = None, inverse: bool = False) -> int:
-    """
-    list に対して direction 方向にloopして、 threshold を初めて超える列番号を返却
-    :param offset: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
-    :param line: スパイク検査される対象（1行分のデータ）
-    :param threshold: スパイク判定基準
-    :param inverse: 逆方向から見る場合に True にする
-    :return: threshold を初めて超える列番号
-    """
-    direction = 1 if not inverse else -1
-    adjusted_start_cursor = offset[0] if not inverse else offset[1]
-    adjusted_end_cursor = offset[1] if not inverse else offset[0]
-    for i, value in enumerate(line[adjusted_start_cursor:adjusted_end_cursor:direction]):
-        if value > threshold:
-            return adjusted_start_cursor + (i * direction)
-
-    return adjusted_end_cursor
+INVALID_DATA_VALUE = 232
 
 
-def back_stitch(line: list, threshold: int, offset: int = 0) -> list:
+class DataRange:
+    def __init__(self, start_pos, end_pos):
+        self.start_pos = start_pos
+        self.end_pos = end_pos
+
+
+class NumericRange(DataRange):
+    def __str__(self):
+        return f"NumericRange(start={self.start_pos}, end={self.end_pos})"
+
+
+class PunchRange(DataRange):
+    def __str__(self):
+        return f"PunchRange(start={self.start_pos}, end={self.end_pos})"
+
+
+class RangeExtractor:
+    def __init__(self, series: pd.Series):
+        self.raw = series
+        self.numeric_range = None
+        self.punch_range = None
+        self.extract_data_ranges()
+
+    def extract_data_ranges(self):
+        self.numeric_range = NumericRange(self.raw.index.get_loc('圧力[kPa]1cm'),
+                                          self.raw.index.get_loc('圧力[kPa]60cm'))
+        self.punch_range = PunchRange(
+            self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, False),
+            self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, True)
+        )
+
+    def find_spike_point_in_line(self, line: list, threshold: int, process_range: NumericRange,
+                                 reverse: bool = False) -> int | None:
+        """
+        指定した範囲内のデータ（行）を順（または逆順）に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す
+        :param line: データの行
+        :param threshold: 値がこれを超えたら"spike"とみなす
+        :param process_range: 調査の開始位置と終了位置
+        :param reverse: このフラグがTrueならば逆順にデータを調査する
+        :return: 閾値を超えた最初の位置
+        """
+        line_slice = line[process_range.start_pos:process_range.end_pos]
+
+        if reverse:
+            line_slice = line_slice[::-1]  # Only reverse the slice if needed
+
+        exceeded_index = self.iterate_and_find_exceeded_threshold_in_line(line_slice, threshold)
+
+        if reverse and exceeded_index is not None:
+            exceeded_index = len(line_slice) - exceeded_index - 1  # Adjust index if reversed
+
+        return exceeded_index
+
+    @staticmethod
+    def iterate_and_find_exceeded_threshold_in_line(line_slice: list, threshold: int) -> int | None:
+        """
+        データ（行）を順に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す。
+        :param line_slice: データの行 (スライス)。
+        :param threshold: 値がこれを超えたら"spike"と見なす。
+        :return: 閾値を超えた最初の位置。
+        """
+        for i, value in enumerate(line_slice):
+            if value > threshold:
+                return i
+        return None
+
+
+class FillingIndexes:
+    def __init__(self, part1_of_mean: int = 0, invalid_start: int = 0, invalid_end: int = 0, part2_of_mean: int = 0):
+        self.part1_of_mean = part1_of_mean
+        self.invalid_start = invalid_start
+        self.invalid_end = invalid_end
+        self.part2_of_mean = part2_of_mean
+
+
+def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
     """
-    返し縫いのように平均値で埋めていく
-    :param line: 補正される対象（1行分のデータ）
-    :param threshold: スパイク判定基準
-    :param offset: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
-    :return: 修正後の line
+    :param line: 数値のリストで表現されたデータ行
+    :param threshold: 無効な値を決定するために使用する閾値
+    :param start_position: 無効な値のチェックを開始する行の開始位置
+    :return: 無効な値が周りの有効な値の平均で置き換えられ、修正された数値のリスト
+
+    このメソッドは、数値のリストとして表現されたデータ行を取り、無効な値（閾値を超える値）を周囲の有効な値の平均で置き換えます。閾値は値が無効であるかどうかを判断するために使用されます。
+    start_positionが指定されている場合、その行のインデックスから無効な値のチェックを開始します。
+
+    このメソッドは、行内の複数の無効な値を処理するために再帰を使用します。無効な値が見つかると、メソッドは前後の有効な値の平均を計算し、
+    その無効な値を計算した平均で置き換えます。次に、それ自体を再帰的に呼び出し、置き換えた値のインデックスから開始して、さらに無効な値をチェックします。
+    このメソッドは、すべての無効な値がその平均で置き換えられ、修正された数値のリストを返します。
+
+    Example usage:
+        line = [1334, 232, 232, 1360]
+        threshold = 232
+        result = average_fill(line, threshold)
+        print(result)  # Output: [1334, 1347.0, 1347.0, 1360]
     """
-    if offset != len(line):
-        idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
+    if start_position is not None:
+        idx = FillingIndexes()
         punch_in = False
-        for col, value in enumerate(line[offset::]):
+        for col, value in enumerate(line[start_position::]):
             if not punch_in and value == threshold:
-                idx["mean1"] = offset + col - 1
-                idx["punch_in"] = offset + col
+                idx.part1_of_mean = start_position + col - 1
+                idx.invalid_start = start_position + col
                 punch_in = True
             if punch_in and value > threshold:
-                idx["punch_out"] = offset + col - 1
-                idx["mean2"] = offset + col
-                for j in range(idx["punch_in"], idx["punch_out"] + 1):
-                    line[j] = sum([line[idx["mean1"]], line[idx["mean2"]]]) / 2
-                line = back_stitch(line, threshold, idx["mean2"])
+                idx.invalid_end = start_position + col - 1
+                idx.part2_of_mean = start_position + col
+                for j in range(idx.invalid_start, idx.invalid_end + 1):
+                    line[j] = sum([line[idx.part1_of_mean], line[idx.part2_of_mean]]) / 2
+                line = average_fill(line, threshold, idx.part2_of_mean)
                 break
 
     return line
 
 
-def back_stitch2(line: list, offset: int = 0) -> list:
+def linear_fill(line: list, start_position: int = 0) -> list:
     """
-    返し縫いのように平均値で埋めていく
-    :param line: 補正される対象（1行分のデータ）
-    :param offset: カーソルの初期位置（例：100列処理するうち20列目から開始に19を指定）
-    :return: 修正後の line
+    指定された行にある欠損値を線形補間を使用して埋めます
+
+    :param line: 欠損値を埋める対象の行
+    :param start_position: 欠損値の補間を開始する位置（再帰的に変わる）
+    :return: 線形補間を用いて欠損値が補完された行
     """
-    if offset != len(line):
-        idx = {}  # [平均材料1, 修正パンチイン, 修正パンチアウト, 平均材料2]
+    if start_position is not None:
+        idx = FillingIndexes()
         punch_in = False
-        for col, value in enumerate(line[offset::]):
+        for col, value in enumerate(line[start_position::]):
             if not punch_in and np.isnan(value):
-                idx["mean1"] = offset + col - 1
-                idx["punch_in"] = offset + col
+                idx.part1_of_mean = start_position + col - 1
+                idx.invalid_start = start_position + col
                 punch_in = True
             if punch_in and not np.isnan(value):
-                idx["punch_out"] = offset + col - 1
-                idx["mean2"] = offset + col
-                how_many_times = max(idx["mean1"], idx["mean2"]) - min(idx["mean1"], idx["mean2"]) + 1
-                tolerance = np.linspace(line[idx["mean1"]], line[idx["mean2"]], how_many_times)
+                idx.invalid_end = start_position + col - 1
+                idx.part2_of_mean = start_position + col
+                how_many_times = idx.part2_of_mean - idx.part1_of_mean + 1
+                tolerance = np.linspace(line[idx.part1_of_mean], line[idx.part2_of_mean], how_many_times)
                 for i, n_value in enumerate(tolerance):
-                    line[idx["mean1"] + i] = n_value
-                line = back_stitch2(line, idx["mean2"])
+                    line[idx.part1_of_mean + i] = n_value
+                line = linear_fill(line, idx.part2_of_mean)
                 break
 
     return line
 
 
-def find_invalid_data(file_path: str, adjustment: bool):
-    """
-    shift-jisを前提としたcsvを読み込み、不正値（under_threshold）を含む行をlistで返す\n
-    step1: 深度60cmからマイナス方向に、232を初めて超える列までを1行あたりの処理範囲とする\n
-    step2: 深度1cmからプラス方向に、232を初めて超える列以降の列を1行あたりの処理範囲とする\n
-    step3-A: 定まった処理範囲のなかで232が見つかったらエラー行情報として返却する\n
-    step3-B: 定まった処理範囲のなかで232が見つかったら両サイドの平均値で埋める（1行の中で複数発生することもある）\n
-    :param file_path: CSVパス
-    :param adjustment: 無効値の補正を行う場合はTrueにする
-    :return: adjustment が False の場合はエラーリストを、Trueの場合は補正後のデータを返す
-    """
-    under_threshold = 232
-    df_csv = pd.read_csv(file_path, encoding='shift-jis')
+def manage_invalid_values_with_adjustment(line, record_validator: RangeExtractor, records):
+    if record_validator.punch_range.start_pos is not None:
+        # TODO: ここはいま average_fill しかできないので process.type みたいなので選択できるといいと思う
+        start_pos = record_validator.numeric_range.start_pos + record_validator.punch_range.start_pos
+        records.append(average_fill(list(line), INVALID_DATA_VALUE, start_pos))
+    else:
+        records.append(list(line))  # このケースは「すべて232」のケース
 
-    # output フォルダがなければ作成
-    os.makedirs(name='./output', exist_ok=True)
 
-    records = [] if not adjustment else [list(df_csv.columns)]
-    for i, line in enumerate(df_csv.itertuples(index=False)):
-        offset = (df_csv.columns.get_loc('圧力[kPa]1cm'), df_csv.columns.get_loc('圧力[kPa]60cm'))
-        first_col_in_a_line = get_cursor_of_spike(line, under_threshold, offset, False)
-        end_col_in_a_line = get_cursor_of_spike(line, under_threshold, offset, True)
-        if not adjustment:
-            line = line[first_col_in_a_line:end_col_in_a_line + 1]  # slice の end は "未満" なので注意する
-            if len(line) == 0:
-                records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} のみで構成されています。確認してください"])
-                continue
-            for col, cell in enumerate(line):
-                if cell == under_threshold:
-                    records.append([str(i + 1) + f"行目のデータは無効なデータ値 {under_threshold} が含まれています"])
-                    break
+def manage_invalid_values_without_adjustment(i, line, record_validator: RangeExtractor, records):
+    if record_validator.punch_range.start_pos == record_validator.punch_range.end_pos is None:
+        invalid_data_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"
+        records.append([invalid_data_message])
+        return
+    # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
+    line = line[record_validator.punch_range.start_pos:record_validator.punch_range.end_pos + 1]
+    for col, cell in enumerate(line):
+        if cell == INVALID_DATA_VALUE:
+            invalid_data_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています"
+            records.append([invalid_data_message])
+            break
+
+
+def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_directory: str = './output'):
+    """
+    指定されたデータ内で無効なレコードを見つけ、apply_adjustment が指定された場合には補正を適用します
+
+    :param data: 検証するレコードを含むデータフレーム
+    :param apply_adjustment: 無効なレコードに補正を適用するかどうか
+    :param output_directory: 出力ファイルを保存するディレクトリ
+    :return: 出力レコードのリスト
+    """
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    output_records = [] if not apply_adjustment else [list(data.columns)]
+    for i, row in data.iterrows():
+        record_validator = RangeExtractor(row)
+        if not apply_adjustment:
+            manage_invalid_values_without_adjustment(i, row, record_validator, output_records)
         else:
-            records.append(back_stitch(list(line), under_threshold, first_col_in_a_line))
+            manage_invalid_values_with_adjustment(row, record_validator, output_records)
 
-    return records
+    return output_records
 
 
 if __name__ == "__main__":
-    print('エラー値調整なし版：')
-    errors = find_invalid_data('data_sample_error-disp-on.csv', adjustment=False)
+    data_sample_path = 'data_sample_error-disp-on.csv'
+    save_path = 'output/processed_data.csv'
+    df_csv = pd.read_csv(data_sample_path, encoding='shift-jis')
+
+    print('エラー値の補正なし版（コンソールに出力するだけ）：')
+    errors = find_invalid_records(df_csv, apply_adjustment=False)
     for error in errors:
         print(error.pop())
 
-    print('エラー値調整あり版：')
-    df = pd.DataFrame(find_invalid_data('data_sample_error-disp-on.csv', adjustment=True))
+    os.makedirs(name='output', exist_ok=True)
+
+    print('\nエラー値の補正あり版：')
+    df = pd.DataFrame(find_invalid_records(df_csv, apply_adjustment=True))
     try:
-        df.to_csv('output/processed_data.csv', encoding='shift-jis', header=False, index=False)
-        print('output/processed_data.csv に出力が完了しました')
+        df.to_csv(save_path, encoding='shift-jis', header=False, index=False)
+        print(f'{save_path} に出力が完了しました')
     except PermissionError:
         print('※ファイルが使用中のため、CSV出力に失敗しました')
