@@ -73,6 +73,14 @@ class RangeExtractor:
         return None
 
 
+class FillingIndexes:
+    def __init__(self, part1_of_mean: int = 0, invalid_start: int = 0, invalid_end: int = 0, part2_of_mean: int = 0):
+        self.part1_of_mean = part1_of_mean
+        self.invalid_start = invalid_start
+        self.invalid_end = invalid_end
+        self.part2_of_mean = part2_of_mean
+
+
 def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
     """
     補完開始位置と終了位置を認識して、返し縫いのように平均値で埋めていく
@@ -82,24 +90,19 @@ def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
     :return: 修正後の line
     """
     if start_position is not None:
-        idx = {
-            'mean1': 0,  # 平均の材料1
-            'punch_in': 0,
-            'punch_out': 0,
-            'mean2': 0  # 平均の材料2
-        }
+        idx = FillingIndexes()
         punch_in = False
         for col, value in enumerate(line[start_position::]):
             if not punch_in and value == threshold:
-                idx["mean1"] = start_position + col - 1
-                idx["punch_in"] = start_position + col
+                idx.part1_of_mean = start_position + col - 1
+                idx.invalid_start = start_position + col
                 punch_in = True
             if punch_in and value > threshold:
-                idx["punch_out"] = start_position + col - 1
-                idx["mean2"] = start_position + col
-                for j in range(idx["punch_in"], idx["punch_out"] + 1):
-                    line[j] = sum([line[idx["mean1"]], line[idx["mean2"]]]) / 2
-                line = average_fill(line, threshold, idx["mean2"])
+                idx.invalid_end = start_position + col - 1
+                idx.part2_of_mean = start_position + col
+                for j in range(idx.invalid_start, idx.invalid_end + 1):
+                    line[j] = sum([line[idx.part1_of_mean], line[idx.part2_of_mean]]) / 2
+                line = average_fill(line, threshold, idx.part2_of_mean)
                 break
 
     return line
@@ -113,27 +116,21 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     :return: 修正後の line
     """
     if start_position is not None:
-        # TODO: リソース（クラス化）にして型安全にしたいね
-        idx = {
-            'mean1': 0,  # 平均の材料1
-            'punch_in': 0,
-            'punch_out': 0,
-            'mean2': 0  # 平均の材料2
-        }
+        idx = FillingIndexes()
         punch_in = False
         for col, value in enumerate(line[start_position::]):
             if not punch_in and np.isnan(value):
-                idx["mean1"] = start_position + col - 1
-                idx["punch_in"] = start_position + col
+                idx.part1_of_mean = start_position + col - 1
+                idx.invalid_start = start_position + col
                 punch_in = True
             if punch_in and not np.isnan(value):
-                idx["punch_out"] = start_position + col - 1
-                idx["mean2"] = start_position + col
-                how_many_times = max(idx["mean1"], idx["mean2"]) - min(idx["mean1"], idx["mean2"]) + 1
-                tolerance = np.linspace(line[idx["mean1"]], line[idx["mean2"]], how_many_times)
+                idx.invalid_end = start_position + col - 1
+                idx.part2_of_mean = start_position + col
+                how_many_times = idx.part2_of_mean - idx.part1_of_mean + 1
+                tolerance = np.linspace(line[idx.part1_of_mean], line[idx.part2_of_mean], how_many_times)
                 for i, n_value in enumerate(tolerance):
-                    line[idx["mean1"] + i] = n_value
-                line = linear_fill(line, idx["mean2"])
+                    line[idx.part1_of_mean + i] = n_value
+                line = linear_fill(line, idx.part2_of_mean)
                 break
 
     return line
@@ -163,7 +160,6 @@ def manage_invalid_values_without_adjustment(i, line, record_validator: RangeExt
 
 def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_directory: str = './output'):
     """
-    TODO: find_invalid_records は manage_... のふたつをクラス化してカプセル化できると思う
     この関数は 'shift-jis' でエンコードされたCSVファイルを読み込み、INVALID_DATA_VALUEを含む無効な行をチェックします。
     これらが見つかった場合、それらをリストとして返します。 apply_adjustment フラグが設定されている場合、
     この関数は見つかった任意の無効な値を、隣接する値の平均で置き換えます。
