@@ -14,7 +14,7 @@ class TestRecordValidator(TestCase):
         labels = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
                   '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
         record_validator = RecordValidator(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.row), INVALID_DATA_VALUE,
+        result = record_validator.find_spike_point_in_line(list(record_validator.raw), INVALID_DATA_VALUE,
                                                            record_validator.numeric_range)
         self.assertEqual(5, result)
 
@@ -23,7 +23,7 @@ class TestRecordValidator(TestCase):
         labels = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
                   '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
         record_validator = RecordValidator(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.row), INVALID_DATA_VALUE,
+        result = record_validator.find_spike_point_in_line(list(record_validator.raw), INVALID_DATA_VALUE,
                                                            record_validator.numeric_range, reverse=True)
         self.assertEqual(7, result)
 
@@ -32,7 +32,7 @@ class TestRecordValidator(TestCase):
         labels = ['取引先名', '住所', '圧力[kPa]1cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
                   '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]60cm', '圧力[kPa]100cm']
         record_validator = RecordValidator(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.row),
+        result = record_validator.find_spike_point_in_line(list(record_validator.raw),
                                                            INVALID_DATA_VALUE,
                                                            record_validator.numeric_range)
         self.assertEqual(2, result)
@@ -42,7 +42,7 @@ class TestRecordValidator(TestCase):
         labels = ['取引先名', '住所', '圧力[kPa]1cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
                   '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]60cm', '圧力[kPa]100cm']
         record_validator = RecordValidator(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.row),
+        result = record_validator.find_spike_point_in_line(list(record_validator.raw),
                                                            INVALID_DATA_VALUE,
                                                            record_validator.numeric_range,
                                                            reverse=True)
@@ -53,7 +53,7 @@ class TestRecordValidator(TestCase):
         labels = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
                   '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
         record_validator = RecordValidator(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.row), INVALID_DATA_VALUE,
+        result = record_validator.find_spike_point_in_line(list(record_validator.raw), INVALID_DATA_VALUE,
                                                            record_validator.numeric_range)
         self.assertEqual(None, result)
 

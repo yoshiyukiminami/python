@@ -24,17 +24,17 @@ class PunchRange(DataRange):
 
 class RecordValidator:
     def __init__(self, row: pd.Series):
-        self.row = row
+        self.raw = row
         self.numeric_range = None
         self.punch_range = None
         self.extract_data_ranges()
 
     def extract_data_ranges(self):
-        self.numeric_range = NumericRange(self.row.index.get_loc('圧力[kPa]1cm'),
-                                          self.row.index.get_loc('圧力[kPa]60cm'))
+        self.numeric_range = NumericRange(self.raw.index.get_loc('圧力[kPa]1cm'),
+                                          self.raw.index.get_loc('圧力[kPa]60cm'))
         self.punch_range = PunchRange(
-            self.find_spike_point_in_line(list(self.row), INVALID_DATA_VALUE, self.numeric_range, False),
-            self.find_spike_point_in_line(list(self.row), INVALID_DATA_VALUE, self.numeric_range, True)
+            self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, False),
+            self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, True)
         )
 
     def find_spike_point_in_line(self, line: list, threshold: int, process_range: NumericRange,
