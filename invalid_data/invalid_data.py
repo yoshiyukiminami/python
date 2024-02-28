@@ -22,9 +22,9 @@ class PunchRange(DataRange):
         return f"PunchRange(start={self.start_pos}, end={self.end_pos})"
 
 
-class RecordValidator:
-    def __init__(self, row: pd.Series):
-        self.raw = row
+class RangeExtractor:
+    def __init__(self, series: pd.Series):
+        self.raw = series
         self.numeric_range = None
         self.punch_range = None
         self.extract_data_ranges()
@@ -139,7 +139,7 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     return line
 
 
-def manage_invalid_values_with_adjustment(line, record_validator: RecordValidator, records):
+def manage_invalid_values_with_adjustment(line, record_validator: RangeExtractor, records):
     if record_validator.punch_range.start_pos is not None:
         # TODO: ここはいま average_fill しかできないので process.type みたいなので選択できるといいと思う
         start_pos = record_validator.numeric_range.start_pos + record_validator.punch_range.start_pos
@@ -148,7 +148,7 @@ def manage_invalid_values_with_adjustment(line, record_validator: RecordValidato
         records.append(list(line))  # このケースは「すべて232」のケース
 
 
-def manage_invalid_values_without_adjustment(i, line, record_validator: RecordValidator, records):
+def manage_invalid_values_without_adjustment(i, line, record_validator: RangeExtractor, records):
     if record_validator.punch_range.start_pos == record_validator.punch_range.end_pos is None:
         records.append([
             str(i + 1) + f"行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"])
@@ -178,7 +178,7 @@ def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_dire
 
     output_records = [] if not apply_adjustment else [list(data.columns)]
     for i, row in data.iterrows():
-        record_validator = RecordValidator(row)
+        record_validator = RangeExtractor(row)
         if not apply_adjustment:
             manage_invalid_values_without_adjustment(i, row, record_validator, output_records)
         else:
