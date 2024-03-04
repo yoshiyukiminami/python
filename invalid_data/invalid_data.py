@@ -58,17 +58,17 @@ class RangeExtractor:
         else:
             self.hard_pan_range = self.numeric_range
 
-    def find_spike_point_in_line(self, line: list, threshold: int, process_range: NumericRange,
+    def find_spike_point_in_line(self, line: list, threshold: int, numeric_range: NumericRange,
                                  reverse: bool = False) -> int | None:
         """
         指定した範囲内のデータ（行）を順（または逆順）に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す
         :param line: データの行
         :param threshold: 値がこれを超えたら"spike"とみなす
-        :param process_range: 調査の開始位置と終了位置
+        :param numeric_range: 調査の開始位置と終了位置
         :param reverse: このフラグがTrueならば逆順にデータを調査する
         :return: 閾値を超えた最初の位置
         """
-        line_slice = line[process_range.start_pos:process_range.end_pos + 1]
+        line_slice = line[numeric_range.start_pos:numeric_range.end_pos + 1]
 
         if reverse:
             line_slice = line_slice[::-1]  # Only reverse the slice if needed
@@ -170,26 +170,27 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     return line
 
 
-def manage_invalid_values_with_adjustment(line, record_validator: RangeExtractor, records):
-    if record_validator.punch_range.start_pos is not None:
-        # TODO: ここはいま average_fill しかできないので process.type みたいなので選択できるといいと思う
-        start_pos = record_validator.numeric_range.start_pos + record_validator.punch_range.start_pos
-        records.append(average_fill(list(line), INVALID_DATA_VALUE, start_pos))
+def manage_invalid_values_with_adjustment(series: pd.Series, range_extractor: RangeExtractor, output_records: list):
+    if range_extractor.punch_range.is_both_not_none():
+        # TODO: ここはいまで average_fill を実行するので process.type みたいなので選択できるといいと思う
+        start_pos = range_extractor.numeric_range.start_pos + range_extractor.punch_range.start_pos
+        output_records.append(average_fill(list(series), INVALID_DATA_VALUE, start_pos))
     else:
-        records.append(list(line))  # このケースは「すべて232」のケース
+        output_records.append(list(series))  # このケースは「すべて232」のケース
 
 
-def manage_invalid_values_without_adjustment(i, line, record_validator: RangeExtractor, records):
-    if record_validator.punch_range.start_pos == record_validator.punch_range.end_pos is None:
-        invalid_data_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"
-        records.append([invalid_data_message])
+def manage_invalid_values_without_adjustment(i, series: pd.Series, range_extractor: RangeExtractor,
+                                             output_records: list):
+    if range_extractor.punch_range.start_pos == range_extractor.punch_range.end_pos is None:
+        error_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"
+        output_records.append([error_message])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
-    line = line[record_validator.punch_range.start_pos:record_validator.punch_range.end_pos + 1]
+    line = series[range_extractor.punch_range.start_pos:range_extractor.punch_range.end_pos + 1]
     for col, cell in enumerate(line):
         if cell == INVALID_DATA_VALUE:
-            invalid_data_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています"
-            records.append([invalid_data_message])
+            error_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています"
+            output_records.append([error_message])
             break
 
 
@@ -207,11 +208,11 @@ def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_dire
 
     output_records = [] if not apply_adjustment else [list(data.columns)]
     for i, row in data.iterrows():
-        record_validator = RangeExtractor(row)
+        range_extractor = RangeExtractor(row)
         if not apply_adjustment:
-            manage_invalid_values_without_adjustment(i, row, record_validator, output_records)
+            manage_invalid_values_without_adjustment(i, row, range_extractor, output_records)
         else:
-            manage_invalid_values_with_adjustment(row, record_validator, output_records)
+            manage_invalid_values_with_adjustment(row, range_extractor, output_records)
 
     return output_records
 
