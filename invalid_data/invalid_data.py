@@ -49,8 +49,8 @@ class RangeExtractor:
         self.numeric_range = NumericRange(self.raw.index.get_loc('圧力[kPa]1cm'),
                                           self.raw.index.get_loc('圧力[kPa]60cm'))
         intercept = self.raw.index.get_loc('圧力[kPa]1cm')
-        spike_point_start = self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, False)
-        spike_point_end = self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, True)
+        spike_point_start = self.find_spike_point_in_line(INVALID_DATA_VALUE, False)
+        spike_point_end = self.find_spike_point_in_line(INVALID_DATA_VALUE, True)
         if spike_point_start is not None:
             spike_point_start += intercept
         if spike_point_end is not None:
@@ -62,17 +62,14 @@ class RangeExtractor:
         else:
             self.hard_pan_range = self.numeric_range
 
-    def find_spike_point_in_line(self, line: list, threshold: int, numeric_range: NumericRange,
-                                 reverse: bool = False) -> int | None:
+    def find_spike_point_in_line(self,  threshold: int, reverse: bool = False) -> int | None:
         """
         指定した範囲内のデータ（行）を順（または逆順）に調べ、閾値（threshold）を超える値が見つかった最初の位置を返す
-        :param line: データの行
         :param threshold: 値がこれを超えたら"spike"とみなす
-        :param numeric_range: 調査の開始位置と終了位置
         :param reverse: このフラグがTrueならば逆順にデータを調査する
         :return: 閾値を超えた最初の位置
         """
-        line_slice = line[numeric_range.start_pos:numeric_range.end_pos + 1]
+        line_slice = self.raw.iloc[self.numeric_range.start_pos:self.numeric_range.end_pos + 1]
 
         if reverse:
             line_slice = line_slice[::-1]
