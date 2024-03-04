@@ -18,6 +18,7 @@ class TestRecordValidator(TestCase):
         range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
         self.assertEqual(1, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE))
         self.assertEqual(4, range_extractor.punch_range.length)
+        self.assertEqual(5, range_extractor.hard_pan_range.start_pos)
         self.assertEqual(5, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_reverse_no_offset_with_invalid_value_on_left(self):
@@ -25,13 +26,14 @@ class TestRecordValidator(TestCase):
         range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
         self.assertEqual(5, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE))
         self.assertEqual(5, range_extractor.punch_range.length)
-        self.assertEqual(0, range_extractor.hard_pan_range.length)
+        self.assertIsNone(range_extractor.hard_pan_range)
 
     def test_get_cursor_of_spike_no_inverse_no_offset_with_invalid_value_on_right(self):
         data = [400, 350, 405, 301, 300, 232, 232, 232, 232, 232]
         range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
         self.assertEqual(0, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE))
         self.assertEqual(5, range_extractor.punch_range.length)
+        self.assertEqual(5, range_extractor.hard_pan_range.start_pos)
         self.assertEqual(5, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_reverse_no_offset(self):
@@ -39,6 +41,7 @@ class TestRecordValidator(TestCase):
         range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
         self.assertEqual(7, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE, reverse=True))
         self.assertEqual(4, range_extractor.punch_range.length)
+        self.assertEqual(8, range_extractor.hard_pan_range.start_pos)
         self.assertEqual(2, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_reverse_with_offset(self):
@@ -46,6 +49,7 @@ class TestRecordValidator(TestCase):
         range_extractor = RangeExtractor(pd.Series(data, index=FULL_RANGE_LABELS))
         self.assertEqual(2, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE))
         self.assertEqual(2, range_extractor.punch_range.length)
+        self.assertEqual(6, range_extractor.hard_pan_range.start_pos)
         self.assertEqual(3, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_reverse_with_offset(self):
@@ -53,6 +57,7 @@ class TestRecordValidator(TestCase):
         range_extractor = RangeExtractor(pd.Series(data, index=FULL_RANGE_LABELS))
         self.assertEqual(3, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE, reverse=True))
         self.assertEqual(2, range_extractor.punch_range.length)
+        self.assertEqual(6, range_extractor.hard_pan_range.start_pos)
         self.assertEqual(3, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_spike(self):
@@ -60,6 +65,7 @@ class TestRecordValidator(TestCase):
         range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
         self.assertEqual(None, range_extractor.find_spike_point_in_line(INVALID_DATA_VALUE))
         self.assertEqual(None, range_extractor.punch_range.length)
+        self.assertEqual(0, range_extractor.hard_pan_range.start_pos)
         self.assertEqual(10, range_extractor.hard_pan_range.length)
 
 

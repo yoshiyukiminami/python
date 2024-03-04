@@ -58,7 +58,8 @@ class RangeExtractor:
         self.punch_range = PunchRange(spike_point_start, spike_point_end)
 
         if not self.punch_range.is_both_none():
-            self.hard_pan_range = HardPanRange(self.punch_range.end_pos + 1, self.numeric_range.end_pos)
+            if self.punch_range.end_pos < self.numeric_range.end_pos:
+                self.hard_pan_range = HardPanRange(self.punch_range.end_pos + 1, self.numeric_range.end_pos)
         else:
             self.hard_pan_range = self.numeric_range
 
