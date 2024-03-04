@@ -20,6 +20,7 @@ class TestRecordValidator(TestCase):
                                                           range_extractor.numeric_range)
         self.assertEqual(1, result)
         self.assertEqual(4, range_extractor.punch_range.length)
+        self.assertEqual(5, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_reverse_no_offset_with_invalid_value_on_left(self):
         data = [232, 232, 232, 232, 232, 300, 301, 405, 350, 400]
@@ -28,6 +29,7 @@ class TestRecordValidator(TestCase):
                                                           range_extractor.numeric_range)
         self.assertEqual(5, result)
         self.assertEqual(5, range_extractor.punch_range.length)
+        self.assertEqual(0, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_inverse_no_offset_with_invalid_value_on_right(self):
         data = [400, 350, 405, 301, 300, 232, 232, 232, 232, 232]
@@ -36,6 +38,7 @@ class TestRecordValidator(TestCase):
                                                           range_extractor.numeric_range)
         self.assertEqual(0, result)
         self.assertEqual(5, range_extractor.punch_range.length)
+        self.assertEqual(5, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_reverse_no_offset(self):
         data = [232, 232, 232, 232, 300, 301, 405, 350, 232, 232]
@@ -44,6 +47,7 @@ class TestRecordValidator(TestCase):
                                                           range_extractor.numeric_range, reverse=True)
         self.assertEqual(7, result)
         self.assertEqual(4, range_extractor.punch_range.length)
+        self.assertEqual(2, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_reverse_with_offset(self):
         data = ['あの会社', '北海道', 232, 232, 301, 405, 232, 232, 232, np.nan]
@@ -53,6 +57,7 @@ class TestRecordValidator(TestCase):
                                                           range_extractor.numeric_range)
         self.assertEqual(2, result)
         self.assertEqual(2, range_extractor.punch_range.length)
+        self.assertEqual(3, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_reverse_with_offset(self):
         data = ['あの会社', '北海道', 232, 232, 301, 405, 232, 232, 232, np.nan]
@@ -63,6 +68,7 @@ class TestRecordValidator(TestCase):
                                                           reverse=True)
         self.assertEqual(3, result)
         self.assertEqual(2, range_extractor.punch_range.length)
+        self.assertEqual(3, range_extractor.hard_pan_range.length)
 
     def test_get_cursor_of_spike_no_spike(self):
         data = [232, 232, 232, 232, 232, 232, 232, 232, 232, 232]
@@ -71,6 +77,7 @@ class TestRecordValidator(TestCase):
                                                           range_extractor.numeric_range)
         self.assertEqual(None, result)
         self.assertEqual(None, range_extractor.punch_range.length)
+        self.assertEqual(10, range_extractor.hard_pan_range.length)
 
 
 class TestAverageFill(TestCase):

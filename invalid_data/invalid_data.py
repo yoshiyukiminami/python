@@ -48,10 +48,14 @@ class RangeExtractor:
     def extract_data_ranges(self):
         self.numeric_range = NumericRange(self.raw.index.get_loc('圧力[kPa]1cm'),
                                           self.raw.index.get_loc('圧力[kPa]60cm'))
-        self.punch_range = PunchRange(
-            self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, False),
-            self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, True)
-        )
+        intercept = self.raw.index.get_loc('圧力[kPa]1cm')
+        spike_point_start = self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, False)
+        spike_point_end = self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, True)
+        if spike_point_start is not None:
+            spike_point_start += intercept
+        if spike_point_end is not None:
+            spike_point_end += intercept
+        self.punch_range = PunchRange(spike_point_start, spike_point_end)
 
         if not self.punch_range.is_both_none():
             self.hard_pan_range = HardPanRange(self.punch_range.end_pos + 1, self.numeric_range.end_pos)
@@ -71,12 +75,12 @@ class RangeExtractor:
         line_slice = line[numeric_range.start_pos:numeric_range.end_pos + 1]
 
         if reverse:
-            line_slice = line_slice[::-1]  # Only reverse the slice if needed
+            line_slice = line_slice[::-1]
 
         exceeded_index = self.iterate_and_find_exceeded_threshold_in_line(line_slice, threshold)
 
         if reverse and exceeded_index is not None:
-            exceeded_index = len(line_slice) - exceeded_index - 1  # Adjust index if reversed
+            exceeded_index = len(line_slice) - exceeded_index - 1
 
         return exceeded_index
 
