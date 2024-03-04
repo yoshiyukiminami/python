@@ -6,56 +6,71 @@ import pandas as pd
 from invalid_data import average_fill, linear_fill, RangeExtractor
 
 INVALID_DATA_VALUE = 232
+NUMERIC_RANGE_LABELS = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
+                        '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
+FULL_RANGE_LABELS = ['取引先名', '住所', '圧力[kPa]1cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
+                     '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]60cm', '圧力[kPa]100cm']
 
 
 class TestRecordValidator(TestCase):
-    def test_get_cursor_of_spike_no_inverse_no_offset(self):
+    def test_get_cursor_of_spike_no_reverse_no_offset_with_invalid_value_on_both(self):
+        data = [232, 350, 405, 301, 300, 232, 232, 232, 232, 232]
+        range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw), INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range)
+        self.assertEqual(1, result)
+        self.assertEqual(4, range_extractor.punch_range.length)
+
+    def test_get_cursor_of_spike_no_reverse_no_offset_with_invalid_value_on_left(self):
         data = [232, 232, 232, 232, 232, 300, 301, 405, 350, 400]
-        labels = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
-                  '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
-        record_validator = RangeExtractor(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.raw), INVALID_DATA_VALUE,
-                                                           record_validator.numeric_range)
+        range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw), INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range)
         self.assertEqual(5, result)
+        self.assertEqual(5, range_extractor.punch_range.length)
 
-    def test_get_cursor_of_spike_inverse_no_offset(self):
+    def test_get_cursor_of_spike_no_inverse_no_offset_with_invalid_value_on_right(self):
+        data = [400, 350, 405, 301, 300, 232, 232, 232, 232, 232]
+        range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw), INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range)
+        self.assertEqual(0, result)
+        self.assertEqual(5, range_extractor.punch_range.length)
+
+    def test_get_cursor_of_spike_reverse_no_offset(self):
         data = [232, 232, 232, 232, 300, 301, 405, 350, 232, 232]
-        labels = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
-                  '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
-        record_validator = RangeExtractor(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.raw), INVALID_DATA_VALUE,
-                                                           record_validator.numeric_range, reverse=True)
+        range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw), INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range, reverse=True)
         self.assertEqual(7, result)
+        self.assertEqual(4, range_extractor.punch_range.length)
 
-    def test_get_cursor_of_spike_no_inverse_with_offset(self):
+    def test_get_cursor_of_spike_no_reverse_with_offset(self):
         data = ['あの会社', '北海道', 232, 232, 301, 405, 232, 232, 232, np.nan]
-        labels = ['取引先名', '住所', '圧力[kPa]1cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
-                  '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]60cm', '圧力[kPa]100cm']
-        record_validator = RangeExtractor(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.raw),
-                                                           INVALID_DATA_VALUE,
-                                                           record_validator.numeric_range)
+        range_extractor = RangeExtractor(pd.Series(data, index=FULL_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw),
+                                                          INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range)
         self.assertEqual(2, result)
+        self.assertEqual(2, range_extractor.punch_range.length)
 
-    def test_get_cursor_of_spike_inverse_with_offset(self):
+    def test_get_cursor_of_spike_reverse_with_offset(self):
         data = ['あの会社', '北海道', 232, 232, 301, 405, 232, 232, 232, np.nan]
-        labels = ['取引先名', '住所', '圧力[kPa]1cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
-                  '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]60cm', '圧力[kPa]100cm']
-        record_validator = RangeExtractor(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.raw),
-                                                           INVALID_DATA_VALUE,
-                                                           record_validator.numeric_range,
-                                                           reverse=True)
+        range_extractor = RangeExtractor(pd.Series(data, index=FULL_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw),
+                                                          INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range,
+                                                          reverse=True)
         self.assertEqual(3, result)
+        self.assertEqual(2, range_extractor.punch_range.length)
 
     def test_get_cursor_of_spike_no_spike(self):
         data = [232, 232, 232, 232, 232, 232, 232, 232, 232, 232]
-        labels = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
-                  '圧力[kPa]7cm', '圧力[kPa]8cm', '圧力[kPa]9cm', '圧力[kPa]60cm']
-        record_validator = RangeExtractor(pd.Series(data, index=labels))
-        result = record_validator.find_spike_point_in_line(list(record_validator.raw), INVALID_DATA_VALUE,
-                                                           record_validator.numeric_range)
+        range_extractor = RangeExtractor(pd.Series(data, index=NUMERIC_RANGE_LABELS))
+        result = range_extractor.find_spike_point_in_line(list(range_extractor.raw), INVALID_DATA_VALUE,
+                                                          range_extractor.numeric_range)
         self.assertEqual(None, result)
+        self.assertEqual(None, range_extractor.punch_range.length)
 
 
 class TestAverageFill(TestCase):
