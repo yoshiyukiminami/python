@@ -68,7 +68,7 @@ class RangeExtractor:
         :param reverse: このフラグがTrueならば逆順にデータを調査する
         :return: 閾値を超えた最初の位置
         """
-        line_slice = line[process_range.start_pos:process_range.end_pos]
+        line_slice = line[process_range.start_pos:process_range.end_pos + 1]
 
         if reverse:
             line_slice = line_slice[::-1]  # Only reverse the slice if needed
