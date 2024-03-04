@@ -7,19 +7,34 @@ INVALID_DATA_VALUE = 232
 
 
 class DataRange:
-    def __init__(self, start_pos, end_pos):
+    def __init__(self, start_pos: int, end_pos: int):
         self.start_pos = start_pos
         self.end_pos = end_pos
+        if self.is_both_not_none():
+            self.length = self.end_pos - self.start_pos + 1
+        else:
+            self.length = None
+
+    def is_both_none(self):
+        return self.start_pos is None and self.end_pos is None
+
+    def is_both_not_none(self):
+        return self.start_pos is not None and self.end_pos is not None
 
 
 class NumericRange(DataRange):
     def __str__(self):
-        return f"NumericRange(start={self.start_pos}, end={self.end_pos})"
+        return f"NumericRange(start={self.start_pos}, end={self.end_pos}, length={self.length})"
 
 
 class PunchRange(DataRange):
     def __str__(self):
-        return f"PunchRange(start={self.start_pos}, end={self.end_pos})"
+        return f"PunchRange(start={self.start_pos}, end={self.end_pos}, length={self.length})"
+
+
+class HardPanRange(DataRange):
+    def __str__(self):
+        return f"HardPanRange(start={self.start_pos}, end={self.end_pos}, length={self.length})"
 
 
 class RangeExtractor:
@@ -27,6 +42,7 @@ class RangeExtractor:
         self.raw = series
         self.numeric_range = None
         self.punch_range = None
+        self.hard_pan_range = None
         self.extract_data_ranges()
 
     def extract_data_ranges(self):
@@ -36,6 +52,11 @@ class RangeExtractor:
             self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, False),
             self.find_spike_point_in_line(list(self.raw), INVALID_DATA_VALUE, self.numeric_range, True)
         )
+
+        if not self.punch_range.is_both_none():
+            self.hard_pan_range = HardPanRange(self.punch_range.end_pos + 1, self.numeric_range.end_pos)
+        else:
+            self.hard_pan_range = self.numeric_range
 
     def find_spike_point_in_line(self, line: list, threshold: int, process_range: NumericRange,
                                  reverse: bool = False) -> int | None:
