@@ -171,23 +171,22 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     return line
 
 
-def manage_invalid_values_with_adjustment(series: pd.Series, range_extractor: RangeExtractor, output_records: list):
+def manage_invalid_values_with_adjustment(range_extractor: RangeExtractor, output_records: list):
     if range_extractor.punch_range.is_both_not_none():
         start_pos = range_extractor.numeric_range.start_pos + range_extractor.punch_range.start_pos
-        output_records.append(linear_fill(list(series), start_pos))
+        output_records.append(linear_fill(list(range_extractor.raw), start_pos))
     else:
-        output_records.append(list(series))  # このケースは「すべて232」のケース
+        output_records.append(list(range_extractor.raw))
 
 
-def manage_invalid_values_without_adjustment(i, series: pd.Series, range_extractor: RangeExtractor,
-                                             output_records: list):
-    if range_extractor.punch_range.start_pos == range_extractor.punch_range.end_pos is None:
+def manage_invalid_values_without_adjustment(i, range_extractor: RangeExtractor, output_records: list):
+    if range_extractor.punch_range.is_both_none():
         error_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"
         output_records.append([error_message])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
-    line = series[range_extractor.punch_range.start_pos:range_extractor.punch_range.end_pos + 1]
-    for col, cell in enumerate(line):
+    punch_range = range_extractor.raw.iloc[range_extractor.punch_range.start_pos:range_extractor.punch_range.end_pos + 1]
+    for col, cell in enumerate(punch_range):
         if cell == INVALID_DATA_VALUE:
             error_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています"
             output_records.append([error_message])
@@ -210,15 +209,15 @@ def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, output_dire
     for i, row in data.iterrows():
         range_extractor = RangeExtractor(row)
         if not apply_adjustment:
-            manage_invalid_values_without_adjustment(i, row, range_extractor, output_records)
+            manage_invalid_values_without_adjustment(i, range_extractor, output_records)
         else:
-            manage_invalid_values_with_adjustment(row, range_extractor, output_records)
+            manage_invalid_values_with_adjustment(range_extractor, output_records)
 
     return output_records
 
 
 if __name__ == "__main__":
-    data_sample_path = 'data_sample_error-disp-on.csv'
+    data_sample_path = 'input/キャロットFARM_soil_data-20240228.csv'
     save_path = 'output/processed_data.csv'
     df_csv = pd.read_csv(data_sample_path, encoding='shift-jis')
 
