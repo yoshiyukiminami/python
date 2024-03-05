@@ -104,10 +104,9 @@ class FillingIndexes:
         self.part2_of_mean = part2_of_mean
 
 
-def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
+def average_fill(line: list, start_position: int = 0) -> list:
     """
     :param line: 数値のリストで表現されたデータ行
-    :param threshold: 無効な値を決定するために使用する閾値
     :param start_position: 無効な値のチェックを開始する行の開始位置
     :return: 無効な値が周りの有効な値の平均で置き換えられ、修正された数値のリスト
 
@@ -120,24 +119,23 @@ def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
 
     Example usage:
         line = [1334, 232, 232, 1360]
-        threshold = 232
-        result = average_fill(line, threshold)
+        result = average_fill(line)
         print(result)  # Output: [1334, 1347.0, 1347.0, 1360]
     """
     if start_position is not None:
         idx = FillingIndexes()
         punch_in = False
         for col, value in enumerate(line[start_position::]):
-            if not punch_in and value == threshold:
+            if not punch_in and value == INVALID_DATA_VALUE:
                 idx.part1_of_mean = start_position + col - 1
                 idx.invalid_start = start_position + col
                 punch_in = True
-            if punch_in and value > threshold:
+            if punch_in and value > INVALID_DATA_VALUE:
                 idx.invalid_end = start_position + col - 1
                 idx.part2_of_mean = start_position + col
                 for j in range(idx.invalid_start, idx.invalid_end + 1):
                     line[j] = sum([line[idx.part1_of_mean], line[idx.part2_of_mean]]) / 2
-                line = average_fill(line, threshold, idx.part2_of_mean)
+                line = average_fill(line, idx.part2_of_mean)
                 break
 
     return line
@@ -146,6 +144,7 @@ def average_fill(line: list, threshold: int, start_position: int = 0) -> list:
 def linear_fill(line: list, start_position: int = 0) -> list:
     """
     指定された行にある欠損値を線形補間を使用して埋めます
+    欠損値: INVALID_DATA_VALUE
 
     :param line: 欠損値を埋める対象の行
     :param start_position: 欠損値の補間を開始する位置（再帰的に変わる）
@@ -155,11 +154,11 @@ def linear_fill(line: list, start_position: int = 0) -> list:
         idx = FillingIndexes()
         punch_in = False
         for col, value in enumerate(line[start_position::]):
-            if not punch_in and np.isnan(value):
+            if not punch_in and value == INVALID_DATA_VALUE:
                 idx.part1_of_mean = start_position + col - 1
                 idx.invalid_start = start_position + col
                 punch_in = True
-            if punch_in and not np.isnan(value):
+            if punch_in and value > INVALID_DATA_VALUE:
                 idx.invalid_end = start_position + col - 1
                 idx.part2_of_mean = start_position + col
                 how_many_times = idx.part2_of_mean - idx.part1_of_mean + 1
@@ -174,9 +173,8 @@ def linear_fill(line: list, start_position: int = 0) -> list:
 
 def manage_invalid_values_with_adjustment(series: pd.Series, range_extractor: RangeExtractor, output_records: list):
     if range_extractor.punch_range.is_both_not_none():
-        # TODO: ここはいまで average_fill を実行するので process.type みたいなので選択できるといいと思う
         start_pos = range_extractor.numeric_range.start_pos + range_extractor.punch_range.start_pos
-        output_records.append(average_fill(list(series), INVALID_DATA_VALUE, start_pos))
+        output_records.append(linear_fill(list(series), start_pos))
     else:
         output_records.append(list(series))  # このケースは「すべて232」のケース
 

@@ -76,7 +76,7 @@ class TestAverageFill(TestCase):
         """
         data = [1334, 232, 232, 1360]
         expected = [1334, 1347.0, 1347.0, 1360]
-        result = average_fill(data, INVALID_DATA_VALUE)
+        result = average_fill(data)
         self.assertEqual(expected, result)
 
     def test_average_fill_some_zone_232(self):
@@ -85,27 +85,27 @@ class TestAverageFill(TestCase):
         """
         data = [1334, 232, 232, 1360, 232, 232, 1400]
         expected = [1334, 1347.0, 1347.0, 1360, 1380.0, 1380.0, 1400]
-        result = average_fill(data, INVALID_DATA_VALUE)
+        result = average_fill(data)
         self.assertEqual(expected, result)
 
 
 class TestLinearFill(TestCase):
     def test_linear_fill_one_zone_nan(self):
         """
-        NaN値を含むゾーンが１つ存在するシナリオで、'linear_fill'関数をテストします
+        232値を含むゾーンが１つ存在するシナリオで、'linear_fill'関数をテストします
 
         :return: None
         """
-        data = [2, 10, np.nan, np.nan, np.nan, 5]
-        expected = [2, 10.0, 8.75, 7.5, 6.25, 5.0]
+        data = [1334, 232, 232, 1364]
+        expected = [1334.0, 1344.0, 1354.0, 1364.0]
         self.assertEqual(expected, linear_fill(data))
 
     def test_linear_fill_some_zone_nan(self):
         """
-        NaN値を含むゾーンが複数存在するシナリオで、'linear_fill'関数をテストします
+        232値を含むゾーンが複数存在するシナリオで、'linear_fill'関数をテストします
 
         :return: None
         """
-        data = [2, 10, np.nan, np.nan, np.nan, 5, np.nan, np.nan, 2]
-        expected = [2, 10.0, 8.75, 7.5, 6.25, 5.0, 4, 3, 2]
+        data = [1334, 232, 232, 1364, 232, 232, 1406]
+        expected = [1334.0, 1344.0, 1354.0, 1364.0, 1378.0, 1392.0, 1406.0]
         self.assertEqual(expected, linear_fill(data))
