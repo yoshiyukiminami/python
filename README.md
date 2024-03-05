@@ -26,8 +26,10 @@ pip freeze > requirements.txt
 ## dojyokoudo
 ## graph
 ## invalid data
-## okada
+- `キャロットFARM_soil_data-20240228.csv` のようなデータをもらってください
+- `soil_data_エラー232検証用.xlsx` は 232 に色をつけて検証するためのファイルです（条件書式つき）
 サンプルコード提供などに使っています
+- `input` フォルダに `キャロットFARM_soil_data-20240228.csv` をおいて `invalid_data/invalid_data.py` の読み取りパスを変えて実行
 ## pandas histgram
 ## resize
 圃場で撮った写真をまとめてリサイズします
