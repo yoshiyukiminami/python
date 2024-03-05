@@ -171,21 +171,24 @@ def linear_fill(line: list, start_position: int = 0) -> list:
     return line
 
 
-def manage_invalid_values_with_adjustment(range_extractor: RangeExtractor, output_records: list):
-    if range_extractor.punch_range.is_both_not_none():
-        start_pos = range_extractor.numeric_range.start_pos + range_extractor.punch_range.start_pos
-        output_records.append(linear_fill(list(range_extractor.raw), start_pos))
+def manage_invalid_values_with_adjustment(r: RangeExtractor, output_records: list):
+    # TODO: 南さんからもらう最新のcsvで処理して最後の列に追加する
+    #  硬盤有無: 硬盤があるか？の 0 1 列
+    #  硬盤深度: 何センチ？の情報（50センチ未満で232が発生したら、が基準だがユーザー入力できるように）
+    if r.punch_range.is_both_not_none():
+        start_pos = r.numeric_range.start_pos + r.punch_range.start_pos
+        output_records.append(linear_fill(list(r.raw), start_pos))
     else:
-        output_records.append(list(range_extractor.raw))
+        output_records.append(list(r.raw))
 
 
-def manage_invalid_values_without_adjustment(i, range_extractor: RangeExtractor, output_records: list):
-    if range_extractor.punch_range.is_both_none():
+def manage_invalid_values_without_adjustment(i, r: RangeExtractor, output_records: list):
+    if r.punch_range.is_both_none():
         error_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください"
         output_records.append([error_message])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
-    punch_range = range_extractor.raw.iloc[range_extractor.punch_range.start_pos:range_extractor.punch_range.end_pos + 1]
+    punch_range = r.raw.iloc[r.punch_range.start_pos:r.punch_range.end_pos + 1]
     for col, cell in enumerate(punch_range):
         if cell == INVALID_DATA_VALUE:
             error_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています"
