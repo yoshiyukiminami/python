@@ -191,7 +191,7 @@ def interpolation_linear(line: list, idx: FillingIndexes) -> list:
 def manage_invalid_values_with_adjustment(r: RangeExtractor, output_records: list):
     # TODO: 南さんからもらう最新のcsvで処理して最後の列に追加する
     #  硬盤有無: 硬盤があるか？の 0 1 列
-    #  硬盤深度: 何センチ？の情報（50センチ未満で232が発生したら、が基準だがユーザー入力できるように）
+    #  硬盤深度: 何センチ？の情報
     if r.punch_range.is_both_not_none():
         output_records.append(fill(list(r.raw), r.punch_range.start_pos, interpolation_linear))
     else:
@@ -199,15 +199,16 @@ def manage_invalid_values_with_adjustment(r: RangeExtractor, output_records: lis
 
 
 def manage_invalid_values_without_adjustment(i, r: RangeExtractor, output_records: list):
+    hard_pan_cm = r.raw.index[r.hard_pan_range.start_pos]
     if r.punch_range.is_both_none():
-        error_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。確認してください({r.is_hard_pan()})"
+        error_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。({r.is_hard_pan()}, {hard_pan_cm})"
         output_records.append([error_message])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
     punch_range = r.raw.iloc[r.punch_range.start_pos:r.punch_range.end_pos + 1]
     for col, cell in enumerate(punch_range):
         if cell == INVALID_DATA_VALUE:
-            error_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています({r.is_hard_pan()})"
+            error_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています({r.is_hard_pan()}, {hard_pan_cm})"
             output_records.append([error_message])
             break
 
