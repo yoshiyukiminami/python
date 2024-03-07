@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 
-from invalid_data import average_fill, linear_fill, RangeExtractor, HardPanCursor
+from invalid_data import RangeExtractor, HardPanCursor, fill, interpolation_linear, interpolation_average
 
 INVALID_DATA_VALUE = 232
 NUMERIC_RANGE_LABELS = ['圧力[kPa]1cm', '圧力[kPa]2cm', '圧力[kPa]3cm', '圧力[kPa]4cm', '圧力[kPa]5cm', '圧力[kPa]6cm',
@@ -100,7 +100,7 @@ class TestAverageFill(TestCase):
         """
         data = [1334, 232, 232, 1360]
         expected = [1334, 1347.0, 1347.0, 1360]
-        result = average_fill(data)
+        result = fill(data, 0, interpolation_average)
         self.assertEqual(expected, result)
 
     def test_average_fill_some_zone_232(self):
@@ -109,7 +109,7 @@ class TestAverageFill(TestCase):
         """
         data = [1334, 232, 232, 1360, 232, 232, 1400]
         expected = [1334, 1347.0, 1347.0, 1360, 1380.0, 1380.0, 1400]
-        result = average_fill(data)
+        result = fill(data, 0, interpolation_average)
         self.assertEqual(expected, result)
 
 
@@ -122,7 +122,7 @@ class TestLinearFill(TestCase):
         """
         data = [1334, 232, 232, 1364]
         expected = [1334.0, 1344.0, 1354.0, 1364.0]
-        self.assertEqual(expected, linear_fill(data))
+        self.assertEqual(expected, fill(data, 0, interpolation_linear))
 
     def test_linear_fill_some_zone_nan(self):
         """
@@ -132,7 +132,7 @@ class TestLinearFill(TestCase):
         """
         data = [1334, 232, 232, 1364, 232, 232, 1406]
         expected = [1334.0, 1344.0, 1354.0, 1364.0, 1378.0, 1392.0, 1406.0]
-        self.assertEqual(expected, linear_fill(data))
+        self.assertEqual(expected, fill(data, 0, interpolation_linear))
 
 
 class TestHardPanCursor(TestCase):
