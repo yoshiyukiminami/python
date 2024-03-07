@@ -1,4 +1,5 @@
 import os
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -125,14 +126,14 @@ class FillingIndexes:
                 f"self.invalid_end: {self.invalid_end}, part2_of_mean: {self.part2_of_mean}")
 
 
-def average_fill(line: list, recur_start_position: int) -> list:
+def fill(line: list[int], recur_start_position: int, func: Callable) -> list:
     """
-    与えられた範囲を繰り返し、無効な値を平均に補間された値で置き換えます
-    欠損値: INVALID_DATA_VALUE
+    線内の欠損値を補間を用いて埋めます
 
-    :param line:
-    :param recur_start_position:
-    :return: 平均に埋められた値を表すリスト
+    :param line: 線データを表す整数値のリスト
+    :param recur_start_position: 再帰的な塗りつぶしに対するライン内の開始位置
+    :param func: 線上で補間を行う関数
+    :return: 補間を使用して欠損値を埋めた新しいリスト
     """
     idx = FillingIndexes()
     punch_in = False
@@ -144,40 +145,46 @@ def average_fill(line: list, recur_start_position: int) -> list:
         if punch_in and value > INVALID_DATA_VALUE:
             idx.invalid_end = recur_start_position + col - 1
             idx.part2_of_mean = recur_start_position + col
-            for j in range(idx.invalid_start, idx.invalid_end + 1):
-                line[j] = sum([line[idx.part1_of_mean], line[idx.part2_of_mean]]) / 2
-            line = average_fill(line, idx.part2_of_mean)
+            line = fill(func(line, idx), idx.part2_of_mean, func)
             break
-
     return line
 
 
-def linear_fill(line: list, recur_start_position: int) -> list:
+def interpolation_average(line: list, idx: FillingIndexes) -> list:
     """
-    与えられた範囲を繰り返し、無効な値を線形に補間された値で置き換えます
-    欠損値: INVALID_DATA_VALUE
+    与えられたlistに対する補間平均を計算します
 
-    :param line:
-    :param recur_start_position:
-    :return: 線形に埋められた値を表すリスト
+    :param line: 補間されるべき値のリスト
+    :param idx: 無効なセクションの開始と終了のインデックス、および平均値の2部分のインデックスを含むオブジェクト
+    :return: 補間されたあとの line
+
+    Example usage:
+     line = [1, 2, 3, 4, 5]
+     idx = FillingIndexes()
+     idx.part1_of_mean = 0
+     idx.invalid_start = 1
+     idx.invalid_end = 3
+     idx.part2_of_mean = 4
+     interpolation_average(line, idx)
+       [1, 2.5, 2.5, 2.5, 5]
     """
-    idx = FillingIndexes()
-    punch_in = False
-    for col, value in enumerate(line[recur_start_position::]):
-        if not punch_in and value == INVALID_DATA_VALUE:
-            idx.part1_of_mean = recur_start_position + col - 1
-            idx.invalid_start = recur_start_position + col
-            punch_in = True
-        if punch_in and value > INVALID_DATA_VALUE:
-            idx.invalid_end = recur_start_position + col - 1
-            idx.part2_of_mean = recur_start_position + col
-            how_many_times = idx.part2_of_mean - idx.part1_of_mean + 1
-            tolerance = np.linspace(line[idx.part1_of_mean], line[idx.part2_of_mean], how_many_times)
-            for i, n_value in enumerate(tolerance):
-                line[idx.part1_of_mean + i] = n_value
-            line = linear_fill(line, idx.part2_of_mean)
-            break
+    for j in range(idx.invalid_start, idx.invalid_end + 1):
+        line[j] = sum([line[idx.part1_of_mean], line[idx.part2_of_mean]]) / 2
+    return line
 
+
+def interpolation_linear(line: list, idx: FillingIndexes) -> list:
+    """
+    与えられたlistに対する線形補間を計算します
+
+    :param line: 補間されるべき値のリスト
+    :param idx: 補間されるべき値のインデックスを含むFillingIndexesクラスのオブジェクト
+    :return: 補間されたあとの line
+    """
+    how_many_times = idx.part2_of_mean - idx.part1_of_mean + 1
+    tolerance = np.linspace(line[idx.part1_of_mean], line[idx.part2_of_mean], how_many_times)
+    for i, n_value in enumerate(tolerance):
+        line[idx.part1_of_mean + i] = n_value
     return line
 
 
@@ -186,7 +193,7 @@ def manage_invalid_values_with_adjustment(r: RangeExtractor, output_records: lis
     #  硬盤有無: 硬盤があるか？の 0 1 列
     #  硬盤深度: 何センチ？の情報（50センチ未満で232が発生したら、が基準だがユーザー入力できるように）
     if r.punch_range.is_both_not_none():
-        output_records.append(linear_fill(list(r.raw), r.punch_range.start_pos))
+        output_records.append(fill(list(r.raw), r.punch_range.start_pos, interpolation_linear))
     else:
         output_records.append(list(r.raw))
 
