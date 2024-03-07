@@ -172,7 +172,6 @@ def linear_fill(line: list, recur_start_position: int) -> list:
             idx.invalid_end = recur_start_position + col - 1
             idx.part2_of_mean = recur_start_position + col
             how_many_times = idx.part2_of_mean - idx.part1_of_mean + 1
-            print(f'{line[0]}｜col: {col}, {idx}')
             tolerance = np.linspace(line[idx.part1_of_mean], line[idx.part2_of_mean], how_many_times)
             for i, n_value in enumerate(tolerance):
                 line[idx.part1_of_mean + i] = n_value
