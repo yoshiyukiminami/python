@@ -187,7 +187,7 @@ def manage_invalid_values_with_adjustment(r: RangeExtractor, output_records: lis
     #  硬盤有無: 硬盤があるか？の 0 1 列
     #  硬盤深度: 何センチ？の情報（50センチ未満で232が発生したら、が基準だがユーザー入力できるように）
     if r.punch_range.is_both_not_none():
-        output_records.append(linear_fill(list(r.raw), r.numeric_range.start_pos))
+        output_records.append(linear_fill(list(r.raw), r.punch_range.start_pos))
     else:
         output_records.append(list(r.raw))
 
