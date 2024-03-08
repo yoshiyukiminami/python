@@ -189,26 +189,29 @@ def interpolation_linear(line: list, idx: FillingIndexes) -> list:
 
 
 def manage_invalid_values_with_adjustment(r: RangeExtractor, output_records: list):
-    # TODO: 南さんからもらう最新のcsvで処理して最後の列に追加する
-    #  硬盤有無: 硬盤があるか？の 0 1 列
-    #  硬盤深度: 何センチ？の情報
     if r.punch_range.is_both_not_none():
-        output_records.append(fill(list(r.raw), r.punch_range.start_pos, interpolation_linear))
+        output_record = fill(list(r.raw), r.punch_range.start_pos, interpolation_linear)
     else:
-        output_records.append(list(r.raw))
+        output_record = list(r.raw)
+
+    hard_pan_cm = r.raw.index[r.hard_pan_range.start_pos]
+    output_record.extend([int(r.is_hard_pan()), hard_pan_cm])
+    output_records.append(output_record)
 
 
 def manage_invalid_values_without_adjustment(i, r: RangeExtractor, output_records: list):
     hard_pan_cm = r.raw.index[r.hard_pan_range.start_pos]
     if r.punch_range.is_both_none():
-        error_message = f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで構成されています。({r.is_hard_pan()}, {hard_pan_cm})"
+        error_message = (f"{i + 1}行目のデータは無効なデータ値 {INVALID_DATA_VALUE} のみで"
+                         f"構成されています。({int(r.is_hard_pan())}, {hard_pan_cm})")
         output_records.append([error_message])
         return
     # 両端の INVALID_DATA_VALUE を除外したスライスデータにします
     punch_range = r.raw.iloc[r.punch_range.start_pos:r.punch_range.end_pos + 1]
     for col, cell in enumerate(punch_range):
         if cell == INVALID_DATA_VALUE:
-            error_message = f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が含まれています({r.is_hard_pan()}, {hard_pan_cm})"
+            error_message = (f"{i + 1}行目のデータには無効なデータ値 {INVALID_DATA_VALUE} が"
+                             f"含まれています({int(r.is_hard_pan())}, {hard_pan_cm})")
             output_records.append([error_message])
             break
 
@@ -227,7 +230,7 @@ def find_invalid_records(data: pd.DataFrame, apply_adjustment: bool, hard_pan_cu
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    output_records = [] if not apply_adjustment else [list(data.columns)]
+    output_records = [] if not apply_adjustment else [data.columns.tolist() + ['硬盤有無', '硬盤深度']]
     for i, row in data.iterrows():
         range_extractor = RangeExtractor(row, hard_pan_cursor)
         if not apply_adjustment:
